@@ -27,6 +27,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
         <data android:scheme="com.anonymous.PhotoRoulette"/>
+        <data android:scheme="exp+photoroulette"/>
       </intent-filter>
     </activity>
   </application>

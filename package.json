@@ -47,7 +47,8 @@
     "react-native-swiper": "^1.6.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
-    "twrnc": "^4.6.1"
+    "twrnc": "^4.6.1",
+    "expo-dev-client": "~5.0.12"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
