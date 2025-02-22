@@ -4,11 +4,10 @@ import tw from "twrnc";
 import { useNavigation } from "expo-router";
 import { usePhotoContext } from "@/app/providers/PhotoContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import InitialScreen from "@/app/components/InitialScreen";
+import InitialScreen from "@/app/InitialScreen";
 
 const Index = () => {
   const navigation = useNavigation<any>();
-  const { requestGalleryPermission } = usePhotoContext();
   const [isLoading, setIsLoading] = useState(true);
   const [hasSeenInitialScreen, setHasSeenInitialScreen] = useState(false);
 
@@ -18,15 +17,8 @@ const Index = () => {
       setHasSeenInitialScreen(value === "true");
       setIsLoading(false);
     };
-
     checkInitialScreen();
   }, []);
-
-  const handleContinue = async () => {
-    await AsyncStorage.setItem("hasSeenInitialScreen", "true");
-    setHasSeenInitialScreen(true);
-    requestGalleryPermission({ askAgain: true });
-  };
 
   if (isLoading) {
     return (
@@ -37,7 +29,7 @@ const Index = () => {
   }
 
   if (!hasSeenInitialScreen) {
-    return <InitialScreen onContinue={handleContinue} />;
+    return <InitialScreen />;
   }
 
   return (
