@@ -131,7 +131,6 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
       }
     } else {
       console.log("No photos found.");
-      alert("No photos found.");
     }
   };
 
