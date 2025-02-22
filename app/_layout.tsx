@@ -1,16 +1,16 @@
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import "react-native-reanimated";
+import { PhotoProvider } from "@/app/providers/PhotoContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
@@ -24,8 +24,12 @@ export default function RootLayout() {
   }
 
   return (
+    <PhotoProvider>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="OwnPhotos" options={{ headerShown: false }} />
+        <Stack.Screen name="Online" options={{ headerShown: false }} />
       </Stack>
+    </PhotoProvider>
   );
 }
