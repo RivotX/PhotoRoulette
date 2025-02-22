@@ -112,7 +112,7 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
     if (allAssets.length > 0) {
       const randomIndex = Math.floor(Math.random() * allAssets.length);
       const selectedUri = allAssets[randomIndex].uri;
-      console.log(`Selected random photo URI: ${selectedUri}`);
+      console.log(`Selected random number ${randomIndex} photo URI: ${selectedUri}`);
       setPhotoUri(selectedUri);
 
       const result = await ImageColors.getColors(selectedUri, {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Image, TouchableOpacity, StatusBar, SafeAreaView, Alert, Linking } from "react-native";
+import { View, Image, TouchableOpacity, StatusBar, SafeAreaView } from "react-native";
 import { BlurView } from "@react-native-community/blur";
 import * as Animatable from "react-native-animatable";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -22,6 +22,10 @@ const OwnPhotos = () => {
     };
 
     checkPermissions();
+
+    return () => {
+      setPhotoUri(null); // Reset photoUri to null when the screen unmounts
+    };
   }, []);
 
   const handlePress = () => {
