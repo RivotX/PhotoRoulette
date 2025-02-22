@@ -8,6 +8,7 @@ import InitialScreen from "@/app/InitialScreen";
 
 const Index = () => {
   const navigation = useNavigation<any>();
+  const { loadPhotos } = usePhotoContext();
   const [isLoading, setIsLoading] = useState(true);
   const [hasSeenInitialScreen, setHasSeenInitialScreen] = useState(false);
 
@@ -18,6 +19,13 @@ const Index = () => {
       setIsLoading(false);
     };
     checkInitialScreen();
+  }, []);
+
+  useEffect(() => {
+    const loadInitialPhotos = async () => {
+      await loadPhotos();
+    };
+    loadInitialPhotos();
   }, []);
 
   if (isLoading) {

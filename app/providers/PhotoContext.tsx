@@ -9,6 +9,7 @@ interface PhotoContextProps {
   colors: string[];
   requestGalleryPermission: (options: { askAgain: boolean }) => Promise<boolean>;
   getRandomPhoto: () => Promise<void>;
+  loadPhotos: () => Promise<void>;
   setPhotoUri: React.Dispatch<React.SetStateAction<string | null>>;
   handleContinue: () => Promise<void>;
 }
@@ -135,7 +136,7 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
   };
 
   return (
-    <PhotoContext.Provider value={{ photoUri, colors, requestGalleryPermission, getRandomPhoto, setPhotoUri, handleContinue }}>
+    <PhotoContext.Provider value={{ photoUri, colors, requestGalleryPermission, getRandomPhoto, loadPhotos, setPhotoUri, handleContinue }}>
       {children}
     </PhotoContext.Provider>
   );
