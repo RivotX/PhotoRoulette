@@ -1,4 +1,4 @@
-import { io } from "../app.ts";
+import { io } from "../app";
 
 console.log("Socket routes initialized");
 

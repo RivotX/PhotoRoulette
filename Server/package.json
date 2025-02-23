@@ -2,9 +2,8 @@
   "name": "your-project-name",
   "version": "1.0.0",
   "main": "server.ts",
-  "type": "module",
   "scripts": {
-    "start": "node server.ts"
+    "start": "ts-node server.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -19,6 +18,8 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "@types/express-session": "^1.18.1",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2"
   }
 }
