@@ -27,7 +27,7 @@ export default function RootLayout() {
     <PhotoProvider>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="OwnPhotos" options={{ headerShown: false }} />
+        <Stack.Screen name="OwnPhotos" options={{ headerShown: false, animation:"fade"}} />
         <Stack.Screen name="Online" options={{ headerShown: false }} />
         <Stack.Screen name="InitialScreen" options={{ headerShown: false }} />
         <Stack.Screen name="SettingsInstructionsScreen" options={{ headerShown: false }} />

@@ -15,7 +15,6 @@ const Online: React.FC<OnlineProps> = ({}) => {
   const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
 
   useEffect(() => {
-
     console.log("Conectando al servidor...");
     // Crea la conexión al servidor
     // Asegúrate de que la URL sea la correcta (por ejemplo, si tu server corre en localhost:3000):

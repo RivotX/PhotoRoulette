@@ -1,27 +1,26 @@
 import session from "express-session";
 import cors from "cors";
 import express from "express";
-import { Server} from "socket.io";
+import { Server } from "socket.io";
 import { createServer } from "http";
 
 // import userRoutes from "./routes/userRoutes.js";
 
-
 const app = express();
 app.use(
   // ====================Configuración de la sesión EN EL DEPLOY=============
-    // session({
-    //   secret: "ÑLKJHGFDSAMNBVCXZPOIUYTREWQ",
-    //   resave: true,
-    //   saveUninitialized: true,
-    //   proxy: true,
-    //   cookie: {
-    //     maxAge: 1000 * 60 * 60 * 24 * 1000, // 1 día en milisegundos
-    //     httpOnly: true,
-    //     secure: true, // Establece a true si estás usando HTTPS
-    //     sameSite: "none",
-    //   },
-    // })
+  // session({
+  //   secret: "ÑLKJHGFDSAMNBVCXZPOIUYTREWQ",
+  //   resave: true,
+  //   saveUninitialized: true,
+  //   proxy: true,
+  //   cookie: {
+  //     maxAge: 1000 * 60 * 60 * 24 * 1000, // 1 día en milisegundos
+  //     httpOnly: true,
+  //     secure: true, // Establece a true si estás usando HTTPS
+  //     sameSite: "none",
+  //   },
+  // })
   //   ================Configuración de la sesión EN LOCALHOST=================
   session({
     secret: "secreto",
@@ -61,7 +60,4 @@ const io = new Server(server, {
   },
 });
 
-
-
-
-export {server, io};
+export { server, io };
