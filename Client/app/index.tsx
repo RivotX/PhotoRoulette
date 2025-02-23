@@ -11,6 +11,7 @@ const Index = () => {
   const { loadPhotos } = usePhotoContext();
   const [isLoading, setIsLoading] = useState(true);
   const [hasSeenInitialScreen, setHasSeenInitialScreen] = useState(false);
+  const [gameCode, setGameCode] = useState("");
 
   useEffect(() => {
     const checkInitialScreen = async () => {
@@ -27,6 +28,10 @@ const Index = () => {
     };
     loadInitialPhotos();
   }, []);
+
+  useEffect(() => {
+    console.log("gameCode:", gameCode);
+  }, [gameCode]);
 
   if (isLoading) {
     return (
@@ -46,11 +51,12 @@ const Index = () => {
       <TextInput
         style={tw`border p-2 mb-4 w-3/4`}
         placeholder="Enter game code"
+        onChange={(e) => setGameCode(e.nativeEvent.text)}
       />
       <TouchableOpacity style={tw`bg-blue-500 p-4 rounded-full mb-4`} onPress={() => navigation.navigate("Online")}>
         <Text style={tw`text-white`}>Create Game</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={tw`bg-blue-500 p-4 rounded-full mb-4`} onPress={() => navigation.navigate("Online")}>
+      <TouchableOpacity style={tw`bg-blue-500 p-4 rounded-full mb-4`} onPress={() => navigation.navigate("Online",{gameCode: gameCode})}>
         <Text style={tw`text-white`}>Join Game</Text>
       </TouchableOpacity>
       <TouchableOpacity style={tw`bg-blue-500 p-4 rounded-full bottom-10 absolute`} onPress={() => navigation.navigate("OwnPhotos")}>
