@@ -12,28 +12,30 @@ interface JoinProps {
 
 const Join: React.FC<JoinProps> = ({}) => {
   const navigation = useNavigation<any>();
-
-  const route = useRoute();
-  const { gameCode } = (route.params || "") as JoinProps;
+  const {startSocket} = useGameContext();
+  const {endSocket} = useGameContext();
+  const { gameCode } = useGameContext();
   const { socket } = useGameContext();
+  const { username } = useGameContext();
+
+  
+  useEffect(() => {
+    startSocket();
+  }, []);
 
   useEffect(() => {
-    console.log("socket", socket);
-console.log("gameCode", gameCode);
-    if (socket) {
-      console.log("socket existe", socket);
-      socket.emit("join-create-game", {gameCode, username: "test"});
+    if (socket && username) {
+      console.log("uniendose a ", gameCode);
+      socket.emit("join-create-game", { gameCode, username });
 
-      socket.on("game-joined", (data) => {
-        console.log("game-joined:", data);
+      socket.on("room-of-game", (data) => {
+        console.log("room data", data);
       });
     }
   }, [socket]);
 
   const handleLeaveGame = () => {
-    if (socket) {
-      socket.emit("leave-game", gameCode);
-    }
+    endSocket();
     navigation.navigate("index");
   };
 
@@ -44,7 +46,6 @@ console.log("gameCode", gameCode);
         <Text style={tw`text-white`}>Leave Game</Text>
       </TouchableOpacity>
     </View>
-
   );
 };
 

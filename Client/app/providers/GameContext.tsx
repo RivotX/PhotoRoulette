@@ -6,9 +6,23 @@ const { SERVER_URL } = getEnvVars();
 
 interface GameContextProps {
   socket: Socket<DefaultEventsMap, DefaultEventsMap> | null;
+  gameCode: string | null;
+  username: string | null;
+  setGameCode: (code: string | null) => void;
+  setUsername: (name: string | null) => void;
+  startSocket: () => void;
+  endSocket: () => void;
 }
 
-const GameContext = createContext<GameContextProps>({ socket: null });
+const GameContext = createContext<GameContextProps>({
+  socket: null,
+  gameCode: null,
+  username: null,
+  setGameCode: () => {},
+  setUsername: () => {},
+  startSocket: () => {},
+  endSocket: () => {},
+});
 
 export const useGameContext = () => useContext(GameContext);
 
@@ -18,8 +32,10 @@ interface GameProviderProps {
 
 export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
+  const [gameCode, setGameCode] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
-  useEffect(() => {
+  const startSocket = () => {
     console.log("Conectando al servidor...");
     const newSocket = io(SERVER_URL, {
       transports: ["websocket"],
@@ -43,13 +59,16 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  };
 
-  return (
-    <GameContext.Provider value={{ socket }}>
-      {children}
-    </GameContext.Provider>
-  );
+  const endSocket = () => {
+    if (socket) {
+      socket.disconnect();
+      setSocket(null);
+    }
+  };
+
+  return <GameContext.Provider value={{ socket, gameCode, username, setGameCode, setUsername, startSocket, endSocket }}>{children}</GameContext.Provider>;
 };
 
 export default GameProvider;
