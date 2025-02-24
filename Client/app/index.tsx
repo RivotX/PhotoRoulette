@@ -54,14 +54,14 @@ const Index = () => {
       />
 
       {/* Botón para crear un juego */}
-      <TouchableOpacity style={tw`bg-blue-500 p-4 rounded-full mb-4`} onPress={() => navigation.navigate("Online")}>
+      <TouchableOpacity style={tw`bg-blue-500 p-4 rounded-full mb-4`} onPress={() => navigation.navigate("Join")}>
         <Text style={tw`text-white`}>Create Game</Text>
       </TouchableOpacity>
 
       {/* Botón para unirse a un juego existente */}
       <TouchableOpacity
         style={tw`bg-blue-500 p-4 rounded-full mb-4`}
-        onPress={() => navigation.navigate("Online", { gameCode: gameCode })}
+        onPress={() => navigation.navigate("Join", { gameCode: gameCode })}
       >
         <Text style={tw`text-white`}>Join Game</Text>
       </TouchableOpacity>

@@ -2,19 +2,19 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
-interface SocketContextProps {
+interface GameContextProps {
   socket: Socket<DefaultEventsMap, DefaultEventsMap> | null;
 }
 
-const SocketContext = createContext<SocketContextProps>({ socket: null });
+const GameContext = createContext<GameContextProps>({ socket: null });
 
-export const useSocketContext = () => useContext(SocketContext);
+export const useGameContext = () => useContext(GameContext);
 
-interface SocketProviderProps {
+interface GameProviderProps {
   children: ReactNode;
 }
 
-export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
+export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
 
   useEffect(() => {
@@ -44,8 +44,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket }}>
+    <GameContext.Provider value={{ socket }}>
       {children}
-    </SocketContext.Provider>
+    </GameContext.Provider>
   );
 };
+
+export default GameProvider;
