@@ -1,6 +1,8 @@
+import getEnvVars from "@/config";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
+const { SERVER_URL } = getEnvVars();
 
 interface GameContextProps {
   socket: Socket<DefaultEventsMap, DefaultEventsMap> | null;
@@ -19,7 +21,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
 
   useEffect(() => {
     console.log("Conectando al servidor...");
-    const newSocket = io("http://ipv4:3000", {
+    const newSocket = io(SERVER_URL, {
       transports: ["websocket"],
       reconnectionAttempts: 3,
       reconnectionDelay: 1000,
