@@ -20,7 +20,7 @@ const SearchRoom = () => {
       <TouchableOpacity
         style={tw`bg-blue-500 p-4 rounded-full mb-4`}
         disabled={!gameCode}
-        onPress={() => navigation.navigate("Game")}
+        onPress={() => navigation.navigate("WaitingRoom")}
       >
         <Text style={tw`text-white`}>Search Room</Text>
       </TouchableOpacity>

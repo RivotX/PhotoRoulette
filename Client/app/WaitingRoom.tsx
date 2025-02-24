@@ -6,7 +6,7 @@ import { useNavigation } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import { JoinProps, RoomOfGameResponse } from "@/app/models/interfaces";
 
-const Game: React.FC<JoinProps> = ({}) => {
+const WaitingRoom: React.FC<JoinProps> = ({}) => {
   const navigation = useNavigation<any>();
   const { startSocket, endSocket, gameCode, socket, username } = useGameContext();
 
@@ -38,12 +38,12 @@ const Game: React.FC<JoinProps> = ({}) => {
 
   return (
     <View style={tw`flex-1 justify-center items-center`}>
-      <Text style={tw`text-2xl font-bold`}>Game Screen</Text>
+      <Text style={tw`text-2xl font-bold`}>WaitingRoom Screen</Text>
       <TouchableOpacity style={tw`bg-red-500 p-4 rounded-full mt-4`} onPress={handleLeaveGame}>
-        <Text style={tw`text-white`}>Leave Game</Text>
+        <Text style={tw`text-white`}>Leave WaitingRoom</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-export default Game;
+export default WaitingRoom;

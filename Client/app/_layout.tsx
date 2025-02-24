@@ -30,7 +30,7 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="OwnPhotos" options={{ headerShown: false, animation: "fade" }} />
-          <Stack.Screen name="Game" options={{ headerShown: false }} />
+          <Stack.Screen name="WaitingRoom" options={{ headerShown: false }} />
           <Stack.Screen name="InitialScreen" options={{ headerShown: false }} />
           <Stack.Screen name="SettingsInstructionsScreen" options={{ headerShown: false }} />
           <Stack.Screen name="SearchRoom" options={{ headerShown: false }} />
