@@ -1,6 +1,7 @@
 export interface Player {
   username: string;
   socketId: string;
+  isHost: boolean;
 }
 
 export interface Room {

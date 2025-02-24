@@ -3,6 +3,7 @@ import { Socket } from "socket.io-client";
 export interface Player {
   username: string;
   socketId: string;
+  isHost: boolean;
 }
 
 export interface Room {

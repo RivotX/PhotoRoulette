@@ -19,9 +19,11 @@ io.on("connection", (socket: Socket) => {
       const room = rooms.find(room => room.gameCode === gameCode);
       if (room) {
         socket.join(gameCode);
-        room.players.push({ username, socketId: socket.id });
+        const newPlayer: Player = { username, socketId: socket.id, isHost: false };
+        room.players.push(newPlayer);
         const response: RoomOfGameResponse = { success: true, room };
         socket.emit("room-of-game", response);
+        socket.broadcast.to(gameCode).emit("player-joined", newPlayer);
         console.log("Player joined room: " + gameCode);
         socket.data.gameCode = gameCode;
         socket.data.username = username;
@@ -32,7 +34,7 @@ io.on("connection", (socket: Socket) => {
       }
     } else {
       const codeGame = generateRoomId(rooms);
-      const newRoom: Room = { gameCode: codeGame, players: [{ username, socketId: socket.id }] };
+      const newRoom: Room = { gameCode: codeGame, players: [{ username, socketId: socket.id, isHost: true }] };
       rooms.push(newRoom);
       socket.join(codeGame);
       console.log("Player created room: " + codeGame);
@@ -53,6 +55,8 @@ io.on("connection", (socket: Socket) => {
       if (room.players.length === 0) {
         rooms.splice(rooms.indexOf(room), 1);
         console.log("Room deleted: " + gameCode);
+      } else {
+        socket.broadcast.to(gameCode).emit("player-left", username);
       }
     }
   });
