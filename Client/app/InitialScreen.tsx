@@ -1,17 +1,16 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity, Image, Dimensions, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 import AudioPermissionIMG from "@/assets/images/audioPermissionIMG.jpg";
 import GalleryPermissionIMG from "@/assets/images/galleryPermissionIMG.jpg";
 import PermissionRequestIOS from "@/assets/images/PermissionRequestIOS.jpg";
-import { useNavigation, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { usePhotoContext } from "@/app/providers/PhotoContext";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const InitialScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
   const router = useRouter();
   const { handleContinue } = usePhotoContext();
 

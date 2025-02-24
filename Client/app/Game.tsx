@@ -1,35 +1,32 @@
 import React, { useEffect } from "react";
 import { View, Text } from "react-native";
 import tw from "twrnc";
-import { useRoute } from "@react-navigation/native";
-import GameProvider, { useGameContext } from "@/app/providers/GameContext";
+import { useGameContext } from "@/app/providers/GameContext";
 import { useNavigation } from "expo-router";
 import { TouchableOpacity } from "react-native";
+import { JoinProps, RoomOfGameResponse } from "@/app/models/interfaces";
 
-interface JoinProps {
-  gameCode?: string;
-}
-
-const Join: React.FC<JoinProps> = ({}) => {
+const Game: React.FC<JoinProps> = ({}) => {
   const navigation = useNavigation<any>();
-  const {startSocket} = useGameContext();
-  const {endSocket} = useGameContext();
-  const { gameCode } = useGameContext();
-  const { socket } = useGameContext();
-  const { username } = useGameContext();
+  const { startSocket, endSocket, gameCode, socket, username } = useGameContext();
 
-  
   useEffect(() => {
     startSocket();
   }, []);
 
   useEffect(() => {
     if (socket && username) {
-      console.log("uniendose a ", gameCode);
+      console.log("Joining game with code:", gameCode);
       socket.emit("join-create-game", { gameCode, username });
 
-      socket.on("room-of-game", (data) => {
-        console.log("room data", data);
+      socket.on("room-of-game", (data: RoomOfGameResponse) => {
+        console.log("Room data:", data);
+        if (!data.success) {
+          console.log("Room not found:", data.message);
+          navigation.navigate("index");
+        } else {
+          // Handle room data here
+        }
       });
     }
   }, [socket]);
@@ -41,7 +38,7 @@ const Join: React.FC<JoinProps> = ({}) => {
 
   return (
     <View style={tw`flex-1 justify-center items-center`}>
-      <Text style={tw`text-2xl font-bold`}>Join Screen</Text>
+      <Text style={tw`text-2xl font-bold`}>Game Screen</Text>
       <TouchableOpacity style={tw`bg-red-500 p-4 rounded-full mt-4`} onPress={handleLeaveGame}>
         <Text style={tw`text-white`}>Leave Game</Text>
       </TouchableOpacity>
@@ -49,4 +46,4 @@ const Join: React.FC<JoinProps> = ({}) => {
   );
 };
 
-export default Join;
+export default Game;

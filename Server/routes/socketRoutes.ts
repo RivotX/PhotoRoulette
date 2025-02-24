@@ -1,52 +1,43 @@
 import { Socket } from "socket.io";
 import { io } from "../app";
 import { generateRoomId } from "../utils/features";
+import { Player, Room, JoinCreateGameData, RoomOfGameResponse } from "../models/interfaces";
 
 console.log("Socket routes initialized");
 
-interface Player {
-  username: string;
-  socketId: string;
-}
-
-interface Room {
-  gameCode: string;
-  players: Player[];
-}
-
 const rooms: Room[] = [];
 
-io.on("connection", (socket) => {
+io.on("connection", (socket: Socket) => {
   console.log("New Player connected");
 
-  socket.on("join-create-game", (data) => {
-    const gameCode: string = data.gameCode;
-    const username: string = data.username;
+  socket.on("join-create-game", (data: JoinCreateGameData) => {
+    const { gameCode, username } = data;
     console.log("rooms: " + JSON.stringify(rooms));
 
-    if (gameCode !== null) {
+    if (gameCode) {
       console.log("player: " + username, "trying to join room: " + gameCode);
-      if (rooms.some(room => room.gameCode === gameCode)) {
+      const room = rooms.find(room => room.gameCode === gameCode);
+      if (room) {
         socket.join(gameCode);
-        const room = rooms.find(room => room.gameCode === gameCode);
-        room?.players.push({ username: username, socketId: socket.id });
-        socket.emit("room-of-game", room);
+        room.players.push({ username, socketId: socket.id });
+        const response: RoomOfGameResponse = { success: true, room };
+        socket.emit("room-of-game", response);
         console.log("Player joined room: " + gameCode);
-        // Store gameCode and username in the socket object
         socket.data.gameCode = gameCode;
         socket.data.username = username;
       } else {
-        socket.emit("room-of-game", false);
+        const response: RoomOfGameResponse = { success: false, message: "Game not found" };
+        socket.emit("room-of-game", response);
         console.log("Game not found");
       }
     } else {
-      let codeGame: string = generateRoomId(rooms);
-      rooms.push({ gameCode: codeGame, players: [{ username, socketId: socket.id }] });
-      const roomjoined = rooms.find(room => room.gameCode === codeGame);
+      const codeGame = generateRoomId(rooms);
+      const newRoom: Room = { gameCode: codeGame, players: [{ username, socketId: socket.id }] };
+      rooms.push(newRoom);
       socket.join(codeGame);
       console.log("Player created room: " + codeGame);
-      socket.emit("room-of-game", roomjoined);
-      // Store gameCode and username in the socket object
+      const response: RoomOfGameResponse = { success: true, room: newRoom };
+      socket.emit("room-of-game", response);
       socket.data.gameCode = codeGame;
       socket.data.username = username;
     }
@@ -54,18 +45,14 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
-    console.log("leave-game");
     const gameCode: string = socket.data.gameCode;
     const username: string = socket.data.username;
     const room = rooms.find(room => room.gameCode === gameCode);
-    if (room !== undefined) {
-      const player = room.players.find(player => player.username === username);
-      if (player !== undefined) {
-        room.players = room.players.filter(player => player.username !== username);
-        if (room.players.length === 0) {
-          rooms.filter(room => room.gameCode !== gameCode);
-          console.log("Room deleted: " + gameCode);
-        }
+    if (room) {
+      room.players = room.players.filter(player => player.username !== username);
+      if (room.players.length === 0) {
+        rooms.splice(rooms.indexOf(room), 1);
+        console.log("Room deleted: " + gameCode);
       }
     }
   });

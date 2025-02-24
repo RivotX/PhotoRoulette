@@ -12,7 +12,7 @@ function OnlineScreens() {
   return (
     <GameProvider>
       <Stack>
-        <Stack.Screen name="Join" options={{ headerShown: false }} />
+        <Stack.Screen name="Game" options={{ headerShown: false }} />
         {/* Agrega aquí más pantallas que necesiten el GameProvider */}
       </Stack>
     </GameProvider>

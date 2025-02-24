@@ -1,18 +1,7 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState } from "react";
 import * as MediaLibrary from "expo-media-library";
 import { useNavigation } from "expo-router";
-
-interface PhotoContextProps {
-  photoUri: string | null;
-  requestGalleryPermission: (options: { askAgain: boolean }) => Promise<boolean>;
-  getRandomPhoto: () => Promise<void>;
-  setPhotoUri: React.Dispatch<React.SetStateAction<string | null>>;
-  handleContinue: () => Promise<void>;
-}
-
-interface PhotoProviderProps {
-  children: ReactNode;
-}
+import { PhotoContextProps, PhotoProviderProps } from "@/app/models/interfaces";
 
 const PhotoContext = createContext<PhotoContextProps | undefined>(undefined);
 

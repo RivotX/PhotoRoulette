@@ -1,18 +1,9 @@
 import getEnvVars from "@/config";
-import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { GameContextProps, GameProviderProps } from "@/app/models/interfaces";
 const { SERVER_URL } = getEnvVars();
-
-interface GameContextProps {
-  socket: Socket<DefaultEventsMap, DefaultEventsMap> | null;
-  gameCode: string | null;
-  username: string | null;
-  setGameCode: (code: string | null) => void;
-  setUsername: (name: string | null) => void;
-  startSocket: () => void;
-  endSocket: () => void;
-}
 
 const GameContext = createContext<GameContextProps>({
   socket: null,
@@ -25,10 +16,6 @@ const GameContext = createContext<GameContextProps>({
 });
 
 export const useGameContext = () => useContext(GameContext);
-
-interface GameProviderProps {
-  children: ReactNode;
-}
 
 export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);

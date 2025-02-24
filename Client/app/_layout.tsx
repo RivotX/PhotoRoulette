@@ -27,13 +27,14 @@ export default function RootLayout() {
   return (
     <PhotoProvider>
       <GameProvider>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="OwnPhotos" options={{ headerShown: false, animation:"fade"}} />
-        <Stack.Screen name="Join" options={{ headerShown: false }} />
-        <Stack.Screen name="InitialScreen" options={{ headerShown: false }} />
-        <Stack.Screen name="SettingsInstructionsScreen" options={{ headerShown: false }} />
-      </Stack>
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="OwnPhotos" options={{ headerShown: false, animation: "fade" }} />
+          <Stack.Screen name="Game" options={{ headerShown: false }} />
+          <Stack.Screen name="InitialScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="SettingsInstructionsScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="SearchRoom" options={{ headerShown: false }} />
+        </Stack>
       </GameProvider>
     </PhotoProvider>
   );
