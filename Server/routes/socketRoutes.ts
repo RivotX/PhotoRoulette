@@ -36,7 +36,7 @@ io.on("connection", (socket) => {
         socket.data.gameCode = gameCode;
         socket.data.username = username;
       } else {
-        socket.emit("room-of-game", undefined);
+        socket.emit("room-of-game", false);
         console.log("Game not found");
       }
     } else {
