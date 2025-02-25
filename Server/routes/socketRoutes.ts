@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { io } from "../app";
-import { generateRoomId } from "../utils/features";
+import { generateRoomId, getRandomPlayer } from "../utils/features";
 import { Player, Room, JoinCreateGameData, RoomOfGameResponse } from "../models/interfaces";
 
 console.log("Socket routes initialized");
@@ -94,7 +94,7 @@ io.on("connection", (socket: Socket) => {
       if (allPlayersReady) {
         console.log("All players ready");
         console.log("Room: " + JSON.stringify(room));
-        const randomPlayer = room.players[Math.floor(Math.random() * room.players.length)];
+        const randomPlayer = getRandomPlayer(room.players);
         console.log("Selected player to send photo: " + randomPlayer.username);
         io.to(randomPlayer.socketId).emit("your-turn");
         console.log("Your turn: " + randomPlayer.username + " - " + randomPlayer.socketId);

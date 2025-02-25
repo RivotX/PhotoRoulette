@@ -1,3 +1,5 @@
+import { Player } from "../models/interfaces";
+
 function generateRoomId(rooms: { gameCode: string; players: { username: string; socketId: string }[] }[]): string {
   let roomId: string;
   do {
@@ -6,4 +8,8 @@ function generateRoomId(rooms: { gameCode: string; players: { username: string; 
   return roomId;
 }
 
-export { generateRoomId };
+function getRandomPlayer(players: Player[]): Player {
+  return players[Math.floor(Math.random() * players.length)];
+}
+
+export { generateRoomId, getRandomPlayer };
