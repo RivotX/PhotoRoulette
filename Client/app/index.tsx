@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator, TextInput } from "react-native";
 import tw from "twrnc";
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import InitialScreen from "@/app/InitialScreen";
 import { useGameContext } from "./providers/GameContext";
 
 const Index = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [hasSeenInitialScreen, setHasSeenInitialScreen] = useState(false);
   const { setUsername, username, setGameCode } = useGameContext();
@@ -53,7 +53,7 @@ const Index = () => {
         disabled={!username}
         onPress={() => {
           setGameCode(null); // Limpiar el gameCode antes de navegar
-          navigation.navigate("WaitingRoom");
+          navigation.replace("/WaitingRoom");
         }}
       >
         <Text style={tw`text-white`}>Create Game</Text>
@@ -64,7 +64,7 @@ const Index = () => {
         style={tw`bg-blue-500 p-4 rounded-full mb-4`}
         disabled={!username}
         onPress={() => {
-          navigation.navigate("SearchRoom");
+          navigation.replace("/SearchRoom");
         }}
       >
         <Text style={tw`text-white`}>Join Game</Text>
@@ -73,7 +73,7 @@ const Index = () => {
       {/* Botón para ir a la pantalla de fotos propias */}
       <TouchableOpacity
         style={tw`bg-blue-500 p-4 rounded-full bottom-10 absolute`}
-        onPress={() => navigation.navigate("OwnPhotos")}
+        onPress={() => navigation.replace("/OwnPhotos")}
       >
         <Text style={tw`text-white`}>Go to Own Photos</Text>
       </TouchableOpacity>

@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState } from "react";
 import * as MediaLibrary from "expo-media-library";
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import { PhotoContextProps, PhotoProviderProps } from "@/app/models/interfaces";
 
 const PhotoContext = createContext<PhotoContextProps | undefined>(undefined);
 
 export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const navigation = useNavigation<any>();
+  const navigation = useRouter();
 
   // Solicita permisos para acceder a la galería
   const requestGalleryPermission = async ({ askAgain }: { askAgain: boolean }): Promise<boolean> => {
@@ -20,7 +20,7 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
         return false;
       } else {
         console.log("Navigating to SettingsInstructionsScreen due to insufficient permissions.");
-        navigation.navigate("SettingsInstructionsScreen");
+        navigation.replace("/SettingsInstructionsScreen");
       }
       return false;
     }
@@ -36,14 +36,14 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
     if (status !== "granted" || accessPrivileges !== "all") {
       if (accessPrivileges === "limited" || !canAskAgain) {
         console.log("Navigating to SettingsInstructionsScreen due to limited access or cannot ask again.");
-        navigation.navigate("SettingsInstructionsScreen");
+        navigation.replace("/SettingsInstructionsScreen");
       } else {
         console.log("Navigating to InitialScreen.");
-        navigation.navigate("InitialScreen");
+        navigation.replace("/InitialScreen");
       }
     } else {
       console.log("Navigating to InitialScreen.");
-      navigation.navigate("InitialScreen");
+      navigation.replace("/InitialScreen");
     }
   };
 

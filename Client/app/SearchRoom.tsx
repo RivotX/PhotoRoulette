@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import tw from "twrnc";
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import { useGameContext } from "./providers/GameContext";
 
 const SearchRoom = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useRouter();
   const { setGameCode, gameCode } = useGameContext();
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const SearchRoom = () => {
         style={tw`bg-blue-500 p-4 rounded-full mb-4`}
         disabled={!gameCode}
         onPress={() => {
-          navigation.navigate("WaitingRoom");
+          navigation.replace("/WaitingRoom");
         }}
       >
         <Text style={tw`text-white`}>Search Room</Text>

@@ -11,12 +11,15 @@ io.on("connection", (socket: Socket) => {
   console.log("New Player connected");
 
   socket.on("join-create-game", (data: JoinCreateGameData) => {
-    const { gameCode, username } = data;
+    const { username } = data;
+    let { gameCode } = data;
+    console.log("------------------------------------------------")
     console.log("rooms: " + JSON.stringify(rooms));
 
     if (gameCode) {
+      gameCode = gameCode.toUpperCase();
       console.log("player: " + username, "trying to join room: " + gameCode);
-      const room = rooms.find(room => room.gameCode === gameCode);
+      const room = rooms.find((room) => room.gameCode === gameCode);
       if (room) {
         socket.join(gameCode);
         const newPlayer: Player = { username, socketId: socket.id, isHost: false };
@@ -38,6 +41,7 @@ io.on("connection", (socket: Socket) => {
       rooms.push(newRoom);
       socket.join(codeGame);
       console.log("Player created room: " + codeGame);
+      console.log("rooms creadas:", rooms)
       const response: RoomOfGameResponse = { success: true, room: newRoom };
       socket.emit("room-of-game", response);
       socket.data.gameCode = codeGame;
@@ -49,13 +53,20 @@ io.on("connection", (socket: Socket) => {
     console.log("Client disconnected");
     const gameCode: string = socket.data.gameCode;
     const username: string = socket.data.username;
-    const room = rooms.find(room => room.gameCode === gameCode);
-    if (room) {
-      room.players = room.players.filter(player => player.username !== username);
-      if (room.players.length === 0) {
-        rooms.splice(rooms.indexOf(room), 1);
-        console.log("Room deleted: " + gameCode);
+    const roomIndex = rooms.findIndex((room) => room.gameCode === gameCode);
+    if (roomIndex !== -1) {
+      const room = rooms[roomIndex];
+      const player = room.players.find((player) => player.username === username);
+      if (player?.isHost) {
+        console.log("room exacta index:", roomIndex);
+        socket.broadcast.to(gameCode).emit("host-left");
+        console.log("---rooms antes de sacar roomindex: ", roomIndex,"room", rooms)
+        rooms.splice(roomIndex, 1);
+        console.log("---rooms despues de sacar roomindex", rooms)
+
+        console.log("Host left, Room deleted: " + gameCode);
       } else {
+        room.players = room.players.filter((player) => player.username !== username);
         socket.broadcast.to(gameCode).emit("player-left", username);
       }
     }
