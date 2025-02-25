@@ -35,6 +35,7 @@ export default function RootLayout() {
           <Stack.Screen name="InitialScreen" options={{ headerShown: false }} />
           <Stack.Screen name="SettingsInstructionsScreen" options={{ headerShown: false }} />
           <Stack.Screen name="SearchRoom" options={{ headerShown: false }} />
+          <Stack.Screen name="GameScreen" options={{ headerShown: false }} />
         </Stack>
       </GameProvider>
     </PhotoProvider>

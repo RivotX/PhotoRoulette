@@ -11,6 +11,12 @@ export interface Room {
   players: Player[];
 }
 
+export interface RandomPhotoResponse {
+  gameCode: string;
+  username: string;
+  photo: string; //por ahora para probar
+}
+
 export interface JoinCreateGameData {
   gameCode: string | null;
   username: string;
@@ -20,10 +26,6 @@ export interface RoomOfGameResponse {
   success: boolean;
   room?: Room;
   message?: string;
-}
-
-export interface JoinProps {
-  gameCode?: string;
 }
 
 export interface GameContextProps {

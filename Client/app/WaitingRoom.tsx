@@ -2,19 +2,22 @@ import React, { useEffect, useState } from "react";
 import { View, Text, FlatList } from "react-native";
 import tw from "twrnc";
 import { useGameContext } from "@/app/providers/GameContext";
-import {  useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native";
-import { JoinProps, RoomOfGameResponse, Player } from "@/app/models/interfaces";
+import { RoomOfGameResponse, Player } from "@/app/models/interfaces";
 
-const WaitingRoom: React.FC<JoinProps> = ({}) => {
+const WaitingRoom = ({}) => {
   const navigation = useRouter();
-  //NAVIGATION.replace REDIRECTS TO THE SPECIFIED ROUTE (/) AND ADDS IT TO THE NAVIGATION STACK
   const { startSocket, endSocket, gameCode, setGameCode, socket, username } = useGameContext();
   const [players, setPlayers] = useState<Player[]>([]);
+  const [isInGame, setIsInGame] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("se monta");
-    startSocket();
+
+    if (!isInGame) {
+      startSocket();
+    }
 
     return () => {
       console.log("se desmonta");
@@ -23,20 +26,21 @@ const WaitingRoom: React.FC<JoinProps> = ({}) => {
         socket.off("player-joined");
         socket.off("player-left");
         socket.off("host-left");
+        socket.off("new-host");
       }
-      endSocket();
     };
   }, []);
 
   useEffect(() => {
-    if (socket && username) {
+    if (socket && username && !isInGame) {
       console.log("Joining game with code:", gameCode);
-
+      setIsInGame(true);
       // Limpiar listeners antes de agregar nuevos
       socket.off("room-of-game");
       socket.off("player-joined");
       socket.off("player-left");
       socket.off("host-left");
+      socket.off("new-host");
 
       socket.emit("join-create-game", { gameCode, username });
 
@@ -44,7 +48,8 @@ const WaitingRoom: React.FC<JoinProps> = ({}) => {
         console.log("Room data:", data);
         if (!data.success) {
           console.log("Room not found:", data.message);
-          navigation.replace("/");
+          endSocket();
+          navigation.replace({ pathname: "/", params: { message: data.message } });
         } else {
           console.log("Room found:", data.room);
           if (data.room) {
@@ -54,11 +59,6 @@ const WaitingRoom: React.FC<JoinProps> = ({}) => {
         }
       });
 
-      socket.on("host-left", () => {
-        console.log("Host left the game");
-        navigation.replace("/");
-      });
-
       socket.on("player-joined", (newPlayer: Player) => {
         setPlayers((prevPlayers) => [...prevPlayers, newPlayer]);
       });
@@ -66,12 +66,32 @@ const WaitingRoom: React.FC<JoinProps> = ({}) => {
       socket.on("player-left", (username: string) => {
         setPlayers((prevPlayers) => prevPlayers.filter((player) => player.username !== username));
       });
+
+      socket.on("new-host", (newHost: Player) => {
+        setPlayers((prevPlayers) => {
+          // Eliminar al host actual
+          const filteredPlayers = prevPlayers.filter((player) => !player.isHost);
+          // Definir el nuevo host
+          return filteredPlayers.map((player) => (player.username === newHost.username ? { ...player, isHost: true } : player));
+        });
+      });
+
+      socket.on("game-started", () => {
+        console.log("Game started");
+        navigation.replace("/GameScreen");
+      });
     }
   }, [socket]);
 
   const handleLeaveGame = () => {
     endSocket();
     navigation.replace("/");
+  };
+
+  const handleStartGame = () => {
+    if (socket) {
+      socket.emit("start-game", { gameCode });
+    }
   };
 
   const renderPlayer = ({ item }: { item: Player }) => (
@@ -86,6 +106,13 @@ const WaitingRoom: React.FC<JoinProps> = ({}) => {
       <Text style={tw`text-2xl font-bold mb-4`}>WaitingRoom Screen</Text>
       <Text style={tw`text-xl mb-4`}>Game ID: {gameCode}</Text>
       <FlatList data={players} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
+      {players.length > 1 && players[0].username == username && (
+        <>
+          <TouchableOpacity style={tw`bg-green-500 p-4 rounded-full mt-4`} onPress={handleStartGame}>
+            <Text style={tw`text-white`}>Start Game</Text>
+          </TouchableOpacity>
+        </>
+      )}
       <TouchableOpacity style={tw`bg-red-500 p-4 rounded-full mt-4`} onPress={handleLeaveGame}>
         <Text style={tw`text-white`}>Leave WaitingRoom</Text>
       </TouchableOpacity>
