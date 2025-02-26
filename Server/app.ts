@@ -3,8 +3,8 @@ import cors from "cors";
 import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
-
-// import userRoutes from "./routes/userRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes";
+import { uploadPath } from "./middlewares/upload";
 
 const app = express();
 app.use(
@@ -46,11 +46,8 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.use("/", userRoutes);
-
-app.get("/", (req, res) => {
-  res.send("SERVER RUNNING");
-});
+app.use("/temp", express.static(uploadPath));
+app.use("/", uploadRoutes );
 
 const server = createServer(app);
 const io = new Server(server, {
@@ -61,4 +58,4 @@ const io = new Server(server, {
   },
 });
 
-export { server, io };
+export { server, io};

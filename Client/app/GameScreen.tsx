@@ -5,6 +5,8 @@ import { useRouter } from "expo-router";
 import { useGameContext } from "./providers/GameContext";
 import { RandomPhotoResponse, Room } from "./models/interfaces";
 import { usePhotoContext } from "./providers/PhotoContext";
+import getEnvVars from "@/config";
+const { SERVER_URL } = getEnvVars();
 
 const GameScreen = () => {
   const navigation = useRouter();
@@ -18,6 +20,24 @@ const GameScreen = () => {
   const [gameOver, setGameOver] = useState<boolean>(false);
   const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();
 
+  const uploadImage = async (uri : string) => {
+    const formData = new FormData();
+    formData.append("image", {
+      uri,
+      name: "photo.jpg",
+      type: "image/jpeg",
+    }as any);
+  
+    const response = await fetch(`${SERVER_URL}/upload`,{
+      method: "POST",
+      body: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  
+    const data = await response.json();
+    return data.url; // URL accesible de la imagen
+  };
+
   useEffect(() => {
     console.log("GameScreen mounted, socket", socket);
 
@@ -30,7 +50,7 @@ const GameScreen = () => {
 
       socket.on("photo-received", (data: { photo: string; username: string; round: number }) => {
         console.log("Photo received from: " + data.username);
-        setPhotoToShow(data.photo);
+        setPhotoToShow(`${SERVER_URL}${data.photo}`);
         setUsernamePhoto(data.username);
         setRound(data.round);
       });
@@ -54,14 +74,24 @@ const GameScreen = () => {
   }, [socket]);
 
   useEffect(() => {
-    if (photoUri) {
-      if (socket) {
-        const randomPhotoResponse: RandomPhotoResponse = { photo: photoUri, gameCode: safeGameCode, username: safeUsername, round: round };
-          socket.emit("photo-sent", randomPhotoResponse);
-          setPhotoToShow(randomPhotoResponse.photo);
-          setUsernamePhoto(safeUsername);
+    const sendPhoto = async () => {
+      if (photoUri && socket) {
+        const photoUrl = await uploadImage(photoUri); // Esperar la URL
+        console.log("Photo uploaded", photoUrl);
+        const randomPhotoResponse: RandomPhotoResponse = { 
+          photo: photoUrl, 
+          gameCode: safeGameCode, 
+          username: safeUsername, 
+          round: round 
+        };
+  
+        socket.emit("photo-sent", randomPhotoResponse);
+        setPhotoToShow(`${SERVER_URL}${randomPhotoResponse.photo}`);
+        setUsernamePhoto(safeUsername);
       }
-    }
+    };
+  
+    sendPhoto();
   }, [photoUri]);
 
   useEffect(() => {
