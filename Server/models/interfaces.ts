@@ -1,5 +1,6 @@
 export interface Player {
   username: string;
+  points: number;
   socketId: string;
   isHost: boolean;
   isReady: boolean;
@@ -10,6 +11,10 @@ export interface Room {
   players: Player[];
   rounds: number;
   started: boolean;
+  intervalId: NodeJS.Timeout | null;
+  buttonPressed: boolean;
+  currentPlayer: Player | null;
+  round: number;
 }
 
 export interface JoinCreateGameData {

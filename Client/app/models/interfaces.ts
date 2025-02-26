@@ -14,7 +14,8 @@ export interface Room {
 export interface RandomPhotoResponse {
   gameCode: string;
   username: string;
-  photo: string; //por ahora para probar
+  photo: string | null; //por ahora para probar
+  round: number;
 }
 
 export interface JoinCreateGameData {
