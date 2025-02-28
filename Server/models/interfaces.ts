@@ -4,12 +4,14 @@ export interface Player {
   socketId: string;
   isHost: boolean;
   isReady: boolean;
+  lastAnswerCorrect: boolean;
 }
 
 export interface ScoreRound {
   username: string;
   points: number;
   isHost: boolean;
+  lastAnswerCorrect: boolean;
 }
 
 

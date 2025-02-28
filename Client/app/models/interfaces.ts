@@ -12,6 +12,7 @@ export interface ScoreRound {
   username: string;
   points: number;
   isHost: boolean;
+  lastAnswerCorrect: boolean;
 }
 
 export interface Room {
@@ -47,6 +48,8 @@ export interface GameContextProps {
   setPlayersProvider: (players: Player[]) => void;
   startSocket: () => void;
   endSocket: () => void;
+  roundsOfGame: number;
+  setRoundsOfGame: (rounds: number) => void;
 }
 
 export interface GameProviderProps {

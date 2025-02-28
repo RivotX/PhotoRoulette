@@ -2,39 +2,57 @@ import React, { useEffect } from "react";
 import { View, Text, Modal, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { ScoreRound } from "../models/interfaces";
+import { BlurView } from "@react-native-community/blur";
 
 interface ScoreModalProps {
   visible: boolean;
   onClose: () => void;
   scoreRound: ScoreRound[];
+    rounds: {round: number, roundsOfGame: number};
 }
 
-const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound }) => {
-  useEffect(() => {
-    if (visible) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, 2000);
-      return () => clearTimeout(timer);
+const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, rounds }) => {
+    useEffect(() => {
+      if (visible) {
+        const timer = setTimeout(() => {
+          onClose();
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
+    }, [visible]);
+
+    useEffect(() => {
+        console.log("ScoreModal mounted");
+        console.log("ScoreRound: ", scoreRound);
+        return () => {
+            console.log("ScoreModal unmounted");
+        };
     }
-  }, [visible]);
+    , []);
 
   return (
-    <Modal
-      transparent={true}
-      animationType="slide"
-      visible={visible}
-    >
-      <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-        <View style={tw`w-11/12 bg-white p-4 rounded-lg`}>
-          <Text style={tw`text-xl font-bold mb-4`}>Score Round</Text>
-          {scoreRound.map((player, index) => (
-            <View key={index} style={tw`flex-row justify-between mb-2`}>
-              <Text style={tw`text-lg`}>{player.username} :</Text>
-              <Text style={tw`text-lg`}>{player.points} points</Text>
+    <Modal transparent={true} animationType="slide" visible={visible}>
+      <View style={tw`flex-1 justify-center items-center  bg-black bg-opacity-50`}>
+        <BlurView style={tw`absolute w-full h-full`} blurType="dark" blurAmount={50} reducedTransparencyFallbackColor="black" />
+
+        <Text style={tw`text-xl text-white bottom-90 font-bold mb-4`}>Round {rounds.round} of {rounds.roundsOfGame} </Text>
+        {scoreRound.map((player, index) => (
+          <View key={index} style={tw`w-11/12 bg-white mb-2  m-1 rounded-3xl`}>
+            <View  style={tw`flex-row  h-12`}>
+                <View style={tw`flex items-center justify-center rounded-l-full bg-red-500`}>
+                <Text style={tw`text-lg px-3 size text-white font-bold`}>{index+1}</Text>
+                </View>
+                <View style={tw`flex-row px-2 items-center w-[80%] justify-between`}>
+                    <View>
+                    <Text style={tw`text-lg font-bold`}>{player.username} </Text>
+                    <Text style={tw`text-xs ${player.lastAnswerCorrect?"text-green-500": "text-red-500"}`}>{player.username} </Text>
+                    </View>
+                <Text style={tw`text-lg`}>{player.points} </Text>
+                </View>
+              
             </View>
-          ))}
-        </View>
+          </View>
+        ))}
       </View>
     </Modal>
   );

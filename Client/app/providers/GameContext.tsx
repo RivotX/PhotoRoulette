@@ -15,6 +15,8 @@ const GameContext = createContext<GameContextProps>({
   setPlayersProvider: () => {}, // Agrega esta línea
   startSocket: () => {},
   endSocket: () => {},
+  roundsOfGame: 0, // Agrega esta línea
+  setRoundsOfGame: () => {}, // Agrega esta línea
 });
 
 export const useGameContext = () => useContext(GameContext);
@@ -24,7 +26,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   const [gameCode, setGameCode] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [playersProvider, setPlayersProvider] = useState<Player[]>([]); // Agrega esta línea
-
+  const [roundsOfGame, setRoundsOfGame] = useState<number>(0); // Agrega esta línea
   const startSocket = () => {
     console.log("Conectando al servidor...");
     const newSocket = io(SERVER_URL, {
@@ -59,7 +61,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
   };
 
   return (
-    <GameContext.Provider value={{ socket, gameCode, username, playersProvider,setPlayersProvider, setGameCode, setUsername, startSocket, endSocket }}>
+    <GameContext.Provider value={{ socket, gameCode, username, playersProvider,setPlayersProvider, setGameCode, setUsername, startSocket, endSocket, roundsOfGame, setRoundsOfGame }}>
       {children}
     </GameContext.Provider>
   );

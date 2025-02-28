@@ -15,7 +15,7 @@ const { SERVER_URL } = getEnvVars();
 
 const GameScreen = () => {
   const navigation = useRouter();
-  const { username, gameCode, endSocket, socket, playersProvider } = useGameContext();
+  const { username, gameCode, endSocket, socket, playersProvider, roundsOfGame } = useGameContext();
   const safeUsername = username ?? "";
   const safeGameCode = gameCode ?? "";
   const [PhotoToShow, setPhotoToShow] = useState<string | null>(null);
@@ -139,14 +139,13 @@ const GameScreen = () => {
   }, [isReady]);
 
   useEffect(() => {
-    if (showCorrectAnswer && userSelected !== "" && usernamePhoto !== "" && socket) {
-      if (userSelected === "") {
-        console.log("No Answer Selected");
-      } else if (userSelected === usernamePhoto) {
+    if (showCorrectAnswer && usernamePhoto !== "" && socket) {
+      if (userSelected === usernamePhoto) {
         console.log("Correct Answer");
         socket.emit("correct-answer", { gameCode: safeGameCode, username: safeUsername });
       } else {
         console.log("Incorrect Answer");
+        socket.emit("incorrect-answer", { gameCode: safeGameCode, username: safeUsername });
       }
     }
   }, [showCorrectAnswer]);
@@ -186,7 +185,7 @@ const GameScreen = () => {
             <Text style={tw`text-xl text-white font-bold mb-4`}>ARE YOU READY?</Text>
           </View>
         )}
-        <ScoreModal visible={showScore} onClose={() => setShowScore(false)} scoreRound={score || []} />
+        <ScoreModal visible={showScore} onClose={() => setShowScore(false)} scoreRound={score || []} rounds={{round:round, roundsOfGame:roundsOfGame}} />
       </View>
     </GestureHandlerRootView>
   );
