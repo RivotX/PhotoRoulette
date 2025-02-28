@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "./providers/GameContext";
@@ -8,6 +8,7 @@ import { usePhotoContext } from "./providers/PhotoContext";
 import getEnvVars from "@/config";
 import PhotoComponent from "./components/PhotoComponent";
 import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
+import { View as AnimatableView } from "react-native-animatable"; // Importa el componente View de react-native-animatable
 const { SERVER_URL } = getEnvVars();
 
 const GameScreen = () => {
@@ -22,6 +23,8 @@ const GameScreen = () => {
   const [gameOver, setGameOver] = useState<boolean>(false);
   const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();
   const [myturn, setMyTurn] = useState<boolean>(false);
+  const elementRef = useRef<AnimatableView>(null); // Cambia la referencia a AnimatableView
+  const [userSelected, setUserSelected] = useState<string>("");
 
   const uploadImage = async (uri: string) => {
     const formData = new FormData();
@@ -43,7 +46,7 @@ const GameScreen = () => {
 
   useEffect(() => {
     console.log("GameScreen mounted, socket", socket);
-    console.log("players: ", playersProvider);  
+    console.log("players: ", playersProvider);
 
     if (socket) {
       socket.on("your-turn", async (data: { round: number }) => {
@@ -103,8 +106,6 @@ const GameScreen = () => {
     sendPhoto();
   }, [photoUri]);
 
-
-
   useEffect(() => {
     if (isReady && socket) {
       console.log("GameScreen is ready");
@@ -113,31 +114,39 @@ const GameScreen = () => {
     }
   }, [isReady]);
 
-  const renderPlayer = ({ item }: { item: Player }) => (
-    <View style={tw`bg-blue-500 p-4 rounded-lg mb-2 flex-row items-center`}>
-      {item.isHost && <Text style={tw`text-white text-lg mr-2`}>👑</Text>}
-      <Text style={tw`text-white text-lg`}>{item.username}</Text>
-    </View>
-  );
+    const renderPlayer = ({ item }: { item: Player }) => {
+
+    const isPhotoOwner = item.username === usernamePhoto;
+    return (
+      <TouchableOpacity
+        style={tw`p-4 rounded-lg mb-2 flex-row items-center ${isPhotoOwner ? 'bg-green-500' : 'bg-blue-500'}`}
+        onPress={() => console.log(item.username)}
+      >
+        {item.isHost && <Text style={tw`text-white text-lg mr-2`}>👑</Text>}
+        <Text style={tw`text-white text-lg`}>{item.username}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={tw`flex-1 bg-black`}>
         {PhotoToShow ? (
           <>
-            <PhotoComponent photoUrl={PhotoToShow} isInGame={true} />
+            <PhotoComponent photoUrl={PhotoToShow} isInGame={true} elementRef={elementRef} />
 
-            <View style={tw`absolute top-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
-              <Text style={tw`text-white`}>Round: {round}</Text>
-            </View>
-            <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
-              
-              <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
-            </View>
+            <AnimatableView ref={elementRef}>
+              <AnimatableView style={tw`absolute bottom-200 left-0 right-0 p-4 flex-row justify-center mb-4`}>
+                <Text style={tw`text-white`}>Round: {round}</Text>
+              </AnimatableView>
+              <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
+                <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
+              </View>
+            </AnimatableView>
           </>
         ) : (
           <View style={tw`flex-1 justify-center items-center`}>
-            <Text style={tw`text-xl font-bold mb-4`}>ARE YOU READY?</Text>
+            <Text style={tw`text-xl text-white font-bold mb-4`}>ARE YOU READY?</Text>
           </View>
         )}
       </View>
