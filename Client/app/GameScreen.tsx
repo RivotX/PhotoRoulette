@@ -3,12 +3,14 @@ import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "./providers/GameContext";
-import { Player, RandomPhotoResponse, Room } from "./models/interfaces";
+import { Player, RandomPhotoResponse, Room, ScoreRound } from "./models/interfaces";
 import { usePhotoContext } from "./providers/PhotoContext";
 import getEnvVars from "@/config";
 import PhotoComponent from "./components/PhotoComponent";
 import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
-import { View as AnimatableView } from "react-native-animatable"; // Importa el componente View de react-native-animatable
+import { View as AnimatableView } from "react-native-animatable";
+import ScoreModal from "./components/ScoreModal"; // Importa el componente ScoreModal
+
 const { SERVER_URL } = getEnvVars();
 
 const GameScreen = () => {
@@ -23,9 +25,14 @@ const GameScreen = () => {
   const [gameOver, setGameOver] = useState<boolean>(false);
   const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();
   const [myturn, setMyTurn] = useState<boolean>(false);
-  const elementRef = useRef<AnimatableView>(null); // Cambia la referencia a AnimatableView
+  const elementRef = useRef<AnimatableView>(null);
   const [userSelected, setUserSelected] = useState<string>("");
+  const [showCorrectAnswer, setShowCorrectAnswer] = useState<boolean>(false);
+  const [answerMessage, setAnswerMessage] = useState<string>("");
+  const [showScore, setShowScore] = useState<boolean>(false);
+  const [score, setScore] = useState<ScoreRound[] | null>(null);
 
+  // Función para subir una imagen al servidor
   const uploadImage = async (uri: string) => {
     const formData = new FormData();
     formData.append("image", {
@@ -56,17 +63,32 @@ const GameScreen = () => {
         await getRandomPhoto();
       });
 
+      socket.on("score-round", (data: ScoreRound[]) => {
+        console.log("Score Round");
+        console.log(data);
+        setScore(data);
+        setShowScore(true); // Mostrar el modal de puntuación
+      });
+
       socket.on("photo-received", (data: { photo: string; username: string; round: number }) => {
+        setScore(null);
+        setShowCorrectAnswer(false);
+        setUsernamePhoto("");
+        setUserSelected("");
         console.log("Photo received from: " + data.username);
         setPhotoToShow(`${SERVER_URL}${data.photo}`);
         setUsernamePhoto(data.username);
         setRound(data.round);
+        console.log("ronda: ", data.round, "recibida");
+        setTimeout(() => {
+          setShowCorrectAnswer(true);
+        }, 5000);
       });
 
       socket.on("game-over", (data: { room: Room }) => {
         console.log("Game Over");
         console.log(data.room);
-        navigation.replace("/"); // temporal para volver a la pantalla de inicio, se debe cambiar el contenido para ver los resultados
+        navigation.replace("/");
         endSocket();
         setGameOver(true);
       });
@@ -86,25 +108,28 @@ const GameScreen = () => {
 
   useEffect(() => {
     const sendPhoto = async () => {
-      if (photoUri && socket && myturn) {
+      if (photoUri && socket && myturn && round > 0) {
         setMyTurn(false);
-        const photoUrl = await uploadImage(photoUri); // Esperar la URL
-        console.log("Photo uploaded", photoUrl);
-        const randomPhotoResponse: RandomPhotoResponse = {
-          photo: photoUrl,
-          gameCode: safeGameCode,
-          username: safeUsername,
-          round: round,
-        };
+        try {
+          const photoUrl = await uploadImage(photoUri);
+          console.log("Photo uploaded", photoUrl);
+          console.log("ronda: ", round, "enviada");
+          const randomPhotoResponse: RandomPhotoResponse = {
+            photo: photoUrl,
+            gameCode: safeGameCode,
+            username: safeUsername,
+            round: round,
+          };
 
-        socket.emit("photo-sent", randomPhotoResponse);
-        setPhotoToShow(`${SERVER_URL}${randomPhotoResponse.photo}`);
-        setUsernamePhoto(safeUsername);
+          socket.emit("photo-sent", randomPhotoResponse);
+        } catch (error) {
+          sendPhoto();
+        }
       }
     };
 
     sendPhoto();
-  }, [photoUri]);
+  }, [photoUri, myturn, round]);
 
   useEffect(() => {
     if (isReady && socket) {
@@ -114,13 +139,27 @@ const GameScreen = () => {
     }
   }, [isReady]);
 
-    const renderPlayer = ({ item }: { item: Player }) => {
+  useEffect(() => {
+    if (showCorrectAnswer && userSelected !== "" && usernamePhoto !== "" && socket) {
+      if (userSelected === "") {
+        console.log("No Answer Selected");
+      } else if (userSelected === usernamePhoto) {
+        console.log("Correct Answer");
+        socket.emit("correct-answer", { gameCode: safeGameCode, username: safeUsername });
+      } else {
+        console.log("Incorrect Answer");
+      }
+    }
+  }, [showCorrectAnswer]);
 
+  const renderPlayer = ({ item }: { item: Player }) => {
     const isPhotoOwner = item.username === usernamePhoto;
+    const isAnswer = item.username === userSelected;
     return (
       <TouchableOpacity
-        style={tw`p-4 rounded-lg mb-2 flex-row items-center ${isPhotoOwner ? 'bg-green-500' : 'bg-blue-500'}`}
-        onPress={() => console.log(item.username)}
+        style={tw`p-4 rounded-lg mb-2 flex-row items-center ${showCorrectAnswer ? (isPhotoOwner ? "bg-green-500" : isAnswer ? "bg-red-500" : "bg-gray-700") : isAnswer ? "bg-blue-500" : "bg-gray-700"}`}
+        onPress={() => setUserSelected(item.username)}
+        disabled={showCorrectAnswer}
       >
         {item.isHost && <Text style={tw`text-white text-lg mr-2`}>👑</Text>}
         <Text style={tw`text-white text-lg`}>{item.username}</Text>
@@ -133,8 +172,7 @@ const GameScreen = () => {
       <View style={tw`flex-1 bg-black`}>
         {PhotoToShow ? (
           <>
-            <PhotoComponent photoUrl={PhotoToShow} isInGame={true} elementRef={elementRef} />
-
+            <PhotoComponent photoUrl={PhotoToShow} isInGame={true} elementRef={elementRef} canHold={username == usernamePhoto} />
             <AnimatableView ref={elementRef}>
               <AnimatableView style={tw`absolute bottom-200 left-0 right-0 p-4 flex-row justify-center mb-4`}>
                 <Text style={tw`text-white`}>Round: {round}</Text>
@@ -149,6 +187,7 @@ const GameScreen = () => {
             <Text style={tw`text-xl text-white font-bold mb-4`}>ARE YOU READY?</Text>
           </View>
         )}
+        <ScoreModal visible={showScore} onClose={() => setShowScore(false)} scoreRound={score || []} />
       </View>
     </GestureHandlerRootView>
   );

@@ -6,6 +6,21 @@ export interface Player {
   isReady: boolean;
 }
 
+export interface ScoreRound {
+  username: string;
+  points: number;
+  isHost: boolean;
+}
+
+
+
+export interface PlayerId {
+  username: string;
+  gameCode: string;
+}
+
+
+
 export interface Room {
   gameCode: string;
   players: Player[];

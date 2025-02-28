@@ -8,6 +8,12 @@ export interface Player {
   isReady: boolean;
 }
 
+export interface ScoreRound {
+  username: string;
+  points: number;
+  isHost: boolean;
+}
+
 export interface Room {
   gameCode: string;
   players: Player[];
