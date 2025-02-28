@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "./providers/GameContext";
-import { RandomPhotoResponse, Room } from "./models/interfaces";
+import { Player, RandomPhotoResponse, Room } from "./models/interfaces";
 import { usePhotoContext } from "./providers/PhotoContext";
 import getEnvVars from "@/config";
+import PhotoComponent from "./components/PhotoComponent";
+import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
 const { SERVER_URL } = getEnvVars();
 
 const GameScreen = () => {
   const navigation = useRouter();
-  const { username, gameCode, endSocket, socket } = useGameContext();
+  const { username, gameCode, endSocket, socket, playersProvider } = useGameContext();
   const safeUsername = username ?? "";
   const safeGameCode = gameCode ?? "";
   const [PhotoToShow, setPhotoToShow] = useState<string | null>(null);
@@ -19,32 +21,35 @@ const GameScreen = () => {
   const [isReady, setIsReady] = useState<boolean>(false);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();
+  const [myturn, setMyTurn] = useState<boolean>(false);
 
-  const uploadImage = async (uri : string) => {
+  const uploadImage = async (uri: string) => {
     const formData = new FormData();
     formData.append("image", {
       uri,
       name: "photo.jpg",
       type: "image/jpeg",
-    }as any);
-  
-    const response = await fetch(`${SERVER_URL}/upload`,{
+    } as any);
+
+    const response = await fetch(`${SERVER_URL}/upload`, {
       method: "POST",
       body: formData,
       headers: { "Content-Type": "multipart/form-data" },
     });
-  
+
     const data = await response.json();
     return data.url; // URL accesible de la imagen
   };
 
   useEffect(() => {
     console.log("GameScreen mounted, socket", socket);
+    console.log("players: ", playersProvider);  
 
     if (socket) {
       socket.on("your-turn", async (data: { round: number }) => {
         console.log("My turn");
         setRound(data.round);
+        setMyTurn(true);
         await getRandomPhoto();
       });
 
@@ -58,6 +63,8 @@ const GameScreen = () => {
       socket.on("game-over", (data: { room: Room }) => {
         console.log("Game Over");
         console.log(data.room);
+        navigation.replace("/"); // temporal para volver a la pantalla de inicio, se debe cambiar el contenido para ver los resultados
+        endSocket();
         setGameOver(true);
       });
 
@@ -69,30 +76,34 @@ const GameScreen = () => {
       if (socket) {
         socket.off("your-turn");
         socket.off("photo-received");
+        endSocket();
       }
     };
   }, [socket]);
 
   useEffect(() => {
     const sendPhoto = async () => {
-      if (photoUri && socket) {
+      if (photoUri && socket && myturn) {
+        setMyTurn(false);
         const photoUrl = await uploadImage(photoUri); // Esperar la URL
         console.log("Photo uploaded", photoUrl);
-        const randomPhotoResponse: RandomPhotoResponse = { 
-          photo: photoUrl, 
-          gameCode: safeGameCode, 
-          username: safeUsername, 
-          round: round 
+        const randomPhotoResponse: RandomPhotoResponse = {
+          photo: photoUrl,
+          gameCode: safeGameCode,
+          username: safeUsername,
+          round: round,
         };
-  
+
         socket.emit("photo-sent", randomPhotoResponse);
         setPhotoToShow(`${SERVER_URL}${randomPhotoResponse.photo}`);
         setUsernamePhoto(safeUsername);
       }
     };
-  
+
     sendPhoto();
   }, [photoUri]);
+
+
 
   useEffect(() => {
     if (isReady && socket) {
@@ -102,24 +113,35 @@ const GameScreen = () => {
     }
   }, [isReady]);
 
-  return (
-    <View style={tw`flex-1 justify-center items-center`}>
-      <Text style={tw`text-xl mb-4`}>Game Code: {gameCode}</Text>
-      {PhotoToShow ? (
-        <View style={tw`flex-1 justify-center items-center`}>
-          <Text style={tw`text-xl font-bold mb-4`}>Photo Received</Text>
-          <Text style={tw`text-xl mb-4`}>Round: {round}</Text>
-          <Text style={tw`text-xl mb-4`}>From: {usernamePhoto}</Text>
-          <TouchableOpacity onPressIn={() => socket && socket.emit("button-pressed")} onPressOut={() => socket && socket.emit("button-released")}>
-            <Image source={{ uri: PhotoToShow }} style={tw`w-64 h-64 mb-4`} />
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={tw`flex-1 justify-center items-center`}>
-          <Text style={tw`text-xl font-bold mb-4`}>ARE YOU READY?</Text>
-        </View>
-      )}
+  const renderPlayer = ({ item }: { item: Player }) => (
+    <View style={tw`bg-blue-500 p-4 rounded-lg mb-2 flex-row items-center`}>
+      {item.isHost && <Text style={tw`text-white text-lg mr-2`}>👑</Text>}
+      <Text style={tw`text-white text-lg`}>{item.username}</Text>
     </View>
+  );
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={tw`flex-1 bg-black`}>
+        {PhotoToShow ? (
+          <>
+            <PhotoComponent photoUrl={PhotoToShow} isInGame={true} />
+
+            <View style={tw`absolute top-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
+              <Text style={tw`text-white`}>Round: {round}</Text>
+            </View>
+            <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
+              
+              <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
+            </View>
+          </>
+        ) : (
+          <View style={tw`flex-1 justify-center items-center`}>
+            <Text style={tw`text-xl font-bold mb-4`}>ARE YOU READY?</Text>
+          </View>
+        )}
+      </View>
+    </GestureHandlerRootView>
   );
 };
 

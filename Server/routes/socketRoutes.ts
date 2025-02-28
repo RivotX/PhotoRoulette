@@ -35,7 +35,7 @@ io.on("connection", (socket: Socket) => {
             console.log("Username already taken: " + username);
           } else {
             socket.join(gameCode);
-            const newPlayer: Player = { username, socketId: socket.id, isHost: false, isReady: false , points: 0};
+            const newPlayer: Player = { username, socketId: socket.id, isHost: false, isReady: false, points: 0 };
             room.players.push(newPlayer);
             const response: RoomOfGameResponse = { success: true, room };
             socket.emit("room-of-game", response);
@@ -53,7 +53,16 @@ io.on("connection", (socket: Socket) => {
       }
     } else {
       const codeGame = generateRoomId(rooms);
-      const newRoom: Room = { gameCode: codeGame, rounds: 10, started: false, players: [{ username, socketId: socket.id, isHost: true, isReady: false, points:0 }], intervalId: null, buttonPressed: false, currentPlayer: null, round: 0 };
+      const newRoom: Room = {
+        gameCode: codeGame,
+        rounds: 10,
+        started: false,
+        players: [{ username, socketId: socket.id, isHost: true, isReady: false, points: 0 }],
+        intervalId: null,
+        buttonPressed: false,
+        currentPlayer: null,
+        round: 0,
+      };
       rooms.push(newRoom);
       socket.join(codeGame);
       console.log("Player created room: " + codeGame);
@@ -71,10 +80,13 @@ io.on("connection", (socket: Socket) => {
       const room = rooms.find((room) => room.gameCode === gameCode);
       if (room) {
         room.started = true;
+
+        socket.broadcast.to(gameCode).emit("game-started", room.players);
+        socket.emit("game-started", room.players);
+        console.log("Game started: " + gameCode);
+      } else {
+        console.error("Room not found for game code:", gameCode);
       }
-      socket.broadcast.to(gameCode).emit("game-started");
-      socket.emit("game-started");
-      console.log("Game started: " + gameCode);
     } else {
       console.error("Game code not found for socket:", socket.id);
     }
@@ -89,7 +101,7 @@ io.on("connection", (socket: Socket) => {
     if (room.round >= room.rounds) {
       if (room.intervalId) clearInterval(room.intervalId);
       console.log("All rounds completed");
-      socket.broadcast.to(room.gameCode).emit("game-over");
+      socket.broadcast.to(room.gameCode).emit("game-over", { room });
       socket.emit("game-over", { room });
       return;
     }
@@ -127,7 +139,7 @@ io.on("connection", (socket: Socket) => {
       console.error("Room not found for game code:", gameCode);
     }
   });
-//BOTON PARA QUE LOS JUGADORES PUEDAN PRESIONAR PARA MANTENER LA IMAGEN
+  //BOTON PARA QUE LOS JUGADORES PUEDAN PRESIONAR PARA MANTENER LA IMAGEN
   socket.on("button-pressed", () => {
     const gameCode = socket.data.gameCode;
     const room = rooms.find((room) => room.gameCode === gameCode);
@@ -139,7 +151,7 @@ io.on("connection", (socket: Socket) => {
       }
     }
   });
-//BOTON PARA QUE LOS JUGADORES PUEDAN SOLTAR PARA QUE PASE A LA SIGUIENTE RONDA
+  //BOTON PARA QUE LOS JUGADORES PUEDAN SOLTAR PARA QUE PASE A LA SIGUIENTE RONDA
   socket.on("button-released", () => {
     const gameCode = socket.data.gameCode;
     const room = rooms.find((room) => room.gameCode === gameCode);
@@ -156,7 +168,7 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
-  socket.on("photo-sent", (data: { photo: string; username: string; gameCode: string, round: number }) => {
+  socket.on("photo-sent", (data: { photo: string; username: string; gameCode: string; round: number }) => {
     const { photo, username, gameCode, round } = data;
     console.log("Photo received from: " + username);
     socket.broadcast.to(gameCode).emit("photo-received", { photo, username, round });

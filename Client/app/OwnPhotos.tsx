@@ -6,6 +6,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import tw from "twrnc";
 import { usePhotoContext } from "@/app/providers/PhotoContext";
 import { useRouter } from "expo-router";
+import PhotoComponent from "./components/PhotoComponent";
 
 const OwnPhotos = () => {
   const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();
@@ -50,15 +51,7 @@ const OwnPhotos = () => {
       <StatusBar hidden />
       {/* Muestra la foto seleccionada y aplica un efecto de desenfoque en el fondo */}
       {photoUri && (
-        <>
-          <View style={tw`absolute w-full h-full`}>
-            <Image source={{ uri: photoUri }} style={tw`w-full h-full`} resizeMode="cover" />
-            <BlurView style={tw`absolute w-full h-full`} blurType="dark" blurAmount={50} reducedTransparencyFallbackColor="black" />
-          </View>
-          <View style={tw`flex-1 justify-center items-center`}>
-            <Image source={{ uri: photoUri }} style={tw`w-full h-full`} resizeMode="contain" />
-          </View>
-        </>
+        <PhotoComponent photoUrl={photoUri}/>
       )}
       {/* Botón para cerrar la pantalla y volver atrás */}
       <TouchableOpacity style={tw`absolute top-1 right-3 p-2`} onPress={() => navigation.replace("/")}>

@@ -2,8 +2,10 @@ import { Socket } from "socket.io-client";
 
 export interface Player {
   username: string;
+  points: number;
   socketId: string;
   isHost: boolean;
+  isReady: boolean;
 }
 
 export interface Room {
@@ -33,8 +35,10 @@ export interface GameContextProps {
   socket: Socket | null;
   gameCode: string | null;
   username: string | null;
+  playersProvider: Player[];
   setGameCode: (code: string | null) => void;
   setUsername: (name: string | null) => void;
+  setPlayersProvider: (players: Player[]) => void;
   startSocket: () => void;
   endSocket: () => void;
 }

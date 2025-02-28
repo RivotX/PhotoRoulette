@@ -8,7 +8,7 @@ import { RoomOfGameResponse, Player } from "@/app/models/interfaces";
 
 const WaitingRoom = ({}) => {
   const navigation = useRouter();
-  const { startSocket, endSocket, gameCode, setGameCode, socket, username } = useGameContext();
+  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username } = useGameContext();
   const [players, setPlayers] = useState<Player[]>([]);
   const [isInGame, setIsInGame] = useState<boolean>(false);
 
@@ -76,8 +76,10 @@ const WaitingRoom = ({}) => {
         });
       });
 
-      socket.on("game-started", () => {
+      socket.on("game-started", (players: Player[]) => {
+        setPlayersProvider(players);
         console.log("Game started");
+        
         navigation.replace("/GameScreen");
       });
     }
