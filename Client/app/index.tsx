@@ -14,7 +14,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasSeenInitialScreen, setHasSeenInitialScreen] = useState(false);
   const { setUsername, username, setGameCode } = useGameContext();
-  //Si message existe, muestra un mensaje de alerta
+
   // useEffect para verificar si el usuario ha visto la pantalla inicial (initialscreen)
   useEffect(() => {
     const checkInitialScreen = async () => {
@@ -22,12 +22,26 @@ const Index = () => {
       setHasSeenInitialScreen(value === "true");
       setIsLoading(false);
     };
+
+    const loadUsername = async () => {
+      const storedUsername = await AsyncStorage.getItem("username");
+      if (storedUsername) {
+        setUsername(storedUsername);
+      }
+    };
+
     checkInitialScreen();
+    loadUsername();
 
     if (message) {
       alert(message);
     }
   }, []);
+
+  const handleUsernameChange = async (text: string) => {
+    setUsername(text);
+    await AsyncStorage.setItem("username", text);
+  };
 
   // Muestra un indicador de carga mientras se verifica el estado inicial
   if (isLoading) {
@@ -37,6 +51,7 @@ const Index = () => {
       </View>
     );
   }
+
   // Si el usuario no ha visto la pantalla inicial, muestra la pantalla inicial
   if (!hasSeenInitialScreen) {
     return <InitialScreen />;
@@ -47,7 +62,12 @@ const Index = () => {
       <Text style={tw`text-2xl font-bold mb-4`}>Main Screen</Text>
 
       {/* Campo de texto para ingresar el nombre de usuario */}
-      <TextInput style={tw`border p-2 mb-4 w-3/4`} placeholder="Enter username" value={username || ""} onChange={(e) => setUsername(e.nativeEvent.text)} />
+      <TextInput
+        style={tw`border p-2 mb-4 w-3/4`}
+        placeholder="Enter username"
+        value={username || ""}
+        onChange={(e) => handleUsernameChange(e.nativeEvent.text)}
+      />
 
       {/* Botón para crear un juego */}
       <TouchableOpacity

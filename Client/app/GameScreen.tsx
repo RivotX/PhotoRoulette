@@ -89,7 +89,6 @@ const GameScreen = () => {
         console.log("Game Over");
         console.log(data.room);
         navigation.replace("/");
-        endSocket();
         setGameOver(true);
       });
 
