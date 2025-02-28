@@ -14,7 +14,7 @@ export const UploadRouter = async (req: Request, res: Response) => {
     fs.unlink(path.join(uploadPath, req.file!.filename), (err) => {
       if (err) console.error("Error deleting file:", err);
     });
-  },  60*1000); // 5 minutos
+  },  30*1000); // 30 segundos
 
   res.json({ url: imageUrl });
 };
