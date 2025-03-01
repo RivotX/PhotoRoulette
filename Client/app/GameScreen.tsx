@@ -10,36 +10,10 @@ import PhotoComponent from "./components/PhotoComponent";
 import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
 import { View as AnimatableView } from "react-native-animatable";
 import ScoreModal from "./components/ScoreModal"; // Importa el componente ScoreModal
+import ProgressBar from "./components/ProgressBar";
 
 const { SERVER_URL } = getEnvVars();
 
-const ProgressBar = ({ duration }: { duration: number }) => {
-  const progress = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(progress, {
-      toValue: 1,
-      duration: duration,
-      useNativeDriver: false,
-    }).start();
-  }, [duration]);
-
-  return (
-    <View style={tw`h-2 bg-gray-300 rounded-full overflow-hidden`}>
-      <Animated.View
-        style={[
-          tw`h-full bg-green-500`,
-          {
-            width: progress.interpolate({
-              inputRange: [0, 1],
-              outputRange: ["0%", "100%"],
-            }),
-          },
-        ]}
-      />
-    </View>
-  );
-};
 
 const GameScreen = () => {
   const navigation = useRouter();
