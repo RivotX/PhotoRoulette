@@ -47,8 +47,8 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
               <View style={tw`flex-row px-2 items-center w-[80%] justify-between`}>
                 <View>
                   <Text style={tw`text-lg font-bold`}>{player.username} </Text>
-                  <View style={tw`flex-row items-center`}>
-                    <Icon name={player.lastAnswerCorrect ? "check-circle" : "times-circle"} size={12} color={player.lastAnswerCorrect ? "green" : "red"} />
+                  <View style={tw`flex-row items-center justify-center`}>
+                    <Icon style={tw`px-2`} name={player.lastAnswerCorrect ? "check-circle" : "times-circle"} size={12} color={player.lastAnswerCorrect ? "green" : "red"} />
                     <Text style={tw`text-xs ${player.lastAnswerCorrect ? "text-green-500" : "text-red-500"}`}>{player.username} </Text>
                   </View>
                 </View>

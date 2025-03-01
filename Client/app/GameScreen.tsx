@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Animated } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "./providers/GameContext";
@@ -12,6 +12,34 @@ import { View as AnimatableView } from "react-native-animatable";
 import ScoreModal from "./components/ScoreModal"; // Importa el componente ScoreModal
 
 const { SERVER_URL } = getEnvVars();
+
+const ProgressBar = ({ duration }: { duration: number }) => {
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: duration,
+      useNativeDriver: false,
+    }).start();
+  }, [duration]);
+
+  return (
+    <View style={tw`h-2 bg-gray-300 rounded-full overflow-hidden`}>
+      <Animated.View
+        style={[
+          tw`h-full bg-green-500`,
+          {
+            width: progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: ["0%", "100%"],
+            }),
+          },
+        ]}
+      />
+    </View>
+  );
+};
 
 const GameScreen = () => {
   const navigation = useRouter();
@@ -31,6 +59,8 @@ const GameScreen = () => {
   const [answerMessage, setAnswerMessage] = useState<string>("");
   const [showScore, setShowScore] = useState<boolean>(false);
   const [score, setScore] = useState<ScoreRound[] | null>(null);
+  const timeForAnswer = 5000; // 5 segundos
+  const [progressKey, setProgressKey] = useState<number>(0); // Estado para la clave única del ProgressBar
 
   // Función para subir una imagen al servidor
   const uploadImage = async (uri: string) => {
@@ -80,9 +110,10 @@ const GameScreen = () => {
         setUsernamePhoto(data.username);
         setRound(data.round);
         console.log("ronda: ", data.round, "recibida");
+        setProgressKey(prevKey => prevKey + 1); // Actualiza la clave única del ProgressBar
         setTimeout(() => {
           setShowCorrectAnswer(true);
-        }, 5000);
+        }, timeForAnswer);
       });
 
       socket.on("game-over", (data: { room: Room }) => {
@@ -177,6 +208,9 @@ const GameScreen = () => {
               </AnimatableView>
               <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
                 <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
+              </View>
+              <View style={tw`absolute bottom-0 left-0 right-0 p-4`}>
+                <ProgressBar key={progressKey} duration={timeForAnswer} />
               </View>
             </AnimatableView>
           </>
