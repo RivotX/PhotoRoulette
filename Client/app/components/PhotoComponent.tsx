@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { BlurView } from "@react-native-community/blur";
+import { useState, useEffect } from "react";
 import { View } from "react-native-animatable";
 import tw from "twrnc";
 import { Image, TouchableOpacity } from "react-native";
-import { useEffect } from "react";
 import { useGameContext } from "../providers/GameContext";
+import ImageBlur from "./ImageBlur/ImageBlur";
+import { ImageBlurView } from "./ImageBlur";
 
 function PhotoComponent({ photoUrl, isInGame = false, elementRef = null, canHold = false }: { photoUrl: string; isInGame?: boolean; elementRef?: React.RefObject<View> | null; canHold?: boolean }) {
   const { socket } = useGameContext();
@@ -49,8 +49,17 @@ function PhotoComponent({ photoUrl, isInGame = false, elementRef = null, canHold
   return (
     <>
       <View style={tw`absolute w-full h-full`}>
-        <Image source={{ uri: photoUrl }} style={tw`w-full h-full`} resizeMode="cover" />
-        <BlurView style={tw`absolute w-full h-full`} blurType="dark" blurAmount={50} reducedTransparencyFallbackColor="black" />
+        <ImageBlur
+          src={photoUrl}
+          blurRadius={50} // Ajusta este valor según tus necesidades
+          blurChildren={
+            <ImageBlurView style={{ height: "100%", width: "100%" }}>
+              <View style={tw`flex-1 justify-center items-center`}>
+              </View>
+            </ImageBlurView>
+          }
+          style={{ flex: 1 }}
+        />
       </View>
       <View style={tw`flex-1 justify-center items-center`}>
         <TouchableOpacity

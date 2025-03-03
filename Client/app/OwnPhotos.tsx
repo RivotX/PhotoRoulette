@@ -29,6 +29,7 @@ const OwnPhotos = () => {
     checkPermissions();
 
     return () => {
+      console.log("OwnPhotos unmounted photoUri:", photoUri);
       setPhotoUri(null); // Resetea photoUri a null cuando se desmonta la pantalla
     };
   }, []);

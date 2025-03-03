@@ -5,9 +5,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  ImageBackground,
   Image,
   TouchableWithoutFeedback,
+  StyleSheet,
 } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
@@ -16,8 +16,10 @@ import InitialScreen from "@/app/InitialScreen";
 import { useGameContext } from "./providers/GameContext";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "react-native";
-import { BlurView } from "@react-native-community/blur";
 import * as Animatable from "react-native-animatable";
+import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
+import { ImageBlurView } from "./components/ImageBlur";
+
 import bg1 from "@/assets/images/bg1.jpg";
 import bg2 from "@/assets/images/bg2.jpg";
 import bg3 from "@/assets/images/bg3.jpeg";
@@ -27,7 +29,7 @@ import bg6 from "@/assets/images/bg6.jpg";
 import logo from "@/assets/images/icon.png";
 import diceIcon from "@/assets/images/icon.png";
 
-// Define custom animations
+// Animaciones personalizadas para React Native Animatable
 Animatable.initializeRegistryWithDefinitions({
   slideInDownBounce: {
     0: {
@@ -119,9 +121,12 @@ Animatable.initializeRegistryWithDefinitions({
   },
 });
 
+// Array de imágenes de fondo
 const backgrounds = [bg1, bg2, bg3, bg4, bg5, bg6];
 
+// Función para obtener un índice aleatorio
 const getRandomIndex = (indices: number[]): number => {
+  console.log("GET RANDOM INDEX");
   const randomIndex = Math.floor(Math.random() * indices.length);
   return indices[randomIndex];
 };
@@ -144,6 +149,7 @@ const Index = () => {
   const createGameButtonRef = useRef<Animatable.View & View>(null);
   const JoingameButtonRef = useRef<Animatable.View & View>(null);
 
+  // useEffect para cargar datos iniciales y configurar el intervalo de cambio de fondo
   useEffect(() => {
     const checkInitialScreen = async () => {
       const value = await AsyncStorage.getItem("hasSeenInitialScreen");
@@ -165,7 +171,7 @@ const Index = () => {
       alert(message);
     }
 
-    // background image change
+    // Cambio de imagen de fondo cada 10 segundos
     console.log("CREATE INTERVAL");
     const interval = setInterval(() => {
       if (availableIndices.current.length === 0) {
@@ -182,6 +188,7 @@ const Index = () => {
     };
   }, []);
 
+  // useEffect para manejar las animaciones cuando cambia el estado isJoiningGame
   useEffect(() => {
     if (!isJoiningGame && !isFirstMount) {
       console.log("RESET CREATE GAME BUTTON ANIMATION");
@@ -194,11 +201,13 @@ const Index = () => {
     }
   }, [isJoiningGame]);
 
+  // Manejar el cambio de nombre de usuario
   const handleUsernameChange = async (text: string) => {
     setUsername(text);
     await AsyncStorage.setItem("username", text);
   };
 
+  // Manejar la acción de unirse a un juego
   const handleJoinGame = () => {
     if (!username) {
       (usernameInputRef.current as any)?.shake?.(500);
@@ -208,6 +217,7 @@ const Index = () => {
     setIsJoiningGame(true);
   };
 
+  // Manejar la acción de crear un juego
   const handleCreateGame = () => {
     if (!username) {
       (usernameInputRef.current as any)?.shake?.(500);
@@ -215,17 +225,19 @@ const Index = () => {
     }
     setGameCode(null); // Limpiar el gameCode antes de navegar
     console.log("Navigating to WaitingRoom");
-    router.replace("/WaitingRoom");
+    router.push("/WaitingRoom");
   };
 
+  // Manejar la acción de buscar una sala
   const handleSearchRoom = () => {
     if (!gameCode) {
       (gameCodeAnimRef.current as any)?.shake?.(500);
       return;
     }
-    router.replace("/WaitingRoom");
+    router.push("/WaitingRoom");
   };
 
+  // Mostrar un indicador de carga si los datos iniciales aún se están cargando
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -234,27 +246,40 @@ const Index = () => {
     );
   }
 
+  // Mostrar la pantalla inicial si el usuario no la ha visto antes
   if (!hasSeenInitialScreen) {
     return <InitialScreen />;
   }
 
+  // Manejar la acción de cancelar unirse a un juego
   const handleCancelJoinGame = () => {
     console.log("CANCEL JOIN GAME");
     setIsJoiningGame(false);
   };
 
   return (
-    <ImageBackground source={backgroundImage} style={{ flex: 1 }}>
-      <StatusBar hidden />
-      <BlurView style={tw`size-full absolute`} blurType="dark" blurAmount={3} />
+    <>
+      <View style={tw`absolute w-full h-full`}>
+        <StatusBar hidden />
+        {/* Fondo desenfocado */}
+        <ImageBlur
+          src={backgroundImage}
+          blurRadius={3} // intensidad del blur
+          blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />}
+          style={{ flex: 1 }}
+        />
+      </View>
       <View style={tw`flex-1 justify-center items-center`}>
+        {/* Logo en la parte superior */}
         <View style={tw`absolute top-[18%] w-full items-center`}>
           <Image source={logo} style={tw`w-20 h-20`} />
         </View>
 
         <View style={tw`px-2 flex-1 w-full justify-center items-center`}>
+          {/* Mostrar el formulario de ingreso de usuario y botones si no se está uniendo a un juego */}
           {!isJoiningGame && (
             <>
+              {/* Input para ingresar el nombre de usuario */}
               <Animatable.View
                 ref={usernameInputRef}
                 animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
@@ -269,6 +294,7 @@ const Index = () => {
                 />
               </Animatable.View>
 
+              {/* Botón para crear un juego */}
               <Animatable.View
                 ref={createGameButtonRef}
                 animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
@@ -280,6 +306,7 @@ const Index = () => {
                 </TouchableOpacity>
               </Animatable.View>
 
+              {/* Botón para unirse a un juego */}
               <Animatable.View
                 ref={JoingameButtonRef}
                 animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
@@ -293,9 +320,11 @@ const Index = () => {
             </>
           )}
 
+          {/* Mostrar el formulario de ingreso de código de juego si se está uniendo a un juego */}
           {isJoiningGame && (
             <TouchableWithoutFeedback onPress={handleCancelJoinGame}>
               <View style={tw`flex-1 w-full justify-center items-center`}>
+                {/* Input para ingresar el código del juego */}
                 <Animatable.View ref={gameCodeAnimRef} animation="slideInDownBounce" duration={600} style={tw`w-full`}>
                   <TextInput
                     ref={gameCodeInputRef}
@@ -306,6 +335,8 @@ const Index = () => {
                     autoCapitalize="characters"
                   />
                 </Animatable.View>
+
+                {/* Botón para buscar una sala */}
                 <Animatable.View animation="slideInUpBounce" duration={600} style={tw`w-full`}>
                   <TouchableOpacity style={tw`bg-orange-500 p-4 rounded-xl mb-4 w-full `} onPress={handleSearchRoom}>
                     <Text style={tw`text-white text-center`}>Search Room</Text>
@@ -316,18 +347,19 @@ const Index = () => {
           )}
         </View>
 
+        {/* Botón para navegar a la pantalla de fotos propias */}
         <TouchableOpacity
           style={tw`bg-white/50 p-4 rounded-3xl bottom-20 absolute items-center `}
           onPress={() => {
             console.log("Navigating to OwnPhotos");
-            router.replace("/OwnPhotos");
+            router.push("/OwnPhotos");
           }}
         >
           <Image source={diceIcon} style={tw`w-8 h-8`} />
         </TouchableOpacity>
         <Text style={tw`absolute bottom-14 text-white`}>Random Photos</Text>
       </View>
-    </ImageBackground>
+    </>
   );
 };
 

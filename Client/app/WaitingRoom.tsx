@@ -8,7 +8,8 @@ import { RoomOfGameResponse, Player } from "@/app/models/interfaces";
 
 const WaitingRoom = ({}) => {
   const navigation = useRouter();
-  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username, setRoundsOfGame } = useGameContext();
+  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username, setRoundsOfGame } =
+    useGameContext();
   const [players, setPlayers] = useState<Player[]>([]);
   const [isInGame, setIsInGame] = useState<boolean>(false);
 
@@ -72,15 +73,17 @@ const WaitingRoom = ({}) => {
           // Eliminar al host actual
           const filteredPlayers = prevPlayers.filter((player) => !player.isHost);
           // Definir el nuevo host
-          return filteredPlayers.map((player) => (player.username === newHost.username ? { ...player, isHost: true } : player));
+          return filteredPlayers.map((player) =>
+            player.username === newHost.username ? { ...player, isHost: true } : player
+          );
         });
       });
 
-      socket.on("game-started", (players: Player[], roundsOfGame:number) => {
+      socket.on("game-started", (players: Player[], roundsOfGame: number) => {
         setPlayersProvider(players);
         setRoundsOfGame(roundsOfGame);
         console.log("Game started");
-        
+
         navigation.replace("/GameScreen");
       });
     }
@@ -105,18 +108,21 @@ const WaitingRoom = ({}) => {
   );
 
   return (
-    <View style={tw`flex-1 justify-center items-center`}>
+    <View style={tw`flex-1 justify-center items-center relative`}>
       <Text style={tw`text-2xl font-bold mb-4`}>WaitingRoom Screen</Text>
       <Text style={tw`text-xl mb-4`}>Game ID: {gameCode}</Text>
-      <FlatList data={players} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
+      <FlatList
+        data={players}
+        renderItem={renderPlayer}
+        keyExtractor={(item) => item.socketId}
+        style={tw`w-full px-4 mb-20`} // Add margin bottom to avoid overlapping with the button
+      />
       {players.length > 1 && players[0].username == username && (
-        <>
-          <TouchableOpacity style={tw`bg-green-500 p-4 rounded-full mt-4`} onPress={handleStartGame}>
-            <Text style={tw`text-white`}>Start Game</Text>
-          </TouchableOpacity>
-        </>
+        <TouchableOpacity style={tw`bg-green-500 p-4 rounded-full mt-4 absolute bottom-25`} onPress={handleStartGame}>
+          <Text style={tw`text-white`}>Start Game</Text>
+        </TouchableOpacity>
       )}
-      <TouchableOpacity style={tw`bg-red-500 p-4 rounded-full mt-4`} onPress={handleLeaveGame}>
+      <TouchableOpacity style={tw`bg-red-500 p-4 rounded-full absolute bottom-15`} onPress={handleLeaveGame}>
         <Text style={tw`text-white`}>Leave WaitingRoom</Text>
       </TouchableOpacity>
     </View>

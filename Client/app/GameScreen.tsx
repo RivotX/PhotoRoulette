@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TouchableOpacity, Animated } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "./providers/GameContext";
@@ -14,7 +14,6 @@ import ProgressBar from "./components/ProgressBar";
 
 const { SERVER_URL } = getEnvVars();
 
-
 const GameScreen = () => {
   const router = useRouter();
   const { username, gameCode, endSocket, socket, playersProvider, roundsOfGame } = useGameContext();
@@ -25,12 +24,11 @@ const GameScreen = () => {
   const [round, setRound] = useState<number>(0);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [gameOver, setGameOver] = useState<boolean>(false);
-  const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();
+  const { photoUri, getRandomPhoto} = usePhotoContext();
   const [myturn, setMyTurn] = useState<boolean>(false);
   const elementRef = useRef<AnimatableView>(null);
   const [userSelected, setUserSelected] = useState<string>("");
   const [showCorrectAnswer, setShowCorrectAnswer] = useState<boolean>(false);
-  const [answerMessage, setAnswerMessage] = useState<string>("");
   const [showScore, setShowScore] = useState<boolean>(false);
   const [score, setScore] = useState<ScoreRound[] | null>(null);
   const timeForAnswer = 5000; // 5 segundos
@@ -84,7 +82,7 @@ const GameScreen = () => {
         setUsernamePhoto(data.username);
         setRound(data.round);
         console.log("ronda: ", data.round, "recibida");
-        setProgressKey(prevKey => prevKey + 1); // Actualiza la clave única del ProgressBar
+        setProgressKey((prevKey) => prevKey + 1); // Actualiza la clave única del ProgressBar
         setTimeout(() => {
           setShowCorrectAnswer(true);
         }, timeForAnswer);
@@ -172,16 +170,27 @@ const GameScreen = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* <StatusBar hidden /> */}
       <View style={tw`flex-1 bg-black`}>
         {PhotoToShow ? (
           <>
-            <PhotoComponent photoUrl={PhotoToShow} isInGame={true} elementRef={elementRef} canHold={username == usernamePhoto} />
+            <PhotoComponent
+              photoUrl={PhotoToShow}
+              isInGame={true}
+              elementRef={elementRef}
+              canHold={username == usernamePhoto}
+            />
             <AnimatableView ref={elementRef}>
               <AnimatableView style={tw`absolute bottom-200 left-0 right-0 p-4 flex-row justify-center mb-4`}>
                 <Text style={tw`text-white`}>Round: {round}</Text>
               </AnimatableView>
               <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
-                <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
+                <FlatList
+                  data={playersProvider}
+                  renderItem={renderPlayer}
+                  keyExtractor={(item) => item.socketId}
+                  style={tw`w-full px-4`}
+                />
               </View>
               <View style={tw`absolute bottom-0 left-0 right-0 p-4`}>
                 <ProgressBar key={progressKey} duration={timeForAnswer} />
@@ -193,7 +202,12 @@ const GameScreen = () => {
             <Text style={tw`text-xl text-white font-bold mb-4`}>ARE YOU READY?</Text>
           </View>
         )}
-        <ScoreModal visible={showScore} onClose={() => setShowScore(false)} scoreRound={score || []} rounds={{round:round, roundsOfGame:roundsOfGame}} />
+        <ScoreModal
+          visible={showScore}
+          onClose={() => setShowScore(false)}
+          scoreRound={score || []}
+          rounds={{ round: round, roundsOfGame: roundsOfGame }}
+        />
       </View>
     </GestureHandlerRootView>
   );

@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { View, Text, Modal, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { ScoreRound } from "../models/interfaces";
-import { BlurView } from "@react-native-community/blur";
 import Icon from "react-native-vector-icons/FontAwesome"; // Import the icon library
 
 interface ScoreModalProps {
@@ -33,7 +32,6 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
   return (
     <Modal transparent={true} animationType="slide" visible={visible}>
       <View style={tw`flex-1 justify-center items-center  bg-black bg-opacity-50`}>
-        <BlurView style={tw`absolute w-full h-full`} blurType="dark" blurAmount={50} reducedTransparencyFallbackColor="black" />
 
         <Text style={tw`text-xl text-white bottom-90 font-bold mb-4`}>
           Round {rounds.round} of {rounds.roundsOfGame}{" "}
