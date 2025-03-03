@@ -19,7 +19,7 @@ import { StatusBar } from "react-native";
 import * as Animatable from "react-native-animatable";
 import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
 import { ImageBlurView } from "./components/ImageBlur";
-
+import { useBackHandler } from "@react-native-community/hooks";
 import bg1 from "@/assets/images/bg1.jpg";
 import bg2 from "@/assets/images/bg2.jpg";
 import bg3 from "@/assets/images/bg3.jpeg";
@@ -200,6 +200,15 @@ const Index = () => {
       setIsFirstMount(false);
     }
   }, [isJoiningGame]);
+
+  // Manejar el evento de retroceso en Android
+  useBackHandler(() => {
+    if (isJoiningGame) {
+      handleCancelJoinGame();
+      return true; // Prevenir el comportamiento por defecto (salir de la app)
+    }
+    return false; // Permitir el comportamiento por defecto
+  });
 
   // Manejar el cambio de nombre de usuario
   const handleUsernameChange = async (text: string) => {
