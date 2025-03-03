@@ -84,7 +84,7 @@ const WaitingRoom = ({}) => {
         setRoundsOfGame(roundsOfGame);
         console.log("Game started");
 
-        navigation.replace("/GameScreen");
+        navigation.replace("//screens/WaitingRoomameScreen");
       });
     }
   }, [socket]);

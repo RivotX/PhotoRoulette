@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
-import { useGameContext } from "./providers/GameContext";
+import { useGameContext } from "../providers/GameContext";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 const SearchRoom = () => {

@@ -2,15 +2,15 @@ import React, { useEffect, useState, useRef } from "react";
 import { View, Text, TouchableOpacity, StatusBar } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
-import { useGameContext } from "./providers/GameContext";
-import { Player, RandomPhotoResponse, Room, ScoreRound } from "./models/interfaces";
-import { usePhotoContext } from "./providers/PhotoContext";
+import { useGameContext } from "../providers/GameContext";
+import { Player, RandomPhotoResponse, Room, ScoreRound } from "../models/interfaces";
+import { usePhotoContext } from "../providers/PhotoContext";
 import getEnvVars from "@/config";
-import PhotoComponent from "./components/PhotoComponent";
+import PhotoComponent from "../components/PhotoComponent";
 import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
 import { View as AnimatableView } from "react-native-animatable";
-import ScoreModal from "./components/ScoreModal"; // Importa el componente ScoreModal
-import ProgressBar from "./components/ProgressBar";
+import ScoreModal from "../components/ScoreModal"; // Importa el componente ScoreModal
+import ProgressBar from "../components/ProgressBar";
 
 const { SERVER_URL } = getEnvVars();
 

@@ -5,7 +5,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import tw from "twrnc";
 import { usePhotoContext } from "@/app/providers/PhotoContext";
 import { useRouter } from "expo-router";
-import PhotoComponent from "./components/PhotoComponent";
+import PhotoComponent from "../components/PhotoComponent";
 
 const OwnPhotos = () => {
   const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();

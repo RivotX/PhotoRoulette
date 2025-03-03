@@ -19,7 +19,7 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
         return false;
       } else {
         console.log("Navigating to SettingsInstructionsScreen due to insufficient permissions.");
-        router.replace("/SettingsInstructionsScreen");
+        router.replace("/screens/SettingsInstructionsScreen");
       }
       return false;
     }
@@ -33,15 +33,15 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
     console.log(`Permission status: ${status}, canAskAgain: ${canAskAgain}, accessPrivileges: ${accessPrivileges}`);
     if (status !== "granted" || accessPrivileges !== "all") {
       if (accessPrivileges === "limited" || !canAskAgain) {
-        console.log("Navigating to SettingsInstructionsScreen due to limited access or cannot ask again.");
-        router.replace("/SettingsInstructionsScreen");
+        console.log("Navigating to screens/SettingsInstructionsScreen due to limited access or cannot ask again.");
+        router.replace("/screens/SettingsInstructionsScreen");
       } else {
         console.log("Navigating to InitialScreen.");
-        router.replace("/InitialScreen");
+        router.replace("/screens/InitialScreen");
       }
     } else {
       console.log("Navigating to InitialScreen.");
-      router.replace("/InitialScreen");
+      router.replace("/screens/InitialScreen");
     }
   }, [router]);
 

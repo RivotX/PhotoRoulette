@@ -11,7 +11,7 @@ import {
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import InitialScreen from "@/app/InitialScreen";
+import InitialScreen from "@/app/screens/InitialScreen";
 import { useGameContext } from "./providers/GameContext";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "react-native";
@@ -233,7 +233,7 @@ const Index = () => {
     }
     setGameCode(null); // Limpiar el gameCode antes de navegar
     console.log("Navigating to WaitingRoom");
-    router.push("/WaitingRoom");
+    router.push("/screens/WaitingRoom");
   };
 
   // Manejar la acción de buscar una sala
@@ -242,7 +242,7 @@ const Index = () => {
       (gameCodeAnimRef.current as any)?.shake?.(500);
       return;
     }
-    router.push("/WaitingRoom");
+    router.push("/screens/WaitingRoom");
   };
 
   // Mostrar un indicador de carga si los datos iniciales aún se están cargando
@@ -360,7 +360,7 @@ const Index = () => {
           style={tw`bg-white/50 p-4 rounded-3xl bottom-20 absolute items-center `}
           onPress={() => {
             console.log("Navigating to OwnPhotos");
-            router.push("/OwnPhotos");
+            router.push("/screens/OwnPhotos");
           }}
         >
           <Image source={diceIcon} style={tw`w-8 h-8`} />

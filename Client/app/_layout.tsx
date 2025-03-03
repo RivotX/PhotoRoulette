@@ -14,7 +14,6 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -29,13 +28,13 @@ export default function RootLayout() {
     <PhotoProvider>
       <GameProvider>
         <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false, animation: "fade"  }} />
-          <Stack.Screen name="OwnPhotos" options={{ headerShown: false, animation: "fade" }} />
-          <Stack.Screen name="WaitingRoom" options={{ headerShown: false }} />
-          <Stack.Screen name="InitialScreen" options={{ headerShown: false }} />
-          <Stack.Screen name="SettingsInstructionsScreen" options={{ headerShown: false }} />
-          <Stack.Screen name="SearchRoom" options={{ headerShown: false }} />
-          <Stack.Screen name="GameScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false, animation: "fade" }} />
+          <Stack.Screen name="screens/OwnPhotos" options={{ headerShown: false, animation: "fade" }} />
+          <Stack.Screen name="screens/WaitingRoom" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/InitialScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/SettingsInstructionsScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/SearchRoom" options={{ headerShown: false }} />
+          <Stack.Screen name="screens/GameScreen" options={{ headerShown: false }} />
         </Stack>
       </GameProvider>
     </PhotoProvider>
