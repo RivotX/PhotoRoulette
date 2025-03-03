@@ -118,7 +118,7 @@ const WaitingRoom = ({}) => {
         style={tw`w-full px-4 mb-20`} // Add margin bottom to avoid overlapping with the button
       />
       {players.length > 1 && players[0].username == username && (
-        <TouchableOpacity style={tw`bg-green-500 p-4 rounded-full mt-4 absolute bottom-25`} onPress={handleStartGame}>
+        <TouchableOpacity style={tw`bg-green-500 p-4 rounded-full mt-4 absolute bottom-30`} onPress={handleStartGame}>
           <Text style={tw`text-white`}>Start Game</Text>
         </TouchableOpacity>
       )}

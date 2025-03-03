@@ -7,7 +7,6 @@ import {
   TextInput,
   Image,
   TouchableWithoutFeedback,
-  StyleSheet,
 } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
