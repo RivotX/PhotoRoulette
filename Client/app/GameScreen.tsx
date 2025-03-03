@@ -16,7 +16,7 @@ const { SERVER_URL } = getEnvVars();
 
 
 const GameScreen = () => {
-  const navigation = useRouter();
+  const router = useRouter();
   const { username, gameCode, endSocket, socket, playersProvider, roundsOfGame } = useGameContext();
   const safeUsername = username ?? "";
   const safeGameCode = gameCode ?? "";
@@ -93,7 +93,7 @@ const GameScreen = () => {
       socket.on("game-over", (data: { room: Room }) => {
         console.log("Game Over");
         console.log(data.room);
-        navigation.replace("/");
+        router.replace("/");
         setGameOver(true);
       });
 

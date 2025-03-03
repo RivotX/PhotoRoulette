@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
 import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
 import { PhotoContextProps, PhotoProviderProps } from "@/app/models/interfaces";
@@ -7,10 +7,9 @@ const PhotoContext = createContext<PhotoContextProps | undefined>(undefined);
 
 export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const navigation = useRouter();
+  const router = useRouter();
 
-  // Solicita permisos para acceder a la galería
-  const requestGalleryPermission = async ({ askAgain }: { askAgain: boolean }): Promise<boolean> => {
+  const requestGalleryPermission = useCallback(async ({ askAgain }: { askAgain: boolean }): Promise<boolean> => {
     console.log("Requesting gallery permission...");
     const { status, canAskAgain, accessPrivileges } = await MediaLibrary.requestPermissionsAsync();
     console.log(`Permission status: ${status}, canAskAgain: ${canAskAgain}, accessPrivileges: ${accessPrivileges}`);
@@ -20,35 +19,33 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
         return false;
       } else {
         console.log("Navigating to SettingsInstructionsScreen due to insufficient permissions.");
-        navigation.replace("/SettingsInstructionsScreen");
+        router.replace("/SettingsInstructionsScreen");
       }
       return false;
     }
     console.log("Permission granted.");
     return true;
-  };
+  }, [router]);
 
-  // Maneja la acción de continuar, verificando permisos y navegando a la pantalla correspondiente
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     console.log("Handling continue...");
     const { status, canAskAgain, accessPrivileges } = await MediaLibrary.requestPermissionsAsync();
     console.log(`Permission status: ${status}, canAskAgain: ${canAskAgain}, accessPrivileges: ${accessPrivileges}`);
     if (status !== "granted" || accessPrivileges !== "all") {
       if (accessPrivileges === "limited" || !canAskAgain) {
         console.log("Navigating to SettingsInstructionsScreen due to limited access or cannot ask again.");
-        navigation.replace("/SettingsInstructionsScreen");
+        router.replace("/SettingsInstructionsScreen");
       } else {
         console.log("Navigating to InitialScreen.");
-        navigation.replace("/InitialScreen");
+        router.replace("/InitialScreen");
       }
     } else {
       console.log("Navigating to InitialScreen.");
-      navigation.replace("/InitialScreen");
+      router.replace("/InitialScreen");
     }
-  };
+  }, [router]);
 
-  // Obtiene una foto aleatoria de la galería
-  const getRandomPhoto = async () => {
+  const getRandomPhoto = useCallback(async () => {
     console.log("Getting random photo...");
     const hasPermission = await requestGalleryPermission({ askAgain: true });
     if (!hasPermission) {
@@ -80,10 +77,18 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
     } else {
       console.log("No photos found.");
     }
-  };
+  }, [requestGalleryPermission]);
+
+  const contextValue = useMemo(() => ({
+    photoUri,
+    requestGalleryPermission,
+    getRandomPhoto,
+    setPhotoUri,
+    handleContinue,
+  }), [photoUri, requestGalleryPermission, getRandomPhoto, handleContinue]);
 
   return (
-    <PhotoContext.Provider value={{ photoUri, requestGalleryPermission, getRandomPhoto, setPhotoUri, handleContinue }}>
+    <PhotoContext.Provider value={contextValue}>
       {children}
     </PhotoContext.Provider>
   );

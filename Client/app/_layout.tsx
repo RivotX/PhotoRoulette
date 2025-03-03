@@ -29,7 +29,7 @@ export default function RootLayout() {
     <PhotoProvider>
       <GameProvider>
         <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false, animation: "fade"  }} />
           <Stack.Screen name="OwnPhotos" options={{ headerShown: false, animation: "fade" }} />
           <Stack.Screen name="WaitingRoom" options={{ headerShown: false }} />
           <Stack.Screen name="InitialScreen" options={{ headerShown: false }} />

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Image, TouchableOpacity, StatusBar, SafeAreaView } from "react-native";
-import { BlurView } from "@react-native-community/blur";
+import { View, TouchableOpacity, StatusBar, SafeAreaView } from "react-native";
 import * as Animatable from "react-native-animatable";
 import Icon from "react-native-vector-icons/FontAwesome";
 import tw from "twrnc";
@@ -11,7 +10,7 @@ import PhotoComponent from "./components/PhotoComponent";
 const OwnPhotos = () => {
   const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();
   const iconRef = useRef<Animatable.View & View>(null);
-  const navigation = useRouter();
+  const router = useRouter();
 
   // useEffect para verificar permisos y obtener una foto aleatoria al montar el componente
   useEffect(() => {
@@ -54,7 +53,7 @@ const OwnPhotos = () => {
         <PhotoComponent photoUrl={photoUri}/>
       )}
       {/* Botón para cerrar la pantalla y volver atrás */}
-      <TouchableOpacity style={tw`absolute top-1 right-3 p-2`} onPress={() => navigation.replace("/")}>
+      <TouchableOpacity style={tw`absolute top-1 right-3 p-2`} onPress={() => router.replace("/")}>
         <Icon name="close" size={30} color="white" />
       </TouchableOpacity>
       {/* Botón para obtener una nueva foto aleatoria */}

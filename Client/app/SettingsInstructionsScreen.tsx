@@ -16,7 +16,7 @@ import IOSPermInstruction5 from "@/assets/images/IOSPermInstruction5.jpg";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const SettingsInstructionsScreen: React.FC = () => {
-  const navigation = useRouter();
+  const router = useRouter();
   const carouselRef = useRef<any>(null);
   const [counter, setCounter] = useState(0);
 
@@ -79,7 +79,7 @@ const SettingsInstructionsScreen: React.FC = () => {
           />
         </View>
         <View style={tw`flex-row justify-between w-full px-5`}>
-          <TouchableOpacity style={tw`bg-gray-400 p-3 rounded-lg flex-1 mr-2`} onPress={() => navigation.replace("/")}>
+          <TouchableOpacity style={tw`bg-gray-400 p-3 rounded-lg flex-1 mr-2`} onPress={() => router.replace("/")}>
             <Text style={tw`text-white text-base text-center`}>Back</Text>
           </TouchableOpacity>
           <TouchableOpacity style={tw`bg-blue-600 p-3 flex-1 ml-2 rounded-lg`} onPress={openSettings}>
