@@ -355,7 +355,7 @@ const Index = () => {
         </View>
         {/* Botón para navegar a la pantalla de fotos propias */}
         <TouchableOpacity
-          style={tw`bg-white/50 p-4 rounded-3xl bottom-20 absolute items-center `}
+          style={tw`bg-white/50 p-4 rounded-3xl bottom-22 absolute items-center `}
           onPress={() => {
             console.log("Navigating to OwnPhotos");
             router.push("/screens/OwnPhotos");
