@@ -282,7 +282,6 @@ const Index = () => {
         <View style={tw`absolute top-[18%] w-full items-center`}>
           <Image source={logo} style={tw`w-20 h-20`} />
         </View>
-
         <View style={tw`px-2 flex-1 w-full justify-center items-center`}>
           {/* Mostrar el formulario de ingreso de usuario y botones si no se está uniendo a un juego */}
           {!isJoiningGame && (
@@ -295,7 +294,7 @@ const Index = () => {
                 style={tw`w-full`}
               >
                 <TextInput
-                  style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center`}
+                  style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg font-bold`} 
                   placeholder="Enter username"
                   value={username || ""}
                   onChange={(e) => handleUsernameChange(e.nativeEvent.text)}
@@ -310,7 +309,7 @@ const Index = () => {
                 style={tw`w-full`}
               >
                 <TouchableOpacity style={tw`bg-orange-500 p-4 rounded-xl mb-4 w-full `} onPress={handleCreateGame}>
-                  <Text style={tw`text-white text-center`}>Create Game</Text>
+                  <Text style={tw`text-white text-center text-lg font-bold`}>Create Game</Text> 
                 </TouchableOpacity>
               </Animatable.View>
 
@@ -322,7 +321,7 @@ const Index = () => {
                 style={tw`w-full`}
               >
                 <TouchableOpacity style={tw`bg-orange-500 p-4 rounded-xl mb-4 w-full `} onPress={handleJoinGame}>
-                  <Text style={tw`text-white text-center`}>Join Game</Text>
+                  <Text style={tw`text-white text-center text-lg font-bold`}>Join Game</Text> 
                 </TouchableOpacity>
               </Animatable.View>
             </>
@@ -336,7 +335,7 @@ const Index = () => {
                 <Animatable.View ref={gameCodeAnimRef} animation="slideInDownBounce" duration={600} style={tw`w-full`}>
                   <TextInput
                     ref={gameCodeInputRef}
-                    style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center`}
+                    style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg font-bold`} 
                     placeholder="Enter game code"
                     value={gameCode || ""}
                     onChange={(e) => setGameCode(e.nativeEvent.text)}
@@ -347,14 +346,13 @@ const Index = () => {
                 {/* Botón para buscar una sala */}
                 <Animatable.View animation="slideInUpBounce" duration={600} style={tw`w-full`}>
                   <TouchableOpacity style={tw`bg-orange-500 p-4 rounded-xl mb-4 w-full `} onPress={handleSearchRoom}>
-                    <Text style={tw`text-white text-center`}>Search Room</Text>
+                    <Text style={tw`text-white text-center text-lg font-bold`}>Search Room</Text>
                   </TouchableOpacity>
                 </Animatable.View>
               </View>
             </TouchableWithoutFeedback>
           )}
         </View>
-
         {/* Botón para navegar a la pantalla de fotos propias */}
         <TouchableOpacity
           style={tw`bg-white/50 p-4 rounded-3xl bottom-20 absolute items-center `}
@@ -365,7 +363,7 @@ const Index = () => {
         >
           <Image source={diceIcon} style={tw`w-8 h-8`} />
         </TouchableOpacity>
-        <Text style={tw`absolute bottom-14 text-white`}>Random Photos</Text>
+        <Text style={tw`absolute bottom-14 text-white text-lg font-bold`}>Random Photos</Text>
       </View>
     </>
   );
