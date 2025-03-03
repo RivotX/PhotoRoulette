@@ -24,7 +24,7 @@ const GameScreen = () => {
   const [round, setRound] = useState<number>(0);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [gameOver, setGameOver] = useState<boolean>(false);
-  const { photoUri, getRandomPhoto} = usePhotoContext();
+  const { photoUri, getRandomPhoto, setPhotoUri} = usePhotoContext();
   const [myturn, setMyTurn] = useState<boolean>(false);
   const elementRef = useRef<AnimatableView>(null);
   const [userSelected, setUserSelected] = useState<string>("");
@@ -62,6 +62,7 @@ const GameScreen = () => {
         console.log("My turn");
         setRound(data.round);
         setMyTurn(true);
+        setPhotoUri(null);
         await getRandomPhoto();
       });
 
