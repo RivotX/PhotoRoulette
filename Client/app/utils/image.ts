@@ -7,3 +7,5 @@ export const getImageSource = (src: string | number): ImageSourcePropType => {
       }
     : (src as ImageSourcePropType);
 };
+
+export default getImageSource;

@@ -69,3 +69,5 @@ import React, {
       </ImageBlurContext.Provider>
     );
   };
+
+export default ImageBlurProvider;
