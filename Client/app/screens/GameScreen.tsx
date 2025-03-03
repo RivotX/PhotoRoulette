@@ -62,7 +62,6 @@ const GameScreen = () => {
         console.log("My turn");
         setRound(data.round);
         setMyTurn(true);
-        setPhotoUri(null);
         await getRandomPhoto();
       });
 
@@ -125,6 +124,7 @@ const GameScreen = () => {
           };
 
           socket.emit("photo-sent", randomPhotoResponse);
+          setPhotoUri(null);
         } catch (error) {
           sendPhoto();
         }
