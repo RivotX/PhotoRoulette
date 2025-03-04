@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TouchableOpacity, StatusBar } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar,FlatList } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "../providers/GameContext";
@@ -7,7 +7,6 @@ import { Player, RandomPhotoResponse, Room, ScoreRound } from "../models/interfa
 import { usePhotoContext } from "../providers/PhotoContext";
 import getEnvVars from "@/config";
 import PhotoComponent from "../components/PhotoComponent";
-import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
 import { View as AnimatableView } from "react-native-animatable";
 import ScoreModal from "../components/ScoreModal"; // Importa el componente ScoreModal
 import ProgressBar from "../components/ProgressBar";
@@ -170,7 +169,7 @@ const GameScreen = () => {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       {/* <StatusBar hidden /> */}
       <View style={tw`flex-1 bg-black`}>
         {PhotoToShow ? (
@@ -210,7 +209,7 @@ const GameScreen = () => {
           rounds={{ round: round, roundsOfGame: roundsOfGame }}
         />
       </View>
-    </GestureHandlerRootView>
+    </View>
   );
 };
 

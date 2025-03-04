@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Image, Linking, Dimensions, ScrollView, StyleSheet, Platform } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import CustomCarousel from "carousel-with-pagination-rn";
@@ -61,7 +60,7 @@ const SettingsInstructionsScreen: React.FC = () => {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={tw`flex-1 justify-center items-center bg-white p-5`}>
         <Text style={tw`text-2xl font-bold text-red-600 mb-5`}>⚠️ Warning</Text>
         <Text style={tw`text-base text-center mb-5`}>It is necessary to enable permissions in "Allow All the Time" for the application to work properly.</Text>
@@ -87,7 +86,7 @@ const SettingsInstructionsScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </GestureHandlerRootView>
+    </View>
   );
 };
 
