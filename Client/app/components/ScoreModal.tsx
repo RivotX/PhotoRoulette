@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, Modal, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { ScoreRound } from "../models/interfaces";
@@ -17,6 +17,7 @@ interface ScoreModalProps {
 const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, rounds, canHold, elementRef }) => {
   const { socket } = useGameContext();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [modalOpacity, setModalOpacity] = useState(1);
 
   useEffect(() => {
     console.log("ScoreModal mounted");
@@ -28,6 +29,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
         if (elementRef?.current) {
           elementRef.current.setNativeProps({ style: { opacity: 0 } });
         }
+        setModalOpacity(0);
 
         if (timerRef.current) {
           clearTimeout(timerRef.current);
@@ -39,6 +41,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
         if (elementRef?.current) {
           elementRef.current.setNativeProps({ style: { opacity: 1 } });
         }
+        setModalOpacity(1);
 
         timerRef.current = setTimeout(() => {
           onClose();
@@ -68,6 +71,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
   const handlePressIn = () => {
     if (canHold && elementRef?.current) {
       elementRef.current.setNativeProps({ style: { opacity: 0 } });
+      setModalOpacity(0);
       holdButton("button-pressed");
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -78,6 +82,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
   const handlePressOut = () => {
     if (canHold && elementRef?.current) {
       elementRef.current.setNativeProps({ style: { opacity: 1 } });
+      setModalOpacity(1);
       holdButton("button-released");
       timerRef.current = setTimeout(() => {
         onClose();
@@ -108,7 +113,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
 
   return (
     <Modal transparent={true} animationType="slide" visible={visible}>
-      <View style={tw`flex-1 justify-center items-center  bg-black bg-opacity-50`}>
+      <View style={[tw`flex-1 justify-center items-center bg-black bg-opacity-50`, { opacity: modalOpacity }]}>
         <Text style={tw`text-xl text-white bottom-90 font-bold mb-4`}>
           Round {rounds.round} of {rounds.roundsOfGame}{" "}
         </Text>
