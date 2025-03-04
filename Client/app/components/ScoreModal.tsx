@@ -4,6 +4,7 @@ import tw from "twrnc";
 import { ScoreRound } from "../models/interfaces";
 import Icon from "react-native-vector-icons/FontAwesome"; // Import the icon library
 import { useGameContext } from "../providers/GameContext";
+import ImageBlur from "./ImageBlur";
 
 interface ScoreModalProps {
   visible: boolean;
@@ -12,11 +13,11 @@ interface ScoreModalProps {
   rounds: { round: number; roundsOfGame: number };
   canHold?: boolean;
   elementRef?: React.RefObject<View> | null;
+  photoUrl: string;
 }
 
-const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, rounds, canHold, elementRef }) => {
+const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, rounds, canHold, elementRef, photoUrl }) => {
   const { socket } = useGameContext();
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [modalOpacity, setModalOpacity] = useState(1);
 
   useEffect(() => {
@@ -31,9 +32,6 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
         }
         setModalOpacity(0);
 
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
       });
 
       socket.on("button-released", () => {
@@ -42,10 +40,6 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
           elementRef.current.setNativeProps({ style: { opacity: 1 } });
         }
         setModalOpacity(1);
-
-        timerRef.current = setTimeout(() => {
-          onClose();
-        }, 3000);
       });
     }
     return () => {
@@ -54,13 +48,17 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
       if (socket) {
         socket.off("button-pressed");
         socket.off("button-released");
-
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
       }
     };
   }, []);
+
+  useEffect(() => {
+    console.log("ScoreModal updated");
+    
+    if(visible){
+      onClose();
+    }
+    }, [photoUrl]);
 
   const holdButton = (mode: string) => {
     if (socket) {
@@ -73,9 +71,6 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
       elementRef.current.setNativeProps({ style: { opacity: 0 } });
       setModalOpacity(0);
       holdButton("button-pressed");
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
     }
   };
 
@@ -84,37 +79,13 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
       elementRef.current.setNativeProps({ style: { opacity: 1 } });
       setModalOpacity(1);
       holdButton("button-released");
-      timerRef.current = setTimeout(() => {
-        onClose();
-      }, 3000);
     }
   };
-
-  useEffect(() => {
-    if (visible) {
-      timerRef.current = setTimeout(() => {
-        onClose();
-      }, 3000);
-    }
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, [visible]);
-
-  useEffect(() => {
-    console.log("ScoreModal mounted");
-    console.log("ScoreRound: ", scoreRound);
-    return () => {
-      console.log("ScoreModal unmounted");
-    };
-  }, []);
 
   return (
     <Modal transparent={true} animationType="slide" visible={visible}>
       <View style={[tw`flex-1 justify-center items-center bg-black bg-opacity-50`, { opacity: modalOpacity }]}>
-        <Text style={tw`text-xl text-white bottom-90 font-bold mb-4`}>
+        <Text style={tw`text-xl text-white absolute top-10 font-bold mb-4`}>
           Round {rounds.round} of {rounds.roundsOfGame}{" "}
         </Text>
         {scoreRound.map((player, index) => (
@@ -141,9 +112,12 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
             </View>
           </View>
         ))}
-
         {canHold && (
-          <TouchableOpacity style={tw`bg-blue-500 p-4 rounded-lg mt-4`} onPressIn={handlePressIn} onPressOut={handlePressOut}>
+          <TouchableOpacity
+            style={tw`bg-blue-500 absolute bottom-10 p-4 flex justify-center items-center rounded-lg w-[90%]`}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+          >
             <Text style={tw`text-white text-lg`}>Hold photo</Text>
           </TouchableOpacity>
         )}

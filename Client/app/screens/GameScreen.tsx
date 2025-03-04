@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TouchableOpacity, StatusBar, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar, FlatList, BackHandler } from "react-native";
+import { useFocusEffect } from '@react-navigation/native';
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "../providers/GameContext";
@@ -51,6 +52,20 @@ const GameScreen = () => {
     const data = await response.json();
     return data.url; // URL accesible de la imagen
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        return true; // Previene la acción de "ir atrás"
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      };
+    }, [])
+  );
 
   useEffect(() => {
     console.log("GameScreen mounted, socket", socket);
@@ -179,9 +194,6 @@ const GameScreen = () => {
               <View style={tw`absolute size-full top-15 left-0 right-0 p-4`}>
                 <ProgressBar key={progressKey} duration={timeForAnswer} />
               </View>
-              <AnimatableView style={tw`absolute top-24 left-0 right-0 p-4 flex-row justify-center mb-4`}>
-                <Text style={tw`text-white`}>Round: {round}</Text>
-              </AnimatableView>
               <View style={tw`absolute z-200 bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
                 <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
               </View>
@@ -192,6 +204,7 @@ const GameScreen = () => {
                 scoreRound={score || []}
                 canHold={username == usernamePhoto}
                 rounds={{ round: round, roundsOfGame: roundsOfGame }}
+                photoUrl={PhotoToShow}
               />
             </AnimatableView>
           </>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import * as Animatable from "react-native-animatable";
 import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
 import { ImageBlurView } from "./components/ImageBlur";
 import { useBackHandler } from "@react-native-community/hooks";
+import { useFocusEffect } from "@react-navigation/native";
 import bg1 from "@/assets/images/bg1.jpg";
 import bg2 from "@/assets/images/bg2.jpg";
 import bg3 from "@/assets/images/bg3.jpeg";
@@ -136,7 +137,7 @@ const Index = () => {
   const message = params?.message;
   const [isLoading, setIsLoading] = useState(true);
   const [hasSeenInitialScreen, setHasSeenInitialScreen] = useState(false);
-  const { setUsername, username, setGameCode, gameCode } = useGameContext();
+  const { setUsername, username, setGameCode, gameCode, socket, endSocket } = useGameContext();
   const [backgroundImage, setBackgroundImage] = useState(backgrounds[Math.floor(Math.random() * backgrounds.length)]);
   const [isJoiningGame, setIsJoiningGame] = useState(false);
   const [shouldAnimateCreateGameButton, setShouldAnimateCreateGameButton] = useState(false);
@@ -148,7 +149,7 @@ const Index = () => {
   const createGameButtonRef = useRef<Animatable.View & View>(null);
   const JoingameButtonRef = useRef<Animatable.View & View>(null);
 
-  // useEffect para cargar datos iniciales y configurar el intervalo de cambio de fondo
+  // useEffect para cargar datos iniciales
   useEffect(() => {
     const checkInitialScreen = async () => {
       const value = await AsyncStorage.getItem("hasSeenInitialScreen");
@@ -169,23 +170,32 @@ const Index = () => {
     if (message) {
       alert(message);
     }
-
-    // Cambio de imagen de fondo cada 10 segundos
-    console.log("CREATE INTERVAL");
-    const interval = setInterval(() => {
-      if (availableIndices.current.length === 0) {
-        availableIndices.current = [...Array(backgrounds.length).keys()];
-      }
-      const randomIndex = getRandomIndex(availableIndices.current);
-      setBackgroundImage(backgrounds[randomIndex]);
-      availableIndices.current = availableIndices.current.filter((index) => index !== randomIndex);
-    }, 10000);
-
-    return () => {
-      console.log("CLEAR INTERVAL");
-      clearInterval(interval);
-    };
   }, []);
+
+  // useFocusEffect para manejar el intervalo de cambio de fondo
+  useFocusEffect(
+    useCallback(() => {
+      console.log("CREATE INTERVAL");
+      const interval = setInterval(() => {
+        if (availableIndices.current.length === 0) {
+          availableIndices.current = [...Array(backgrounds.length).keys()];
+        }
+        const randomIndex = getRandomIndex(availableIndices.current);
+        setBackgroundImage(backgrounds[randomIndex]);
+        availableIndices.current = availableIndices.current.filter((index) => index !== randomIndex);
+      }, 10000);
+  
+      if (socket) {
+        console.log("desconectando socket");
+        endSocket();
+      }
+  
+      return () => {
+        console.log("CLEAR INTERVAL");
+        clearInterval(interval);
+      };
+    }, [socket, endSocket])
+  );
 
   // useEffect para manejar las animaciones cuando cambia el estado isJoiningGame
   useEffect(() => {

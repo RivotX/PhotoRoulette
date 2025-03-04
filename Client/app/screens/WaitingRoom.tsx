@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, FlatList } from "react-native";
 import tw from "twrnc";
 import { useGameContext } from "@/app/providers/GameContext";
 import { useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import { RoomOfGameResponse, Player } from "@/app/models/interfaces";
+import { useFocusEffect } from "@react-navigation/native";
 
 const WaitingRoom = ({}) => {
   const navigation = useRouter();
@@ -13,24 +14,24 @@ const WaitingRoom = ({}) => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [isInGame, setIsInGame] = useState<boolean>(false);
 
-  useEffect(() => {
-    console.log("se monta");
+  useFocusEffect(
+    useCallback(() => {
+    console.log("focus waiting room");
 
     if (!isInGame) {
       startSocket();
     }
 
     return () => {
-      console.log("se desmonta");
-      if (socket) {
-        socket.off("room-of-game");
-        socket.off("player-joined");
-        socket.off("player-left");
-        socket.off("host-left");
-        socket.off("new-host");
-      }
+      console.log("desfocus waiting room");
+        socket?.off("room-of-game");
+        socket?.off("player-joined");
+        socket?.off("player-left");
+        socket?.off("host-left");
+        socket?.off("new-host");
     };
-  }, []);
+  }, [isInGame])
+  );
 
   useEffect(() => {
     if (socket && username && !isInGame) {
