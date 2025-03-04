@@ -170,7 +170,7 @@ const GameScreen = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* <StatusBar hidden /> */}
+      <StatusBar hidden />
       <View style={tw`flex-1 bg-black`}>
         {PhotoToShow ? (
           <>
@@ -180,8 +180,11 @@ const GameScreen = () => {
               elementRef={elementRef}
               canHold={username == usernamePhoto}
             />
-            <AnimatableView ref={elementRef}>
-              <AnimatableView style={tw`absolute bottom-200 left-0 right-0 p-4 flex-row justify-center mb-4`}>
+            <AnimatableView ref={elementRef} style={tw`absolute size-full `}>
+            <View style={tw`absolute size-full top-10 left-0 right-0 p-4`}>
+                <ProgressBar key={progressKey} duration={timeForAnswer} />
+              </View>
+              <AnimatableView style={tw`absolute top-15 left-0 right-0 p-4 flex-row justify-center mb-4`}>
                 <Text style={tw`text-white`}>Round: {round}</Text>
               </AnimatableView>
               <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
@@ -191,9 +194,6 @@ const GameScreen = () => {
                   keyExtractor={(item) => item.socketId}
                   style={tw`w-full px-4`}
                 />
-              </View>
-              <View style={tw`absolute bottom-0 left-0 right-0 p-4`}>
-                <ProgressBar key={progressKey} duration={timeForAnswer} />
               </View>
             </AnimatableView>
           </>

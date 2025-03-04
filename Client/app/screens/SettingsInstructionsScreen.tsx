@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Image, Linking, Dimensions, ScrollView, StyleSheet, Platform } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
-import CustomCarousel from "carousel-with-pagination-rn";
+import CustomCarousel from "@/app/components/CustomCarousel/CustomCarousel";
 import PermInstruction1 from "@/assets/images/PermInstructions1.jpg";
 import PermInstruction2 from "@/assets/images/PermInstructions2.jpg";
 import PermInstruction3 from "@/assets/images/PermInstructions3.jpg";
