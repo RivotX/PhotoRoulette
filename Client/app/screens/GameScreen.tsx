@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TouchableOpacity, StatusBar,FlatList } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar, FlatList } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "../providers/GameContext";
@@ -23,7 +23,7 @@ const GameScreen = () => {
   const [round, setRound] = useState<number>(0);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [gameOver, setGameOver] = useState<boolean>(false);
-  const { photoUri, getRandomPhoto, setPhotoUri} = usePhotoContext();
+  const { photoUri, getRandomPhoto, setPhotoUri } = usePhotoContext();
   const [myturn, setMyTurn] = useState<boolean>(false);
   const elementRef = useRef<AnimatableView>(null);
   const [userSelected, setUserSelected] = useState<string>("");
@@ -174,27 +174,25 @@ const GameScreen = () => {
       <View style={tw`flex-1 bg-black`}>
         {PhotoToShow ? (
           <>
-            <PhotoComponent
-              photoUrl={PhotoToShow}
-              isInGame={true}
-              elementRef={elementRef}
-              canHold={username == usernamePhoto}
-            />
-            <AnimatableView ref={elementRef} style={tw`absolute size-full `}>
-            <View style={tw`absolute size-full top-10 left-0 right-0 p-4`}>
+            <PhotoComponent photoUrl={PhotoToShow} />
+            <AnimatableView ref={elementRef} style={tw`z-8  absolute size-full `}>
+              <View style={tw`absolute size-full top-15 left-0 right-0 p-4`}>
                 <ProgressBar key={progressKey} duration={timeForAnswer} />
               </View>
-              <AnimatableView style={tw`absolute top-15 left-0 right-0 p-4 flex-row justify-center mb-4`}>
+              <AnimatableView style={tw`absolute top-24 left-0 right-0 p-4 flex-row justify-center mb-4`}>
                 <Text style={tw`text-white`}>Round: {round}</Text>
               </AnimatableView>
-              <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
-                <FlatList
-                  data={playersProvider}
-                  renderItem={renderPlayer}
-                  keyExtractor={(item) => item.socketId}
-                  style={tw`w-full px-4`}
-                />
+              <View style={tw`absolute z-200 bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
+                <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
               </View>
+              <ScoreModal
+                visible={showScore}
+                onClose={() => setShowScore(false)}
+                elementRef={elementRef}
+                scoreRound={score || []}
+                canHold={username == usernamePhoto}
+                rounds={{ round: round, roundsOfGame: roundsOfGame }}
+              />
             </AnimatableView>
           </>
         ) : (
@@ -202,12 +200,6 @@ const GameScreen = () => {
             <Text style={tw`text-xl text-white font-bold mb-4`}>ARE YOU READY?</Text>
           </View>
         )}
-        <ScoreModal
-          visible={showScore}
-          onClose={() => setShowScore(false)}
-          scoreRound={score || []}
-          rounds={{ round: round, roundsOfGame: roundsOfGame }}
-        />
       </View>
     </View>
   );

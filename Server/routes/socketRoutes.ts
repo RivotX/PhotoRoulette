@@ -99,20 +99,33 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
-    const startNextRound = (room: Room) => {
+  
+  const SecondsForRound = 10000;
+  const SecondsForShowScore = 7000;
+  const SecondsWhenButtonRelease = SecondsForRound - SecondsForShowScore;
+  const SecondsToStart = 1000;
+  const startNextRound = (room: Room) => {
     try {
       if (!room) {
         console.error("Room not found");
         return;
       }
-  
+
+      if (room.players.length < 2) {
+        if (room.intervalId) clearInterval(room.intervalId);
+        console.log("Game Over: Not enough players");
+        io.to(room.gameCode).emit("game-over", { room });
+        return;
+      }
+
       if (room.round >= room.rounds) {
         if (room.intervalId) clearInterval(room.intervalId);
         console.log("All rounds completed");
         io.to(room.gameCode).emit("game-over", { room });
+
         return;
       }
-  
+
       room.currentPlayer = getRandomPlayer(room.players);
       if (!room.currentPlayer) {
         console.error("Current player not found");
@@ -122,18 +135,17 @@ io.on("connection", (socket: Socket) => {
       io.to(room.currentPlayer.socketId).emit("your-turn", { round: room.round + 1 });
       console.log("Your turn: " + room.currentPlayer.username + " - " + room.currentPlayer.socketId);
       room.round++;
-  
+
       // Emit score-round after 7 seconds
       setTimeout(() => {
-        const scores : ScoreRound[] = room.players.map(player => ({
+        const scores: ScoreRound[] = room.players.map((player) => ({
           username: player.username,
           points: player.points,
-          isHost : player.isHost,
-          lastAnswerCorrect: player.lastAnswerCorrect
-        }))
+          isHost: player.isHost,
+          lastAnswerCorrect: player.lastAnswerCorrect,
+        }));
         io.to(room.gameCode).emit("score-round", scores);
-      }, 7000);
-  
+      }, SecondsForShowScore);
     } catch (error) {
       console.error("Error in startNextRound:", error);
     }
@@ -162,8 +174,8 @@ io.on("connection", (socket: Socket) => {
               if (!room.buttonPressed) {
                 startNextRound(room);
               }
-            }, 10000);
-          }, 2000); // 2 seconds delay
+            }, SecondsForRound);
+          }, SecondsToStart); // 1 seconds delay
         }
       } else {
         console.error("Room not found for game code:", gameCode);
@@ -174,6 +186,7 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("button-pressed", () => {
+
     try {
       const gameCode = socket.data.gameCode;
       const room = rooms.find((room) => room.gameCode === gameCode);
@@ -182,6 +195,7 @@ io.on("connection", (socket: Socket) => {
         if (iscurrentPlayer) {
           room.buttonPressed = true;
           if (room.intervalId) clearInterval(room.intervalId);
+          socket.broadcast.to(gameCode).emit("button-pressed");
         }
       }
     } catch (error) {
@@ -197,6 +211,7 @@ io.on("connection", (socket: Socket) => {
         const iscurrentPlayer = room.currentPlayer?.socketId === socket.id;
         if (iscurrentPlayer) {
           room.buttonPressed = false;
+          socket.broadcast.to(gameCode).emit("button-released");
           room.intervalId = setTimeout(() => {
             if (!room.buttonPressed) {
               startNextRound(room);
@@ -205,8 +220,8 @@ io.on("connection", (socket: Socket) => {
               if (!room.buttonPressed) {
                 startNextRound(room);
               }
-            }, 10000);
-          }, 2000);
+            }, SecondsForRound);
+          }, SecondsWhenButtonRelease);
         }
       }
     } catch (error) {
@@ -226,9 +241,9 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("correct-answer", (data: PlayerId) => {
     try {
-      const { username, gameCode} = data;
+      const { username, gameCode } = data;
       console.log("Photo received from: " + username);
-      const room=rooms.find((room) => room.gameCode === gameCode);
+      const room = rooms.find((room) => room.gameCode === gameCode);
       if (room) {
         const player = room.players.find((player) => player.username === username);
         if (player) {
@@ -237,7 +252,6 @@ io.on("connection", (socket: Socket) => {
           console.log("Player points: " + player.points);
         }
       }
-      
     } catch (error) {
       console.error("Error in photo-sent:", error);
     }
@@ -245,9 +259,9 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("incorrect-answer", (data: PlayerId) => {
     try {
-      const { username, gameCode} = data;
+      const { username, gameCode } = data;
       console.log("Photo received from: " + username);
-      const room=rooms.find((room) => room.gameCode === gameCode);
+      const room = rooms.find((room) => room.gameCode === gameCode);
       if (room) {
         const player = room.players.find((player) => player.username === username);
         if (player) {
@@ -255,7 +269,6 @@ io.on("connection", (socket: Socket) => {
           console.log("Player points: " + player.points);
         }
       }
-      
     } catch (error) {
       console.error("Error in photo-sent:", error);
     }
