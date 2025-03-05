@@ -18,6 +18,7 @@ export interface ScoreRound {
 export interface Room {
   gameCode: string;
   players: Player[];
+  rounds: number;
 }
 
 export interface RandomPhotoResponse {

@@ -9,13 +9,16 @@ import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
 import { ImageBlurView } from "@/app/components/ImageBlur";
 import { useBackgroundContext } from "@/app/providers/BackgroundContext";
 import CloseButton from "../components/CloseButton";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 const WaitingRoom = ({}) => {
   const navigation = useRouter();
-  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username, setRoundsOfGame } = useGameContext();
+  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username, setRoundsOfGame, roundsOfGame } = useGameContext();
   const [players, setPlayers] = useState<Player[]>([]);
   const [isInGame, setIsInGame] = useState<boolean>(false);
   const { backgroundImage } = useBackgroundContext();
+
+  const roundOptions = [5, 10, 15];
 
   useFocusEffect(
     useCallback(() => {
@@ -60,8 +63,14 @@ const WaitingRoom = ({}) => {
           if (data.room) {
             setPlayers(data.room.players);
             setGameCode(data.room.gameCode);
+            setRoundsOfGame(data.room.rounds);
           }
         }
+      });
+
+      socket.on("rounds-updated", (rounds: number) => {
+        setRoundsOfGame(rounds);
+        console.log("Rounds updated:", rounds);
       });
 
       socket.on("player-joined", (newPlayer: Player) => {
@@ -83,7 +92,6 @@ const WaitingRoom = ({}) => {
 
       socket.on("game-started", (players: Player[], roundsOfGame: number) => {
         setPlayersProvider(players);
-        setRoundsOfGame(roundsOfGame);
         console.log("Game started");
 
         navigation.replace("/screens/GameScreen");
@@ -102,9 +110,20 @@ const WaitingRoom = ({}) => {
     }
   };
 
+  const handleSetRounds = (rounds: number) => {
+    if (socket) {
+      socket.emit("set-rounds", { gameCode, rounds });
+    }
+  };
+
   const renderPlayer = ({ item }: { item: Player }) => (
-    <View style={tw`bg-violet-900 p-4 rounded-full shadow shadow-2xl mb-2 flex-row items-center`}>
-      {item.isHost && <Text style={tw`text-white text-lg mr-2`}>👑</Text>}
+    // Estilo de cada jugador
+    // Si el jugador es el host, se muestra una estrella amarilla
+    <View style={tw`relative bg-violet-900 p-4 rounded-full shadow shadow-2xl mb-2 flex-row items-center justify-center`}>
+      <Text style={tw`text-white absolute left-10 text-lg mr-2`}>
+        {item.isHost ? <Icon name="star" size={20} color="yellow" /> : <Icon name="user" size={20} color="white" />}
+      </Text>
+      {item.username === username && <View style={tw`border-4 border-green-500 rounded-full p-1 absolute right-10`} />}
       <Text style={tw`text-white text-lg`}>{item.username}</Text>
     </View>
   );
@@ -122,18 +141,22 @@ const WaitingRoom = ({}) => {
           style={{ flex: 1 }}
         />
       </View>
-      <CloseButton onPress={handleLeaveGame} /> 
+      <CloseButton onPress={handleLeaveGame} />
       <View style={tw`flex size-full justify-center my-20 items-center relative`}>
-        
         <Text
           style={[
             tw`text-2xl text-white font-bold mb-4`,
             { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 4 },
           ]}
         >
-          Game CODE
+          Game Code
         </Text>
-        <Text style={[tw`text-5xl text-white mb-4`, { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 }]}>
+        <Text
+          style={[
+            tw`text-5xl text-white font-extrabold mb-4`,
+            { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 },
+          ]}
+        >
           {gameCode}
         </Text>
         <FlatList
@@ -142,15 +165,31 @@ const WaitingRoom = ({}) => {
           keyExtractor={(item) => item.socketId}
           style={tw`w-full px-4 mb-20`} // Add margin bottom to avoid overlapping with the button
         />
-                    { players.length > 0 && players[0].username == username && players.length >= 2 ? (
+
+          <Text style={[tw`text-white font-extrabold  absolute top-10 right-10`,{ textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 }]}>{roundsOfGame} Rounds </Text>
+
+        {players.length > 0 && players[0].username == username && players.length >= 2 ? (
+          <>
+            <View style={tw`flex-row flex-wrap absolute bottom-60`}>
+              {roundOptions.map((rounds) => (
+                <TouchableOpacity
+                  key={rounds}
+                  style={tw`${roundsOfGame === rounds ? "bg-green-500" : "bg-purple-500"} p-4 rounded-lg mx-2`}
+                  onPress={() => handleSetRounds(rounds)}
+                >
+                  <Text style={tw`text-white`}>{rounds} Rounds</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
             <TouchableOpacity style={tw`bg-orange-600 p-4 rounded-lg w-[90%] flex justify-center items-center absolute bottom-40`} onPress={handleStartGame}>
               <Text style={tw`text-white`}>Start Game</Text>
             </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={tw`bg-yellow-600 p-4 rounded-lg w-[90%] flex justify-center opacity-70 items-center absolute bottom-40`} disabled={true}>
-              <Text style={tw`text-white`}>{players.length < 2 ? "Waiting for players" : "Waiting host"}</Text>
-            </TouchableOpacity>
-          )}
+          </>
+        ) : (
+          <TouchableOpacity style={tw`bg-yellow-600 p-4 rounded-lg w-[90%] flex justify-center opacity-70 items-center absolute bottom-40`} disabled={true}>
+            <Text style={tw`text-white`}>{players.length < 2 ? "Waiting for players" : "Waiting host"}</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </>
   );

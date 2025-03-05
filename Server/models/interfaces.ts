@@ -43,4 +43,5 @@ export interface RoomOfGameResponse {
   success: boolean;
   room?: Room;
   message?: string;
+  rounds?: number;
 }

@@ -38,7 +38,7 @@ io.on("connection", (socket: Socket) => {
               socket.join(gameCode);
               const newPlayer: Player = { username, socketId: socket.id, isHost: false, isReady: false, points: 0, lastAnswerCorrect: false };
               room.players.push(newPlayer);
-              const response: RoomOfGameResponse = { success: true, room };
+              const response: RoomOfGameResponse = { success: true, room, rounds: room.rounds };
               socket.emit("room-of-game", response);
               socket.broadcast.to(gameCode).emit("player-joined", newPlayer);
               console.log("Player joined room: " + gameCode);
@@ -75,6 +75,22 @@ io.on("connection", (socket: Socket) => {
       }
     } catch (error) {
       console.error("Error in join-create-game:", error);
+    }
+  });
+
+  socket.on("set-rounds", (data: { gameCode: string, rounds: number }) => {
+    try {
+      const { gameCode, rounds } = data;
+      const room = rooms.find((room) => room.gameCode === gameCode);
+      if (room) {
+        room.rounds = rounds;
+        io.to(room.gameCode).emit("rounds-updated", rounds);
+        console.log(`Rounds updated to ${rounds} for game: ${gameCode}`);
+      } else {
+        console.error("Room not found for game code:", gameCode);
+      }
+    } catch (error) {
+      console.error("Error in set-rounds:", error);
     }
   });
 
