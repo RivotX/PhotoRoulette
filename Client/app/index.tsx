@@ -12,22 +12,17 @@ import tw from "twrnc";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import InitialScreen from "@/app/screens/InitialScreen";
-import { useGameContext } from "./providers/GameContext";
+import { useGameContext } from "@/app/providers/GameContext";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "react-native";
 import * as Animatable from "react-native-animatable";
 import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
-import { ImageBlurView } from "./components/ImageBlur";
+import { ImageBlurView } from "@/app/components/ImageBlur";
 import { useBackHandler } from "@react-native-community/hooks";
 import { useFocusEffect } from "@react-navigation/native";
-import bg1 from "@/assets/images/bg1.jpg";
-import bg2 from "@/assets/images/bg2.jpg";
-import bg3 from "@/assets/images/bg3.jpeg";
-import bg4 from "@/assets/images/bg4.jpg";
-import bg5 from "@/assets/images/bg5.jpg";
-import bg6 from "@/assets/images/bg6.jpg";
 import logo from "@/assets/images/icon.png";
 import diceIcon from "@/assets/images/icon.png";
+import { BackgroundProvider, useBackgroundContext } from "./providers/BackgroundContext";
 
 // Animaciones personalizadas para React Native Animatable
 Animatable.initializeRegistryWithDefinitions({
@@ -121,16 +116,6 @@ Animatable.initializeRegistryWithDefinitions({
   },
 });
 
-// Array de imágenes de fondo
-const backgrounds = [bg1, bg2, bg3, bg4, bg5, bg6];
-
-// Función para obtener un índice aleatorio
-const getRandomIndex = (indices: number[]): number => {
-  console.log("GET RANDOM INDEX");
-  const randomIndex = Math.floor(Math.random() * indices.length);
-  return indices[randomIndex];
-};
-
 const Index = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -138,14 +123,13 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasSeenInitialScreen, setHasSeenInitialScreen] = useState(false);
   const { setUsername, username, setGameCode, gameCode, socket, endSocket } = useGameContext();
-  const [backgroundImage, setBackgroundImage] = useState(backgrounds[Math.floor(Math.random() * backgrounds.length)]);
+  const { backgroundImage } = useBackgroundContext();
   const [isJoiningGame, setIsJoiningGame] = useState(false);
   const [shouldAnimateCreateGameButton, setShouldAnimateCreateGameButton] = useState(false);
   const [isFirstMount, setIsFirstMount] = useState(true);
   const gameCodeInputRef = useRef<TextInput>(null);
   const usernameInputRef = useRef<Animatable.View & View>(null);
   const gameCodeAnimRef = useRef<Animatable.View & View>(null);
-  const availableIndices = useRef([...Array(backgrounds.length).keys()]);
   const createGameButtonRef = useRef<Animatable.View & View>(null);
   const JoingameButtonRef = useRef<Animatable.View & View>(null);
 
@@ -175,25 +159,10 @@ const Index = () => {
   // useFocusEffect para manejar el intervalo de cambio de fondo
   useFocusEffect(
     useCallback(() => {
-      console.log("CREATE INTERVAL");
-      const interval = setInterval(() => {
-        if (availableIndices.current.length === 0) {
-          availableIndices.current = [...Array(backgrounds.length).keys()];
-        }
-        const randomIndex = getRandomIndex(availableIndices.current);
-        setBackgroundImage(backgrounds[randomIndex]);
-        availableIndices.current = availableIndices.current.filter((index) => index !== randomIndex);
-      }, 10000);
-  
       if (socket) {
         console.log("desconectando socket");
         endSocket();
       }
-  
-      return () => {
-        console.log("CLEAR INTERVAL");
-        clearInterval(interval);
-      };
     }, [socket, endSocket])
   );
 

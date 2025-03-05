@@ -6,13 +6,13 @@ import tw from "twrnc";
 import { usePhotoContext } from "@/app/providers/PhotoContext";
 import { useRouter } from "expo-router";
 import PhotoComponent from "../components/PhotoComponent";
+import CloseButton from "../components/CloseButton"; // Importa el nuevo componente
 
 const OwnPhotos = () => {
   const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();
   const iconRef = useRef<Animatable.View & View>(null);
   const router = useRouter();
 
-  // useEffect para verificar permisos y obtener una foto aleatoria al montar el componente
   useEffect(() => {
     const checkPermissions = async () => {
       try {
@@ -34,7 +34,6 @@ const OwnPhotos = () => {
     };
   }, []);
 
-  // Maneja el evento de presionar el botón para obtener una nueva foto aleatoria
   const handlePress = async () => {
     if (iconRef.current) {
       iconRef.current.shake!(400); // Anima el ícono con un efecto de sacudida
@@ -46,18 +45,17 @@ const OwnPhotos = () => {
     }
   };
 
+  const handleClose = () => {
+    router.replace("/");
+  };
+
   return (
     <SafeAreaView style={tw`flex-1 bg-black`}>
       <StatusBar hidden />
-      {/* Muestra la foto seleccionada y aplica un efecto de desenfoque en el fondo */}
       {photoUri && (
         <PhotoComponent photoUrl={photoUri}/>
       )}
-      {/* Botón para cerrar la pantalla y volver atrás */}
-      <TouchableOpacity style={tw`absolute top-1 right-3 p-2`} onPress={() => router.replace("/")}>
-        <Icon name="close" size={30} color="white" />
-      </TouchableOpacity>
-      {/* Botón para obtener una nueva foto aleatoria */}
+      <CloseButton onPress={handleClose} /> {/* Pasa la función handleClose */}
       <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
         <Animatable.View ref={iconRef} style={tw`flex justify-center items-center`}>
           <TouchableOpacity onPress={handlePress} style={tw`bg-blue-500 p-4 rounded-full`}>
