@@ -55,7 +55,7 @@ const OwnPhotos = () => {
       {photoUri && (
         <PhotoComponent photoUrl={photoUri}/>
       )}
-      <CloseButton onPress={handleClose} /> {/* Pasa la función handleClose */}
+      <CloseButton onPress={handleClose} />
       <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
         <Animatable.View ref={iconRef} style={tw`flex justify-center items-center`}>
           <TouchableOpacity onPress={handlePress} style={tw`bg-blue-500 p-4 rounded-full`}>
