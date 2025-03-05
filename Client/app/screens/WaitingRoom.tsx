@@ -39,7 +39,7 @@ const WaitingRoom = ({}) => {
     }, [isInGame])
   );
 
-  useEffect(() => {
+    useEffect(() => {
     if (socket && username && !isInGame) {
       console.log("Joining game with code:", gameCode);
       setIsInGame(true);
@@ -49,9 +49,9 @@ const WaitingRoom = ({}) => {
       socket.off("player-left");
       socket.off("host-left");
       socket.off("new-host");
-
+  
       socket.emit("join-create-game", { gameCode, username });
-
+  
       socket.on("room-of-game", (data: RoomOfGameResponse) => {
         console.log("Room data:", data);
         if (!data.success) {
@@ -67,20 +67,20 @@ const WaitingRoom = ({}) => {
           }
         }
       });
-
+  
       socket.on("rounds-updated", (rounds: number) => {
         setRoundsOfGame(rounds);
         console.log("Rounds updated:", rounds);
       });
-
+  
       socket.on("player-joined", (newPlayer: Player) => {
         setPlayers((prevPlayers) => [...prevPlayers, newPlayer]);
       });
-
+  
       socket.on("player-left", (username: string) => {
         setPlayers((prevPlayers) => prevPlayers.filter((player) => player.username !== username));
       });
-
+  
       socket.on("new-host", (newHost: Player) => {
         setPlayers((prevPlayers) => {
           // Eliminar al host actual
@@ -89,12 +89,21 @@ const WaitingRoom = ({}) => {
           return filteredPlayers.map((player) => (player.username === newHost.username ? { ...player, isHost: true } : player));
         });
       });
-
+  
       socket.on("game-started", (players: Player[], roundsOfGame: number) => {
         setPlayersProvider(players);
         console.log("Game started");
-
+  
         navigation.replace("/screens/GameScreen");
+      });
+  
+      socket.on("player-removed", (removedPlayer: Player) => {
+        if (removedPlayer.username === username) {
+          endSocket();
+          navigation.replace("/");
+        } else {
+          setPlayers((prevPlayers) => prevPlayers.filter((player) => player.username !== removedPlayer.username));
+        }
       });
     }
   }, [socket]);
@@ -116,16 +125,27 @@ const WaitingRoom = ({}) => {
     }
   };
 
-  const renderPlayer = ({ item }: { item: Player }) => (
-    // Estilo de cada jugador
-    // Si el jugador es el host, se muestra una estrella amarilla
-    <View style={tw`relative bg-violet-900 p-4 rounded-full shadow shadow-2xl mb-2 flex-row items-center justify-center`}>
+  const handleRemovePlayer = (socketId: string) => {
+    if (socket) {
+      socket.emit("remove-player", { gameCode, socketId });
+    }
+  };
+
+    const renderPlayer = ({ item }: { item: Player }) => (
+    <TouchableOpacity
+      onPress={() => {
+        if (players[0].username === username && item.username !== username) {
+          handleRemovePlayer(item.socketId);
+        }
+      }}
+      style={tw`relative bg-violet-900 p-4 rounded-full shadow shadow-2xl mb-2 flex-row items-center justify-center`}
+    >
       <Text style={tw`text-white absolute left-10 text-lg mr-2`}>
         {item.isHost ? <Icon name="star" size={20} color="yellow" /> : <Icon name="user" size={20} color="white" />}
       </Text>
       {item.username === username && <View style={tw`border-4 border-green-500 rounded-full p-1 absolute right-10`} />}
       <Text style={tw`text-white text-lg`}>{item.username}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -166,7 +186,14 @@ const WaitingRoom = ({}) => {
           style={tw`w-full px-4 mb-20`} // Add margin bottom to avoid overlapping with the button
         />
 
-          <Text style={[tw`text-white font-extrabold  absolute top-10 right-10`,{ textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 }]}>{roundsOfGame} Rounds </Text>
+        <Text
+          style={[
+            tw`text-white font-extrabold  absolute top-10 right-10`,
+            { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 },
+          ]}
+        >
+          {roundsOfGame} Rounds{" "}
+        </Text>
 
         {players.length > 0 && players[0].username == username && players.length >= 2 ? (
           <>

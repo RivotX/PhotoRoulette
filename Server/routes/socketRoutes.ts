@@ -167,6 +167,25 @@ io.on("connection", (socket: Socket) => {
     }
   };
 
+        socket.on("remove-player", (data: { gameCode: string, socketId: string }) => {
+      try {
+        const { gameCode, socketId } = data;
+        const room = rooms.find((room) => room.gameCode === gameCode);
+        if (room) {
+          const playerIndex = room.players.findIndex((player) => player.socketId === socketId);
+          if (playerIndex !== -1) {
+            const removedPlayer = room.players.splice(playerIndex, 1)[0];
+            io.to(room.gameCode).emit("player-removed", removedPlayer);
+            console.log("Player removed: " + removedPlayer.username);
+          }
+        } else {
+          console.error("Room not found for game code:", gameCode);
+        }
+      } catch (error) {
+        console.error("Error in remove-player:", error);
+      }
+    });
+
   socket.on("im-ready", (data: PlayerId) => {
     try {
       const { gameCode, username } = data;
