@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useMemo } from
 import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
 import { PhotoContextProps, PhotoProviderProps } from "@/app/models/interfaces";
+import { Platform } from "react-native";
 
 const PhotoContext = createContext<PhotoContextProps | undefined>(undefined);
 
@@ -9,23 +10,26 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const router = useRouter();
 
-  const requestGalleryPermission = useCallback(async ({ askAgain }: { askAgain: boolean }): Promise<boolean> => {
-    console.log("Requesting gallery permission...");
-    const { status, canAskAgain, accessPrivileges } = await MediaLibrary.requestPermissionsAsync();
-    console.log(`Permission status: ${status}, canAskAgain: ${canAskAgain}, accessPrivileges: ${accessPrivileges}`);
-    if (status !== "granted" || accessPrivileges !== "all") {
-      if (status === "denied" && canAskAgain && askAgain && accessPrivileges === "limited") {
-        console.log("Permission denied but can ask again.");
+  const requestGalleryPermission = useCallback(
+    async ({ askAgain }: { askAgain: boolean }): Promise<boolean> => {
+      console.log("Requesting gallery permission...");
+      const { status, canAskAgain, accessPrivileges } = await MediaLibrary.requestPermissionsAsync();
+      console.log(`Permission status: ${status}, canAskAgain: ${canAskAgain}, accessPrivileges: ${accessPrivileges}`);
+      if (status !== "granted" || accessPrivileges !== "all") {
+        if (status === "denied" && canAskAgain && askAgain && accessPrivileges === "limited") {
+          console.log("Permission denied but can ask again.");
+          return false;
+        } else {
+          console.log("Navigating to SettingsInstructionsScreen due to insufficient permissions.");
+          router.replace("/screens/SettingsInstructionsScreen");
+        }
         return false;
-      } else {
-        console.log("Navigating to SettingsInstructionsScreen due to insufficient permissions.");
-        router.replace("/screens/SettingsInstructionsScreen");
       }
-      return false;
-    }
-    console.log("Permission granted.");
-    return true;
-  }, [router]);
+      console.log("Permission granted.");
+      return true;
+    },
+    [router]
+  );
 
   const handleContinue = useCallback(async () => {
     console.log("Handling continue...");
@@ -57,41 +61,64 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
       mediaType: "photo",
     });
 
-    if (totalCount > 0) {
-      const randomIndex = Math.floor(Math.random() * totalCount);
-      console.log(`Selected photo index: ${randomIndex}`);
-      const { assets } = await MediaLibrary.getAssetsAsync({
-        mediaType: "photo",
-        first: 1,
-        after: randomIndex.toString(),
-      });
+    if (Platform.OS === "ios") {
+      if (totalCount > 0) {
+        const randomIndex = Math.floor(Math.random() * totalCount);
+        console.log(`Selected photo index: ${randomIndex}`);
+        const { assets } = await MediaLibrary.getAssetsAsync({
+          mediaType: "photo",
+          first: 1,
+          after:
+            randomIndex > 0
+              ? (await MediaLibrary.getAssetsAsync({ mediaType: "photo", first: randomIndex })).assets[randomIndex - 1]
+                  .id
+              : undefined,
+        });
 
-      if (assets.length > 0) {
-        const selectedUri = assets[0].uri;
-        const encodedUri = encodeURI(selectedUri);
-        console.log(`Selected random photo URI: ${encodedUri}`);
-        setPhotoUri(encodedUri);
-      } else {
-        console.log("No photos found.");
+        if (assets.length > 0) {
+          const assetInfo = await MediaLibrary.getAssetInfoAsync(assets[0].id);
+          const selectedUri = assetInfo.localUri || assetInfo.uri;
+          const encodedUri = encodeURI(selectedUri);
+          console.log(`Selected random photo URI: ${encodedUri}`);
+          setPhotoUri(encodedUri);
+        } else {
+          console.log("No photos found.");
+        }
       }
     } else {
-      console.log("No photos found.");
+      if (totalCount > 0) {
+        const randomIndex = Math.floor(Math.random() * totalCount);
+        console.log(`Selected photo index: ${randomIndex}`);
+        const { assets } = await MediaLibrary.getAssetsAsync({
+          mediaType: "photo",
+          first: 1,
+          after: randomIndex.toString(),
+        });
+
+        if (assets.length > 0) {
+          const selectedUri = assets[0].uri;
+          const encodedUri = encodeURI(selectedUri);
+          console.log(`Selected random photo URI: ${encodedUri}`);
+          setPhotoUri(encodedUri);
+        } else {
+          console.log("No photos found.");
+        }
+      }
     }
   }, [requestGalleryPermission]);
 
-  const contextValue = useMemo(() => ({
-    photoUri,
-    requestGalleryPermission,
-    getRandomPhoto,
-    setPhotoUri,
-    handleContinue,
-  }), [photoUri, requestGalleryPermission, getRandomPhoto, handleContinue]);
-
-  return (
-    <PhotoContext.Provider value={contextValue}>
-      {children}
-    </PhotoContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      photoUri,
+      requestGalleryPermission,
+      getRandomPhoto,
+      setPhotoUri,
+      handleContinue,
+    }),
+    [photoUri, requestGalleryPermission, getRandomPhoto, handleContinue]
   );
+
+  return <PhotoContext.Provider value={contextValue}>{children}</PhotoContext.Provider>;
 };
 
 // Hook para usar el contexto de fotos
