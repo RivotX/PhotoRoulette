@@ -1,13 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  TextInput,
-  Image,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, TextInput, Image, TouchableWithoutFeedback } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -266,14 +258,9 @@ const Index = () => {
           {!isJoiningGame && (
             <>
               {/* Input para ingresar el nombre de usuario */}
-              <Animatable.View
-                ref={usernameInputRef}
-                animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
-                duration={600}
-                style={tw`w-full`}
-              >
+              <Animatable.View ref={usernameInputRef} animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined} duration={600} style={tw`w-full`}>
                 <TextInput
-                  style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg font-bold`} 
+                  style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg`}
                   placeholder="Enter username"
                   value={username || ""}
                   onChange={(e) => handleUsernameChange(e.nativeEvent.text)}
@@ -281,26 +268,16 @@ const Index = () => {
               </Animatable.View>
 
               {/* Botón para crear un juego */}
-              <Animatable.View
-                ref={createGameButtonRef}
-                animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
-                duration={600}
-                style={tw`w-full`}
-              >
-                <TouchableOpacity style={tw`bg-orange-500 p-4 rounded-xl mb-4 w-full `} onPress={handleCreateGame}>
-                  <Text style={tw`text-white text-center text-lg font-bold`}>Create Game</Text> 
+              <Animatable.View ref={createGameButtonRef} animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined} duration={600} style={tw`w-full`}>
+                <TouchableOpacity style={tw`bg-[#e73a35] p-4 rounded-xl mb-4 w-full `} onPress={handleCreateGame}>
+                  <Text style={tw`text-white text-center text-lg font-bold`}>Create Game</Text>
                 </TouchableOpacity>
               </Animatable.View>
 
               {/* Botón para unirse a un juego */}
-              <Animatable.View
-                ref={JoingameButtonRef}
-                animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
-                duration={600}
-                style={tw`w-full`}
-              >
-                <TouchableOpacity style={tw`bg-orange-500 p-4 rounded-xl mb-4 w-full `} onPress={handleJoinGame}>
-                  <Text style={tw`text-white text-center text-lg font-bold`}>Join Game</Text> 
+              <Animatable.View ref={JoingameButtonRef} animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined} duration={600} style={tw`w-full`}>
+                <TouchableOpacity style={tw`bg-[#e73a35] p-4 rounded-xl mb-4 w-full `} onPress={handleJoinGame}>
+                  <Text style={tw`text-white text-center text-lg font-bold`}>Join Game</Text>
                 </TouchableOpacity>
               </Animatable.View>
             </>
@@ -314,7 +291,7 @@ const Index = () => {
                 <Animatable.View ref={gameCodeAnimRef} animation="slideInDownBounce" duration={600} style={tw`w-full`}>
                   <TextInput
                     ref={gameCodeInputRef}
-                    style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg font-bold`} 
+                    style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg font-bold`}
                     placeholder="Enter game code"
                     value={gameCode || ""}
                     onChange={(e) => setGameCode(e.nativeEvent.text)}
@@ -324,7 +301,7 @@ const Index = () => {
 
                 {/* Botón para buscar una sala */}
                 <Animatable.View animation="slideInUpBounce" duration={600} style={tw`w-full`}>
-                  <TouchableOpacity style={tw`bg-orange-500 p-4 rounded-xl mb-4 w-full `} onPress={handleSearchRoom}>
+                  <TouchableOpacity style={tw`bg-[#e73a35] p-4 rounded-xl mb-4 w-full `} onPress={handleSearchRoom}>
                     <Text style={tw`text-white text-center text-lg font-bold`}>Search Room</Text>
                   </TouchableOpacity>
                 </Animatable.View>
