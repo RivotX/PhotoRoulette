@@ -10,13 +10,26 @@ import { ImageBlurView } from "@/app/components/ImageBlur";
 import { useBackgroundContext } from "@/app/providers/BackgroundContext";
 import CloseButton from "../components/CloseButton";
 import Icon from "react-native-vector-icons/FontAwesome";
+import Dialog from "react-native-dialog";
 
 const WaitingRoom = ({}) => {
   const navigation = useRouter();
-  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username, setRoundsOfGame, roundsOfGame } = useGameContext();
+  const {
+    startSocket,
+    endSocket,
+    gameCode,
+    setGameCode,
+    setPlayersProvider,
+    socket,
+    username,
+    setRoundsOfGame,
+    roundsOfGame,
+  } = useGameContext();
   const [players, setPlayers] = useState<Player[]>([]);
   const [isInGame, setIsInGame] = useState<boolean>(false);
   const { backgroundImage } = useBackgroundContext();
+  const [dialogVisible, setDialogVisible] = useState<boolean>(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
   const roundOptions = [5, 10, 15];
 
@@ -39,7 +52,7 @@ const WaitingRoom = ({}) => {
     }, [isInGame])
   );
 
-    useEffect(() => {
+  useEffect(() => {
     if (socket && username && !isInGame) {
       console.log("Joining game with code:", gameCode);
       setIsInGame(true);
@@ -49,9 +62,9 @@ const WaitingRoom = ({}) => {
       socket.off("player-left");
       socket.off("host-left");
       socket.off("new-host");
-  
+
       socket.emit("join-create-game", { gameCode, username });
-  
+
       socket.on("room-of-game", (data: RoomOfGameResponse) => {
         console.log("Room data:", data);
         if (!data.success) {
@@ -67,36 +80,38 @@ const WaitingRoom = ({}) => {
           }
         }
       });
-  
+
       socket.on("rounds-updated", (rounds: number) => {
         setRoundsOfGame(rounds);
         console.log("Rounds updated:", rounds);
       });
-  
+
       socket.on("player-joined", (newPlayer: Player) => {
         setPlayers((prevPlayers) => [...prevPlayers, newPlayer]);
       });
-  
+
       socket.on("player-left", (username: string) => {
         setPlayers((prevPlayers) => prevPlayers.filter((player) => player.username !== username));
       });
-  
+
       socket.on("new-host", (newHost: Player) => {
         setPlayers((prevPlayers) => {
           // Eliminar al host actual
           const filteredPlayers = prevPlayers.filter((player) => !player.isHost);
           // Definir el nuevo host
-          return filteredPlayers.map((player) => (player.username === newHost.username ? { ...player, isHost: true } : player));
+          return filteredPlayers.map((player) =>
+            player.username === newHost.username ? { ...player, isHost: true } : player
+          );
         });
       });
-  
+
       socket.on("game-started", (players: Player[], roundsOfGame: number) => {
         setPlayersProvider(players);
         console.log("Game started");
-  
+
         navigation.replace("/screens/GameScreen");
       });
-  
+
       socket.on("player-removed", (removedPlayer: Player) => {
         if (removedPlayer.username === username) {
           endSocket();
@@ -131,11 +146,16 @@ const WaitingRoom = ({}) => {
     }
   };
 
-    const renderPlayer = ({ item }: { item: Player }) => (
+  const confirmRemovePlayer = (player: Player) => {
+    setSelectedPlayer(player);
+    setDialogVisible(true);
+  };
+
+  const renderPlayer = ({ item }: { item: Player }) => (
     <TouchableOpacity
       onPress={() => {
         if (players[0].username === username && item.username !== username) {
-          handleRemovePlayer(item.socketId);
+          confirmRemovePlayer(item);
         }
       }}
       style={tw`relative bg-violet-900 p-4 rounded-full shadow shadow-2xl mb-2 flex-row items-center justify-center`}
@@ -183,7 +203,7 @@ const WaitingRoom = ({}) => {
           data={players}
           renderItem={renderPlayer}
           keyExtractor={(item) => item.socketId}
-          style={tw`w-full px-4 mb-20`} // Add margin bottom to avoid overlapping with the button
+          style={tw`w-full px-4 mb-20`}
         />
 
         <Text
@@ -208,16 +228,46 @@ const WaitingRoom = ({}) => {
                 </TouchableOpacity>
               ))}
             </View>
-            <TouchableOpacity style={tw`bg-orange-600 p-4 rounded-lg w-[90%] flex justify-center items-center absolute bottom-40`} onPress={handleStartGame}>
+            <TouchableOpacity
+              style={tw`bg-orange-600 p-4 rounded-lg w-[90%] flex justify-center items-center absolute bottom-40`}
+              onPress={handleStartGame}
+            >
               <Text style={tw`text-white`}>Start Game</Text>
             </TouchableOpacity>
           </>
         ) : (
-          <TouchableOpacity style={tw`bg-yellow-600 p-4 rounded-lg w-[90%] flex justify-center opacity-70 items-center absolute bottom-40`} disabled={true}>
+          <TouchableOpacity
+            style={tw`bg-yellow-600 p-4 rounded-lg w-[90%] flex justify-center opacity-70 items-center absolute bottom-40`}
+            disabled={true}
+          >
             <Text style={tw`text-white`}>{players.length < 2 ? "Waiting for players" : "Waiting host"}</Text>
           </TouchableOpacity>
         )}
       </View>
+
+      <Dialog.Container visible={dialogVisible} contentStyle={tw`bg-gray-800 rounded-lg p-6`}>
+        <Dialog.Title style={tw`text-2xl text-white font-bold text-center mb-4`}>Confirm Remove Player</Dialog.Title>
+                <Dialog.Description style={tw`text-lg text-white text-center mb-6`}>
+          Are you sure you want to remove <Text style={tw`text-red-500`}>@{selectedPlayer?.username}</Text> from the game?
+        </Dialog.Description>
+        <View style={tw`flex-row justify-evenly`}>
+          <Dialog.Button
+            label="Cancel"
+            onPress={() => setDialogVisible(false)}
+            style={tw`bg-blue-500 px-4 py-2 rounded-lg text-white`}
+          />
+          <Dialog.Button
+            label="Remove"
+            onPress={() => {
+              if (selectedPlayer) {
+                handleRemovePlayer(selectedPlayer.socketId);
+              }
+              setDialogVisible(false);
+            }}
+            style={tw`bg-red-600 px-4 py-2 rounded-lg text-white`}
+          />
+        </View>
+      </Dialog.Container>
     </>
   );
 };
