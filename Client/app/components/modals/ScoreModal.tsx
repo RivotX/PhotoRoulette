@@ -18,6 +18,11 @@ interface ScoreModalProps {
 const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, rounds, canHold, elementRef, photoUrl }) => {
   const { socket } = useGameContext();
   const [modalOpacity, setModalOpacity] = useState(1);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // secondsForButtonPress-300 para asegurar que el boton se presione antes de que inicie la otra ronda
+  const SecondsForButtonPressInClient = 3000 - 300; // in backend is 3 seconds line 121  const SecondsForButtonPress = SecondsForRound - SecondsForShowScore;
+  const [disabledButton, setDisabledButton] = useState(false);
 
   useEffect(() => {
     console.log("ScoreModal mounted");
@@ -30,7 +35,6 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
           elementRef.current.setNativeProps({ style: { opacity: 0 } });
         }
         setModalOpacity(0);
-
       });
 
       socket.on("button-released", () => {
@@ -44,6 +48,8 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
     return () => {
       console.log("ScoreModal unmounted");
 
+      if (elementRef?.current) elementRef.current.setNativeProps({ style: { opacity: 1 } });
+
       if (socket) {
         socket.off("button-pressed");
         socket.off("button-released");
@@ -53,11 +59,11 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
 
   useEffect(() => {
     console.log("ScoreModal updated");
-    
-    if(visible){
+
+    if (visible) {
       onClose();
     }
-    }, [photoUrl]);
+  }, [photoUrl]);
 
   const holdButton = (mode: string) => {
     if (socket) {
@@ -70,6 +76,10 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
       elementRef.current.setNativeProps({ style: { opacity: 0 } });
       setModalOpacity(0);
       holdButton("button-pressed");
+
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     }
   };
 
@@ -78,8 +88,21 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
       elementRef.current.setNativeProps({ style: { opacity: 1 } });
       setModalOpacity(1);
       holdButton("button-released");
+
+      timeoutRef.current = setTimeout(() => {
+        setDisabledButton(true);
+      }, SecondsForButtonPressInClient);
     }
   };
+
+  useEffect(() => {
+    if (visible) {
+      setDisabledButton(false);
+      timeoutRef.current = setTimeout(() => {
+        setDisabledButton(true);
+      }, SecondsForButtonPressInClient);
+    }
+  }, [visible]);
 
   return (
     <Modal transparent={true} animationType="slide" visible={visible}>
@@ -113,9 +136,10 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
         ))}
         {canHold && (
           <TouchableOpacity
-            style={tw`bg-blue-500 absolute bottom-10 p-4 flex justify-center items-center rounded-lg w-[90%]`}
+            style={tw`bg-blue-500 absolute ${disabledButton == true ? "opacity-10" : "opacity-100"} bottom-10 p-4 flex justify-center items-center rounded-lg w-[90%]`}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
+            disabled={disabledButton}
           >
             <Text style={tw`text-white text-lg`}>Hold photo</Text>
           </TouchableOpacity>

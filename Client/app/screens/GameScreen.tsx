@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { View, Text, TouchableOpacity, StatusBar, FlatList, BackHandler } from "react-native";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "../providers/GameContext";
@@ -11,6 +11,7 @@ import PhotoComponent from "../components/PhotoComponent";
 import { View as AnimatableView } from "react-native-animatable";
 import ScoreModal from "../components/modals/ScoreModal"; // Importa el componente ScoreModal
 import ProgressBar from "../components/ProgressBar";
+import FinalScoreModal from "../components/FinalScoreModal";
 
 const { SERVER_URL } = getEnvVars();
 
@@ -31,6 +32,7 @@ const GameScreen = () => {
   const [showCorrectAnswer, setShowCorrectAnswer] = useState<boolean>(false);
   const [showScore, setShowScore] = useState<boolean>(false);
   const [score, setScore] = useState<ScoreRound[] | null>(null);
+  const [finalScore, setFinalScore] = useState<ScoreRound[] | null>(null);
   const timeForAnswer = 5000; // 5 segundos
   const [progressKey, setProgressKey] = useState<number>(0); // Estado para la clave única del ProgressBar
 
@@ -59,10 +61,10 @@ const GameScreen = () => {
         return true; // Previene la acción de "ir atrás"
       };
 
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
 
       return () => {
-        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
       };
     }, [])
   );
@@ -102,13 +104,13 @@ const GameScreen = () => {
         }, timeForAnswer);
       });
 
-      socket.on("game-over", (data: { room: Room }) => {
+      socket.on("game-over", (data: { finalScore: ScoreRound[] }) => {
         console.log("Game Over");
-        console.log(data.room);
-        router.replace("/");
+        console.log(data.finalScore);
+        setFinalScore(data.finalScore);
         setGameOver(true);
+        // router.replace("/");
       });
-
       setIsReady(true);
     }
 
@@ -121,6 +123,10 @@ const GameScreen = () => {
       }
     };
   }, [socket]);
+
+  useEffect(() => {
+    console.log("GAME OVER EN GAMESCREEN ES",gameOver);
+  }, [gameOver]);
 
   useEffect(() => {
     const sendPhoto = async () => {
@@ -214,6 +220,10 @@ const GameScreen = () => {
           </View>
         )}
       </View>
+      <FinalScoreModal
+        visible={gameOver}
+        finalScore={finalScore || []}
+      />
     </View>
   );
 };

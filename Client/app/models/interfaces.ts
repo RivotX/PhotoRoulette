@@ -8,12 +8,19 @@ export interface Player {
   isReady: boolean;
 }
 
+export interface PhotoComponentProps {
+  photoUrl: string;
+  onLongPress?: () => void;
+  onPressOut?: () => void;
+}
+
 export interface ScoreRound {
   username: string;
   points: number;
   isHost: boolean;
   lastAnswerCorrect: boolean;
 }
+
 
 export interface Room {
   gameCode: string;

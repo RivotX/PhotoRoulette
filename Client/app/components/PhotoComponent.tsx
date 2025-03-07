@@ -5,8 +5,11 @@ import tw from "twrnc";
 import { TouchableOpacity } from "react-native";
 import ImageBlur from "./ImageBlur/ImageBlur";
 import { ImageBlurView } from "./ImageBlur";
+import { PhotoComponentProps } from "../models/interfaces";
 
-function PhotoComponent({ photoUrl, onLongPress, onPressOut }: { photoUrl: string, onLongPress: () => void, onPressOut: () => void }) {
+
+
+const PhotoComponent: React.FC<PhotoComponentProps> = ({ photoUrl, onLongPress, onPressOut }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

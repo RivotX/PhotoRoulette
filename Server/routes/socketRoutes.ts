@@ -118,7 +118,7 @@ io.on("connection", (socket: Socket) => {
   
   const SecondsForRound = 10000;
   const SecondsForShowScore = 7000;
-  const SecondsWhenButtonRelease = SecondsForRound - SecondsForShowScore;
+  const SecondsForButtonPress = SecondsForRound - SecondsForShowScore;
   const SecondsToStart = 1000;
   const startNextRound = (room: Room) => {
     try {
@@ -127,18 +127,19 @@ io.on("connection", (socket: Socket) => {
         return;
       }
 
-      if (room.players.length < 2) {
-        if (room.intervalId) clearInterval(room.intervalId);
-        console.log("Game Over: Not enough players");
-        io.to(room.gameCode).emit("game-over", { room });
-        return;
-      }
 
-      if (room.round >= room.rounds) {
+      if (room.round >= room.rounds || room.players.length < 2) {
+        const finalScore: ScoreRound[] = room.players.map((player) => ({
+          username: player.username,
+          points: player.points,
+          isHost: player.isHost,
+          lastAnswerCorrect: player.lastAnswerCorrect,
+        })); 
+        const OrderByPoints = finalScore.sort((a, b) => b.points - a.points);
         if (room.intervalId) clearInterval(room.intervalId);
-        console.log("All rounds completed");
-        io.to(room.gameCode).emit("game-over", { room });
-
+        console.log("All rounds completed or less than 2 players");
+        console.log("Final score: " + OrderByPoints);
+        io.to(room.gameCode).emit("game-over", { finalScore: OrderByPoints });
         return;
       }
 
@@ -256,7 +257,7 @@ io.on("connection", (socket: Socket) => {
                 startNextRound(room);
               }
             }, SecondsForRound);
-          }, SecondsWhenButtonRelease);
+          }, SecondsForButtonPress);
         }
       }
     } catch (error) {

@@ -24,6 +24,7 @@ import logo from "@/assets/images/icon.png";
 import diceIcon from "@/assets/images/icon.png";
 import { useBackgroundContext } from "./providers/BackgroundContext";
 import { usePhotoContext } from "@/app/providers/PhotoContext"; // Importa el contexto de fotos
+import { Ionicons } from "@expo/vector-icons";
 
 // Animaciones personalizadas para React Native Animatable
 Animatable.initializeRegistryWithDefinitions({
@@ -339,8 +340,9 @@ const Index = () => {
                 style={tw`w-full`}
               >
                 <TextInput
-                  style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg`}
+                  style={tw`h-15 rounded-xl mb-4 w-full bg-white text-center text-lg`}
                   placeholder="Enter username"
+                  placeholderTextColor="#3333"
                   value={username || ""}
                   onChange={(e) => handleUsernameChange(e.nativeEvent.text)}
                 />
@@ -377,11 +379,12 @@ const Index = () => {
             <TouchableWithoutFeedback onPress={handleCancelJoinGame}>
               <View style={tw`flex-1 w-full justify-center items-center`}>
                 {/* Input para ingresar el código del juego */}
-                <Animatable.View ref={gameCodeAnimRef} animation="slideInDownBounce" duration={600} style={tw`w-full`}>
+                <Animatable.View ref={gameCodeAnimRef} animation="slideInDownBounce" duration={600} style={tw`w-full `}> 
                   <TextInput
                     ref={gameCodeInputRef}
                     style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg font-bold`}
                     placeholder="Enter game code"
+                    placeholderTextColor="#3333"
                     value={gameCode || ""}
                     onChange={(e) => setGameCode(e.nativeEvent.text)}
                     keyboardType="number-pad"
@@ -406,14 +409,14 @@ const Index = () => {
           style={tw`absolute bottom-22 items-center`}
         >
           <TouchableOpacity
-            style={tw`bg-white/50 p-4 rounded-3xl`}
+            style={tw`bg-white/50 p-3  rounded-3xl`}
             onPress={() => NavigateOwnPhotos("/screens/OwnPhotos")}
           >
-            <Image source={diceIcon} style={tw`w-8 h-8`} />
+            <Ionicons name="dice" size={44} color="white"/>
           </TouchableOpacity>
         </Animatable.View>
-        <Animatable.View ref={textRef} animation="slideInUp" duration={600} style={tw`absolute bottom-14`}>
-          <Text style={tw`text-white text-lg font-bold`}>Random Photos</Text>
+        <Animatable.View ref={textRef} animation="slideInUp" duration={600} style={tw`absolute bottom-16`}>
+          <Text style={tw`text-white font-bold`}>Expose</Text>
         </Animatable.View>
       </View>
     </>
