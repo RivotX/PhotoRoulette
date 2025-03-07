@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, Modal, TouchableOpacity } from "react-native";
 import tw from "twrnc";
-import { ScoreRound } from "../models/interfaces";
+import { ScoreRound } from "../../models/interfaces";
 import Icon from "react-native-vector-icons/FontAwesome"; // Import the icon library
-import { useGameContext } from "../providers/GameContext";
-import ImageBlur from "./ImageBlur";
+import { useGameContext } from "../../providers/GameContext";
 
 interface ScoreModalProps {
   visible: boolean;

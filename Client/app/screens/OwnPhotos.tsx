@@ -1,17 +1,19 @@
-import React, { useEffect, useRef } from "react";
-import { View, TouchableOpacity, StatusBar, SafeAreaView } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, TouchableOpacity, StatusBar, Text } from "react-native";
 import * as Animatable from "react-native-animatable";
-import Icon from "react-native-vector-icons/FontAwesome";
 import tw from "twrnc";
 import { usePhotoContext } from "@/app/providers/PhotoContext";
 import { useRouter } from "expo-router";
 import PhotoComponent from "../components/PhotoComponent";
-import CloseButton from "../components/CloseButton"; // Importa el nuevo componente
+import CloseButton from "@/app/components/CloseButton";
+import NextImageAnimation from "@/assets/animations/NextImageAnimation.json";
+import LottieView from "lottie-react-native";
 
 const OwnPhotos = () => {
   const { photoUri, getRandomPhoto, requestGalleryPermission, setPhotoUri } = usePhotoContext();
-  const iconRef = useRef<Animatable.View & View>(null);
+  const lottieRef = useRef<LottieView>(null); // Referencia para LottieView
   const router = useRouter();
+  const [buttonsVisible, setButtonsVisible] = useState(true);
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -30,13 +32,14 @@ const OwnPhotos = () => {
 
     return () => {
       console.log("OwnPhotos unmounted photoUri:", photoUri);
-      setPhotoUri(null); // Resetea photoUri a null cuando se desmonta la pantalla
+      setPhotoUri(null);
     };
   }, []);
 
-  const handlePress = async () => {
-    if (iconRef.current) {
-      iconRef.current.shake!(400); // Anima el ícono con un efecto de sacudida
+  const GetNextImage = async () => {
+    if (lottieRef.current) {
+      lottieRef.current.reset();
+      lottieRef.current.play();
     }
     try {
       await getRandomPhoto();
@@ -49,21 +52,48 @@ const OwnPhotos = () => {
     router.replace("/");
   };
 
+  const handleLongPress = () => {
+    console.log("Long press detected");
+    setButtonsVisible(false);
+  };
+
+  const handlePressOut = () => {
+    setButtonsVisible(true);
+  };
+
   return (
-    <SafeAreaView style={tw`flex-1 bg-black`}>
+    <View style={tw`flex-1 bg-black`}>
       <StatusBar hidden />
-      {photoUri && (
-        <PhotoComponent photoUrl={photoUri}/>
-      )}
-      <CloseButton onPress={handleClose} />
-      <View style={tw`absolute bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
-        <Animatable.View ref={iconRef} style={tw`flex justify-center items-center`}>
-          <TouchableOpacity onPress={handlePress} style={tw`bg-blue-500 p-4 rounded-full`}>
-            <Icon name="random" size={30} color="white" />
+      {photoUri && <PhotoComponent photoUrl={photoUri} onLongPress={handleLongPress} onPressOut={handlePressOut} />}
+      {buttonsVisible && <CloseButton onPress={handleClose} />}
+      {buttonsVisible && (
+        <Animatable.View
+          animation="slideInUp"
+          duration={500}
+          style={tw`absolute bottom-22 left-0 right-0 flex-row justify-center`}
+        >
+          <TouchableOpacity onPress={GetNextImage} style={tw`justify-center items-center bg-black/50 rounded-3xl`}>
+            <LottieView
+              ref={lottieRef}
+              source={NextImageAnimation}
+              autoPlay={false}
+              loop={false}
+              style={tw`size-28`}
+              duration={1000}
+            />
           </TouchableOpacity>
         </Animatable.View>
-      </View>
-    </SafeAreaView>
+      )}
+      <Animatable.View
+        animation="slideInUp"
+        duration={500}
+        style={tw`absolute bottom-14 left-0 right-0 flex-row justify-center`}
+      >
+        {buttonsVisible && (
+          <Text style={tw`text-white text-xl font-bold w-full text-center`}>Next</Text>
+        )}
+      </Animatable.View>
+    </View>
   );
 };
 

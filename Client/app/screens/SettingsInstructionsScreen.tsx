@@ -1,5 +1,15 @@
 import React, { useRef, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Image, Linking, Dimensions, ScrollView, StyleSheet, Platform } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Linking,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Platform,
+} from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import CustomCarousel from "@/app/components/CustomCarousel/CustomCarousel";
@@ -17,7 +27,6 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const SettingsInstructionsScreen: React.FC = () => {
   const router = useRouter();
   const carouselRef = useRef<any>(null);
-  const [counter, setCounter] = useState(0);
 
   const androidImages = [
     { id: 1, source: PermInstruction1, title: "Step 1", description: "Enable permissions in settings." },
@@ -36,21 +45,6 @@ const SettingsInstructionsScreen: React.FC = () => {
   const images = Platform.OS === "ios" ? iosImages : androidImages;
   const maxCount = images.length;
 
-  const NextPhoto = () => {
-    console.log("NextPhoto");
-    if (counter < maxCount - 1) {
-      setCounter(counter + 1);
-      carouselRef.current?.showNextItem();
-    }
-  };
-
-  useEffect(() => {
-    if (counter < maxCount - 1) {
-      const interval = setInterval(NextPhoto, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [counter]);
-
   const openSettings = () => {
     if (Platform.OS === "ios") {
       Linking.openURL("App-Prefs:root=Privacy");
@@ -62,8 +56,10 @@ const SettingsInstructionsScreen: React.FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={tw`flex-1 justify-center items-center bg-white p-5`}>
-        <Text style={tw`text-2xl font-bold text-red-600 mb-5`}>⚠️ Warning</Text>
-        <Text style={tw`text-base text-center mb-5`}>It is necessary to enable permissions in "Allow All the Time" for the application to work properly.</Text>
+        <Text style={tw`text-2xl font-bold text-red-600 mb-5`}>⚠️ Warning ⚠️ </Text>
+        <Text style={tw`text-base text-center mb-5`}>
+          It is necessary to enable permissions in "Allow All the Time" for the application to work properly.
+        </Text>
         <Text style={tw`text-xl font-semibold text-gray-800 mb-3`}>Instructions</Text>
         <View style={tw`justify-center items-center mb-5`}>
           <CustomCarousel

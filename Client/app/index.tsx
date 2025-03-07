@@ -1,5 +1,13 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, TextInput, Image, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+  Image,
+  TouchableWithoutFeedback,
+} from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -14,7 +22,8 @@ import { useBackHandler } from "@react-native-community/hooks";
 import { useFocusEffect } from "@react-navigation/native";
 import logo from "@/assets/images/icon.png";
 import diceIcon from "@/assets/images/icon.png";
-import { BackgroundProvider, useBackgroundContext } from "./providers/BackgroundContext";
+import { useBackgroundContext } from "./providers/BackgroundContext";
+import { usePhotoContext } from "@/app/providers/PhotoContext"; // Importa el contexto de fotos
 
 // Animaciones personalizadas para React Native Animatable
 Animatable.initializeRegistryWithDefinitions({
@@ -106,6 +115,36 @@ Animatable.initializeRegistryWithDefinitions({
       translateY: 0,
     },
   },
+  slideOutDownFar: {
+    0: {
+      opacity: 1,
+      translateY: 0,
+    },
+    1: {
+      opacity: 0,
+      translateY: 100,
+    },
+  },
+  slideOutUpFar: {
+    0: {
+      opacity: 1,
+      translateY: 0,
+    },
+    1: {
+      opacity: 0,
+      translateY: -200,
+    },
+  },
+  slideInDownFar: {
+    0: {
+      opacity: 0,
+      translateY: -200,
+    },
+    1: {
+      opacity: 1,
+      translateY: 0,
+    },
+  },
 });
 
 const Index = () => {
@@ -124,6 +163,10 @@ const Index = () => {
   const gameCodeAnimRef = useRef<Animatable.View & View>(null);
   const createGameButtonRef = useRef<Animatable.View & View>(null);
   const JoingameButtonRef = useRef<Animatable.View & View>(null);
+  const buttonRef = useRef<Animatable.View & View>(null);
+  const textRef = useRef<Animatable.View & View>(null);
+  const topLogoRef = useRef<Animatable.View & View>(null);
+  const { requestGalleryPermission } = usePhotoContext(); // Usa el contexto de fotos
 
   // useEffect para cargar datos iniciales
   useEffect(() => {
@@ -197,23 +240,48 @@ const Index = () => {
   };
 
   // Manejar la acción de crear un juego
-  const handleCreateGame = () => {
+  const handleCreateGame = async () => {
     if (!username) {
       (usernameInputRef.current as any)?.shake?.(500);
       return;
     }
+
+    const hasPermission = await requestGalleryPermission({ askAgain: true });
+    if (!hasPermission) {
+      return;
+    }
+
     setGameCode(null); // Limpiar el gameCode antes de navegar
     console.log("Navigating to WaitingRoom");
     router.push("/screens/WaitingRoom");
   };
 
   // Manejar la acción de buscar una sala
-  const handleSearchRoom = () => {
+  const handleSearchRoom = async () => {
     if (!gameCode) {
       (gameCodeAnimRef.current as any)?.shake?.(500);
       return;
     }
+
+    const hasPermission = await requestGalleryPermission({ askAgain: true });
+    if (!hasPermission) {
+      return;
+    }
+
     router.push("/screens/WaitingRoom");
+  };
+
+  // Manejar la navegación a otra pantalla con animación
+  const NavigateOwnPhotos = (path: string) => {
+    (buttonRef.current as any)?.slideOutDownFar?.(500);
+    (textRef.current as any)?.slideOutDownFar?.(500);
+    (usernameInputRef.current as any)?.fadeOut(500);
+    (createGameButtonRef.current as any)?.fadeOut(500);
+    (JoingameButtonRef.current as any)?.fadeOut(500);
+    (topLogoRef.current as any)?.slideOutUpFar(500);
+    setTimeout(() => {
+      router.push(path as any);
+    }, 500);
   };
 
   // Mostrar un indicador de carga si los datos iniciales aún se están cargando
@@ -234,6 +302,9 @@ const Index = () => {
   const handleCancelJoinGame = () => {
     console.log("CANCEL JOIN GAME");
     setIsJoiningGame(false);
+    setShouldAnimateCreateGameButton(true);
+    (usernameInputRef.current as any)?.slideInDownBounce?.(600);
+    (JoingameButtonRef.current as any)?.slideInUpBounce?.(600);
   };
 
   return (
@@ -248,17 +319,25 @@ const Index = () => {
           style={{ flex: 1 }}
         />
       </View>
-      <View style={tw`flex-1 justify-center items-center`}>
+      <View style={tw`flex-1 justify-center items-center `}>
         {/* Logo en la parte superior */}
-        <View style={tw`absolute top-[18%] w-full items-center`}>
-          <Image source={logo} style={tw`w-20 h-20`} />
-        </View>
+        <Animatable.View ref={topLogoRef} animation="slideInDown" duration={600} style={tw`absolute top-[18%]`}>
+          <View style={tw` flex-1 items-center`}>
+            <Image source={logo} style={tw`w-20 h-20`} />
+          </View>
+        </Animatable.View>
+
         <View style={tw`px-2 flex-1 w-full justify-center items-center`}>
           {/* Mostrar el formulario de ingreso de usuario y botones si no se está uniendo a un juego */}
           {!isJoiningGame && (
             <>
               {/* Input para ingresar el nombre de usuario */}
-              <Animatable.View ref={usernameInputRef} animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined} duration={600} style={tw`w-full`}>
+              <Animatable.View
+                ref={usernameInputRef}
+                animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
+                duration={600}
+                style={tw`w-full`}
+              >
                 <TextInput
                   style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg`}
                   placeholder="Enter username"
@@ -268,14 +347,24 @@ const Index = () => {
               </Animatable.View>
 
               {/* Botón para crear un juego */}
-              <Animatable.View ref={createGameButtonRef} animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined} duration={600} style={tw`w-full`}>
+              <Animatable.View
+                ref={createGameButtonRef}
+                animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
+                duration={600}
+                style={tw`w-full`}
+              >
                 <TouchableOpacity style={tw`bg-[#e73a35] p-4 rounded-xl mb-4 w-full `} onPress={handleCreateGame}>
                   <Text style={tw`text-white text-center text-lg font-bold`}>Create Game</Text>
                 </TouchableOpacity>
               </Animatable.View>
 
               {/* Botón para unirse a un juego */}
-              <Animatable.View ref={JoingameButtonRef} animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined} duration={600} style={tw`w-full`}>
+              <Animatable.View
+                ref={JoingameButtonRef}
+                animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
+                duration={600}
+                style={tw`w-full`}
+              >
                 <TouchableOpacity style={tw`bg-[#e73a35] p-4 rounded-xl mb-4 w-full `} onPress={handleJoinGame}>
                   <Text style={tw`text-white text-center text-lg font-bold`}>Join Game</Text>
                 </TouchableOpacity>
@@ -295,7 +384,7 @@ const Index = () => {
                     placeholder="Enter game code"
                     value={gameCode || ""}
                     onChange={(e) => setGameCode(e.nativeEvent.text)}
-                    autoCapitalize="characters"
+                    keyboardType="number-pad"
                   />
                 </Animatable.View>
 
@@ -310,16 +399,22 @@ const Index = () => {
           )}
         </View>
         {/* Botón para navegar a la pantalla de fotos propias */}
-        <TouchableOpacity
-          style={tw`bg-white/50 p-4 rounded-3xl bottom-22 absolute items-center `}
-          onPress={() => {
-            console.log("Navigating to OwnPhotos");
-            router.push("/screens/OwnPhotos");
-          }}
+        <Animatable.View
+          ref={buttonRef}
+          animation="slideInUp"
+          duration={600}
+          style={tw`absolute bottom-22 items-center`}
         >
-          <Image source={diceIcon} style={tw`w-8 h-8`} />
-        </TouchableOpacity>
-        <Text style={tw`absolute bottom-14 text-white text-lg font-bold`}>Random Photos</Text>
+          <TouchableOpacity
+            style={tw`bg-white/50 p-4 rounded-3xl`}
+            onPress={() => NavigateOwnPhotos("/screens/OwnPhotos")}
+          >
+            <Image source={diceIcon} style={tw`w-8 h-8`} />
+          </TouchableOpacity>
+        </Animatable.View>
+        <Animatable.View ref={textRef} animation="slideInUp" duration={600} style={tw`absolute bottom-14`}>
+          <Text style={tw`text-white text-lg font-bold`}>Random Photos</Text>
+        </Animatable.View>
       </View>
     </>
   );

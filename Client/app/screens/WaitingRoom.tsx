@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, FlatList, StatusBar, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, StatusBar, TouchableOpacity, Modal } from "react-native";
 import tw from "twrnc";
 import { useGameContext } from "@/app/providers/GameContext";
 import { useRouter } from "expo-router";
@@ -10,12 +10,21 @@ import { ImageBlurView } from "@/app/components/ImageBlur";
 import { useBackgroundContext } from "@/app/providers/BackgroundContext";
 import CloseButton from "../components/CloseButton";
 import Icon from "react-native-vector-icons/FontAwesome";
-import Dialog from "react-native-dialog";
-import * as Animatable from 'react-native-animatable';
+import * as Animatable from "react-native-animatable";
 
 const WaitingRoom = ({}) => {
   const navigation = useRouter();
-  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username, setRoundsOfGame, roundsOfGame } = useGameContext();
+  const {
+    startSocket,
+    endSocket,
+    gameCode,
+    setGameCode,
+    setPlayersProvider,
+    socket,
+    username,
+    setRoundsOfGame,
+    roundsOfGame,
+  } = useGameContext();
   const [players, setPlayers] = useState<Player[]>([]);
   const [isInGame, setIsInGame] = useState<boolean>(false);
   const { backgroundImage } = useBackgroundContext();
@@ -90,7 +99,9 @@ const WaitingRoom = ({}) => {
           // Eliminar al host actual
           const filteredPlayers = prevPlayers.filter((player) => !player.isHost);
           // Definir el nuevo host
-          return filteredPlayers.map((player) => (player.username === newHost.username ? { ...player, isHost: true } : player));
+          return filteredPlayers.map((player) =>
+            player.username === newHost.username ? { ...player, isHost: true } : player
+          );
         });
       });
 
@@ -161,16 +172,16 @@ const WaitingRoom = ({}) => {
     <>
       <View style={tw`absolute w-full h-full`}>
         <StatusBar hidden />
-        {/* Fondo desenfocado */}
 
+        {/* Fondo desenfocado */}
         <ImageBlur
           src={backgroundImage}
-          blurRadius={10} // intensidad del blur
+          blurRadius={10}
           blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />}
           style={{ flex: 1 }}
         />
       </View>
-      <CloseButton onPress={handleLeaveGame} />
+   <CloseButton onPress={handleLeaveGame} />
       <View style={tw`flex size-full justify-center my-20 items-center relative`}>
         <Text
           style={[
@@ -188,16 +199,20 @@ const WaitingRoom = ({}) => {
         >
           {gameCode}
         </Text>
-        <FlatList data={players} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4 mb-20`} />
-
         <Text
           style={[
-            tw`text-white font-extrabold  absolute top-10 right-10`,
+            tw`text-white font-extrabold mb-4`,
             { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 },
           ]}
         >
-          {roundsOfGame} Rounds{" "}
+          {roundsOfGame} Rounds
         </Text>
+        <FlatList
+          data={players}
+          renderItem={renderPlayer}
+          keyExtractor={(item) => item.socketId}
+          style={tw`w-full px-4 mb-20`}
+        />
 
         {players.length > 0 && players[0].username == username && players.length >= 2 ? (
           <>
@@ -212,41 +227,98 @@ const WaitingRoom = ({}) => {
                 </TouchableOpacity>
               ))}
             </View>
-            <TouchableOpacity style={tw`bg-[#911284] p-4 rounded-lg w-[90%] flex justify-center items-center absolute bottom-40`} onPress={handleStartGame}>
+            <TouchableOpacity
+              style={tw`bg-[#911284] p-4 rounded-lg w-[90%] flex justify-center items-center absolute bottom-40`}
+              onPress={handleStartGame}
+            >
               <Text style={tw`text-white`}>Start Game</Text>
             </TouchableOpacity>
           </>
         ) : (
-          <View style={tw` p-4 rounded-lg w-[90%] flex flex-row justify-center opacity-70 items-center absolute bottom-40`}>
+          <View
+            style={tw` p-4 rounded-lg w-[90%] flex flex-row justify-center opacity-70 items-center absolute bottom-40`}
+          >
             <Text style={tw`text-white`}>{players.length < 2 ? "Waiting for players" : "Waiting host"}</Text>
             <View style={tw`flex-row loadinganimation`}>
-              <Animatable.Text animation={{ 0: { translateY: 0 }, 0.4: { translateY: -5 }, 0.8: { translateY: 0 }, 1: { translateY: 0 } }} iterationCount="infinite" direction="alternate" delay={0} style={tw`text-white`}>.</Animatable.Text>
-              <Animatable.Text animation={{ 0: { translateY: 0 }, 0.4: { translateY: -5 }, 0.8: { translateY: 0 }, 1: { translateY: 0 } }} iterationCount="infinite" direction="alternate" delay={200} style={tw`text-white`}>.</Animatable.Text>
-              <Animatable.Text animation={{ 0: { translateY: 0 }, 0.4: { translateY: -5 }, 0.8: { translateY: 0 }, 1: { translateY: 0 } }} iterationCount="infinite" direction="alternate" delay={400} style={tw`text-white`}>.</Animatable.Text>
+              <Animatable.Text
+                animation={{
+                  0: { translateY: 0 },
+                  0.4: { translateY: -5 },
+                  0.8: { translateY: 0 },
+                  1: { translateY: 0 },
+                }}
+                iterationCount="infinite"
+                direction="alternate"
+                delay={0}
+                style={tw`text-white`}
+              >
+                .
+              </Animatable.Text>
+              <Animatable.Text
+                animation={{
+                  0: { translateY: 0 },
+                  0.4: { translateY: -5 },
+                  0.8: { translateY: 0 },
+                  1: { translateY: 0 },
+                }}
+                iterationCount="infinite"
+                direction="alternate"
+                delay={200}
+                style={tw`text-white`}
+              >
+                .
+              </Animatable.Text>
+              <Animatable.Text
+                animation={{
+                  0: { translateY: 0 },
+                  0.4: { translateY: -5 },
+                  0.8: { translateY: 0 },
+                  1: { translateY: 0 },
+                }}
+                iterationCount="infinite"
+                direction="alternate"
+                delay={400}
+                style={tw`text-white`}
+              >
+                .
+              </Animatable.Text>
             </View>
           </View>
         )}
       </View>
 
-      <Dialog.Container visible={dialogVisible} contentStyle={tw`bg-gray-800 rounded-lg p-6`}>
-        <Dialog.Title style={tw`text-2xl text-white font-bold text-center mb-4`}>Confirm Remove Player</Dialog.Title>
-        <Dialog.Description style={tw`text-lg text-white text-center mb-6`}>
-          Are you sure you want to remove <Text style={tw`text-red-500`}>@{selectedPlayer?.username}</Text> from the game?
-        </Dialog.Description>
-        <View style={tw`flex-row justify-evenly`}>
-          <Dialog.Button label="Cancel" onPress={() => setDialogVisible(false)} style={tw`bg-blue-500 px-4 py-2 rounded-lg text-white`} />
-          <Dialog.Button
-            label="Remove"
-            onPress={() => {
-              if (selectedPlayer) {
-                handleRemovePlayer(selectedPlayer.socketId);
-              }
-              setDialogVisible(false);
-            }}
-            style={tw`bg-red-600 px-4 py-2 rounded-lg text-white`}
-          />
+      <Modal
+        visible={dialogVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setDialogVisible(false)}
+      >
+        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tw`rounded-lg p-6 bg-gray-800 w-4/5`}>
+            <Text style={tw`text-2xl text-white font-bold text-center mb-4`}>Confirm Remove Player</Text>
+            <Text style={tw`text-lg text-white text-center mb-6`}>
+              Are you sure you want to remove <Text style={tw`text-red-500`}>@{selectedPlayer?.username}</Text> from the
+              game?
+            </Text>
+            <View style={tw`flex-row justify-evenly`}>
+              <TouchableOpacity onPress={() => setDialogVisible(false)} style={tw`bg-blue-500 px-4 py-2 rounded-lg`}>
+                <Text style={tw`text-white text-lg`}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  if (selectedPlayer) {
+                    handleRemovePlayer(selectedPlayer.socketId);
+                  }
+                  setDialogVisible(false);
+                }}
+                style={tw`bg-red-600 px-4 py-2 rounded-lg`}
+              >
+                <Text style={tw`text-white text-lg`}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </Dialog.Container>
+      </Modal>
     </>
   );
 };

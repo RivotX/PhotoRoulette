@@ -1,39 +1,65 @@
-import { useEffect } from "react";
-import { View, Platform } from "react-native";
+import { useEffect, useRef } from "react";
+import { View, Platform, Animated } from "react-native";
 import { BlurView } from "expo-blur";
 import tw from "twrnc";
-import { Image, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import ImageBlur from "./ImageBlur/ImageBlur";
 import { ImageBlurView } from "./ImageBlur";
 
-function PhotoComponent({ photoUrl }: { photoUrl: string }) {
+function PhotoComponent({ photoUrl, onLongPress, onPressOut }: { photoUrl: string, onLongPress: () => void, onPressOut: () => void }) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     console.log("PhotoComponent mounted");
+
     return () => {
       console.log("PhotoComponent unmounted");
     };
   }, []);
 
+  useEffect(() => {
+    fadeAnim.setValue(0);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [photoUrl]);
+
   return (
     <>
-      {Platform.OS === "ios" ? (
+      {Platform.OS === "ios" && (
         <View style={tw`absolute w-full h-full`}>
-          <Image source={{ uri: photoUrl }} style={tw`w-full h-full`} resizeMode="cover" />
+          <Animated.Image
+            source={{ uri: photoUrl }}
+            style={[tw`w-full h-full`, { opacity: fadeAnim }]}
+            resizeMode="cover"
+          />
           <BlurView intensity={50} style={tw`absolute w-full h-full`} />
         </View>
-      ) : (
+      )}
+      {Platform.OS === "android" && (
         <View style={tw`absolute w-full h-full`}>
           <ImageBlur
             src={photoUrl}
-            blurRadius={50} // Ajusta este valor según tus necesidades
+            blurRadius={50}
             blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />}
             style={{ flex: 1 }}
           />
         </View>
       )}
       <View style={tw`flex-1 justify-center items-center`}>
-        <TouchableOpacity style={tw`w-full h-full`} activeOpacity={1}>
-          <Image source={{ uri: photoUrl }} style={tw`w-full h-full`} resizeMode="contain" />
+        <TouchableOpacity
+          style={tw`w-full h-full`}
+          activeOpacity={1}
+          onLongPress={onLongPress}
+          onPressOut={onPressOut}
+        >
+          <Animated.Image
+            source={{ uri: photoUrl }}
+            style={[tw`w-full h-full`, { opacity: fadeAnim }]}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
       </View>
     </>

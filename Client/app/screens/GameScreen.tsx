@@ -9,7 +9,7 @@ import { usePhotoContext } from "../providers/PhotoContext";
 import getEnvVars from "@/config";
 import PhotoComponent from "../components/PhotoComponent";
 import { View as AnimatableView } from "react-native-animatable";
-import ScoreModal from "../components/ScoreModal"; // Importa el componente ScoreModal
+import ScoreModal from "../components/modals/ScoreModal"; // Importa el componente ScoreModal
 import ProgressBar from "../components/ProgressBar";
 
 const { SERVER_URL } = getEnvVars();
