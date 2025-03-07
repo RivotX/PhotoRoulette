@@ -25,7 +25,9 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
   useEffect(() => {
     console.log(visible, "game over");
     console.log("finalScore", finalScore);
-    endSocket();
+    if (visible) {
+      endSocket();
+    }
   }, [visible]);
 
   const onClose = () => {
