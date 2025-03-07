@@ -21,7 +21,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // secondsForButtonPress-300 para asegurar que el boton se presione antes de que inicie la otra ronda
-  const SecondsForButtonPressInClient = 3000 - 300; // in backend is 3 seconds line 121  const SecondsForButtonPress = SecondsForRound - SecondsForShowScore;
+  const SecondsForButtonPressInClient = 3000 - 300; // in backend is 3 seconds line 13  const SecondsForButtonPress = SecondsForRound - SecondsForShowScore;
   const [disabledButton, setDisabledButton] = useState(false);
 
   useEffect(() => {

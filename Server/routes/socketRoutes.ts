@@ -6,6 +6,12 @@ import { Player, Room, JoinCreateGameData, RoomOfGameResponse, PlayerId, ScoreRo
 console.log("Socket routes initialized");
 
 const rooms: Room[] = [];
+const roomTimeouts: { [key: string]: NodeJS.Timeout } = {};
+const TimeToDelete = 30 * 60 * 1000; // 30 minutes
+const SecondsForRound = 10000;
+const SecondsForShowScore = 7000;
+const SecondsForButtonPress = SecondsForRound - SecondsForShowScore;
+const SecondsToStart = 1000;
 
 io.on("connection", (socket: Socket) => {
   console.log("New Player connected");
@@ -24,6 +30,10 @@ io.on("connection", (socket: Socket) => {
         console.log("player: " + username, "trying to join room: " + gameCode);
         const room = rooms.find((room) => room.gameCode === gameCode);
         if (room) {
+          if (roomTimeouts[gameCode]) {
+            clearTimeout(roomTimeouts[gameCode]);
+            delete roomTimeouts[gameCode];
+          }
           if (room.started) {
             const response: RoomOfGameResponse = { success: false, message: "Game already started" };
             socket.emit("room-of-game", response);
@@ -36,7 +46,12 @@ io.on("connection", (socket: Socket) => {
               console.log("Username already taken: " + username);
             } else {
               socket.join(gameCode);
-              const newPlayer: Player = { username, socketId: socket.id, isHost: false, isReady: false, points: 0, lastAnswerCorrect: false };
+              let newPlayer: Player ;
+              if (room.players.length === 0) {
+                newPlayer= { username, socketId: socket.id, isHost: true, isReady: false, points: 0, lastAnswerCorrect: false };
+              }else{
+                newPlayer= { username, socketId: socket.id, isHost: false, isReady: false, points: 0, lastAnswerCorrect: false };
+              }
               room.players.push(newPlayer);
               const response: RoomOfGameResponse = { success: true, room, rounds: room.rounds };
               socket.emit("room-of-game", response);
@@ -78,7 +93,51 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
-  socket.on("set-rounds", (data: { gameCode: string, rounds: number }) => {
+  socket.on("disconnect", () => {
+    try {
+      const gameCode: string = socket.data.gameCode;
+      const username: string = socket.data.username;
+      console.log("------------------------------");
+
+      console.log("Client disconnected: " + socket.id);
+      console.log("gameCode: " + gameCode);
+      console.log("username: " + username);
+      console.log("------------------------------");
+
+      const roomIndex = rooms.findIndex((room) => room.gameCode === gameCode);
+      if (roomIndex !== -1) {
+        const room = rooms[roomIndex];
+        const playerIndex = room.players.findIndex((player) => player.username === username);
+        if (playerIndex !== -1) {
+          const player = room.players[playerIndex];
+          room.players.splice(playerIndex, 1);
+          if (player.isHost && room.players.length > 0) {
+            room.players[0].isHost = true;
+            socket.broadcast.to(gameCode).emit("new-host", room.players[0]);
+            console.log("New host assigned: " + room.players[0].username);
+          }
+          if (room.players.length === 0) {
+            room.started = false;
+            roomTimeouts[gameCode] = setTimeout(() => {
+              const roomIndex = rooms.findIndex((room) => room.gameCode === gameCode);
+              if (roomIndex !== -1) {
+                rooms.splice(roomIndex, 1);
+                delete roomTimeouts[gameCode];
+                console.log("Room deleted after 30 minutes: " + gameCode);
+              }
+            }, TimeToDelete); // 30 minutes
+            console.log("Room will be deleted in 30 minutes if no one joins: " + gameCode);
+          } else {
+            socket.broadcast.to(gameCode).emit("player-left", username);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error in disconnect:", error);
+    }
+  });
+
+  socket.on("set-rounds", (data: { gameCode: string; rounds: number }) => {
     try {
       const { gameCode, rounds } = data;
       const room = rooms.find((room) => room.gameCode === gameCode);
@@ -115,11 +174,7 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
-  
-  const SecondsForRound = 10000;
-  const SecondsForShowScore = 7000;
-  const SecondsForButtonPress = SecondsForRound - SecondsForShowScore;
-  const SecondsToStart = 1000;
+
   const startNextRound = (room: Room) => {
     try {
       if (!room) {
@@ -127,14 +182,13 @@ io.on("connection", (socket: Socket) => {
         return;
       }
 
-
       if (room.round >= room.rounds || room.players.length < 2) {
         const finalScore: ScoreRound[] = room.players.map((player) => ({
           username: player.username,
           points: player.points,
           isHost: player.isHost,
           lastAnswerCorrect: player.lastAnswerCorrect,
-        })); 
+        }));
         const OrderByPoints = finalScore.sort((a, b) => b.points - a.points);
         if (room.intervalId) clearInterval(room.intervalId);
         console.log("All rounds completed or less than 2 players");
@@ -168,24 +222,24 @@ io.on("connection", (socket: Socket) => {
     }
   };
 
-        socket.on("remove-player", (data: { gameCode: string, socketId: string }) => {
-      try {
-        const { gameCode, socketId } = data;
-        const room = rooms.find((room) => room.gameCode === gameCode);
-        if (room) {
-          const playerIndex = room.players.findIndex((player) => player.socketId === socketId);
-          if (playerIndex !== -1) {
-            const removedPlayer = room.players.splice(playerIndex, 1)[0];
-            io.to(room.gameCode).emit("player-removed", removedPlayer);
-            console.log("Player removed: " + removedPlayer.username);
-          }
-        } else {
-          console.error("Room not found for game code:", gameCode);
+  socket.on("remove-player", (data: { gameCode: string; socketId: string }) => {
+    try {
+      const { gameCode, socketId } = data;
+      const room = rooms.find((room) => room.gameCode === gameCode);
+      if (room) {
+        const playerIndex = room.players.findIndex((player) => player.socketId === socketId);
+        if (playerIndex !== -1) {
+          const removedPlayer = room.players.splice(playerIndex, 1)[0];
+          io.to(room.gameCode).emit("player-removed", removedPlayer);
+          console.log("Player removed: " + removedPlayer.username);
         }
-      } catch (error) {
-        console.error("Error in remove-player:", error);
+      } else {
+        console.error("Room not found for game code:", gameCode);
       }
-    });
+    } catch (error) {
+      console.error("Error in remove-player:", error);
+    }
+  });
 
   socket.on("im-ready", (data: PlayerId) => {
     try {
@@ -222,7 +276,6 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("button-pressed", () => {
-
     try {
       const gameCode = socket.data.gameCode;
       const room = rooms.find((room) => room.gameCode === gameCode);
@@ -307,42 +360,6 @@ io.on("connection", (socket: Socket) => {
       }
     } catch (error) {
       console.error("Error in photo-sent:", error);
-    }
-  });
-
-  socket.on("disconnect", () => {
-    try {
-      const gameCode: string = socket.data.gameCode;
-      const username: string = socket.data.username;
-      console.log("------------------------------");
-
-      console.log("Client disconnected: " + socket.id);
-      console.log("gameCode: " + gameCode);
-      console.log("username: " + username);
-      console.log("------------------------------");
-
-      const roomIndex = rooms.findIndex((room) => room.gameCode === gameCode);
-      if (roomIndex !== -1) {
-        const room = rooms[roomIndex];
-        const playerIndex = room.players.findIndex((player) => player.username === username);
-        if (playerIndex !== -1) {
-          const player = room.players[playerIndex];
-          room.players.splice(playerIndex, 1);
-          if (player.isHost && room.players.length > 0) {
-            room.players[0].isHost = true;
-            socket.broadcast.to(gameCode).emit("new-host", room.players[0]);
-            console.log("New host assigned: " + room.players[0].username);
-          }
-          if (room.players.length === 0) {
-            rooms.splice(roomIndex, 1);
-            console.log("Room deleted: " + gameCode);
-          } else {
-            socket.broadcast.to(gameCode).emit("player-left", username);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error in disconnect:", error);
     }
   });
 
