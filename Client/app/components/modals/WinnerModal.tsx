@@ -4,6 +4,7 @@ import tw from "twrnc";
 import LottieView from "lottie-react-native";
 import * as Animatable from "react-native-animatable";
 import { ScoreRound } from "@/app/models/interfaces";
+import { useGameContext } from "@/app/providers/GameContext";
 
 // Get screen dimensions
 const { width, height } = Dimensions.get("window");
@@ -16,12 +17,15 @@ interface WinnerModalProps {
 
 const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationEnd }) => {
   const medalAnimation = useRef<LottieView>(null);
+  const {endSocket} = useGameContext();
   const confettiAnimation = useRef<LottieView>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [animationComplete, setAnimationComplete] = useState(false);
   
   useEffect(() => {
+    console.log("WinnerModal visible:", visible);
     if (visible) {
+      endSocket();
       // Play the animations
       if (medalAnimation.current) {
         medalAnimation.current.play();
