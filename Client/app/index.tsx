@@ -400,7 +400,7 @@ const Index = () => {
             <Ionicons name="dice" size={44} color="white" />
           </TouchableOpacity>
         </Animatable.View>
-        <Animatable.View ref={textRef} animation="slideInUp" duration={600} style={tw`absolute bottom-16`}>
+        <Animatable.View ref={textRef} animation="slideInUp" duration={600} style={tw`absolute bottom-15`}>
           <Text style={tw`text-white font-bold`}>Photo Explorer</Text>
         </Animatable.View>
       </View>

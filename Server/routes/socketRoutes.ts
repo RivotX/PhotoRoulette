@@ -392,6 +392,18 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
+  socket.on("emoji-reaction", (data: { gameCode: string; username: string; emoji: string }) => {
+    try {
+      const { gameCode, username, emoji } = data;
+      console.log(`Emoji reaction from ${username}: ${emoji}`);
+
+      // Send the emoji reaction to all players in the room
+      io.to(gameCode).emit("emoji-reaction", { username, emoji });
+    } catch (error) {
+      console.error("Error in emoji-reaction:", error);
+    }
+  });
+
   socket.on("connect_error", (error) => {
     console.error("Connection error:", error);
   });
