@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Modal, View, Text, TouchableOpacity, FlatList, Animated, Image, Dimensions } from "react-native";
+import { Modal, View, Text, TouchableOpacity, FlatList, Animated, Dimensions } from "react-native";
 import tw from "twrnc";
 import { ScoreRound } from "@/app/models/interfaces";
 import { useRouter } from "expo-router";
@@ -147,10 +147,10 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
   };
 
   return (
-    <Modal visible={visible} animationType="fade" transparent={true} >
-      <View style={tw`flex-1 justify-center items-center`}>
-        {/* Confetti animation overlay */}
-        <View style={tw`absolute inset-0`}>
+    <Modal visible={visible} animationType="fade" transparent={true} statusBarTranslucent={true}>
+      <View style={tw`flex-1 justify-center items-center pb-16`}> {/* Added padding bottom */}
+        {/* Confetti animation overlay with lower z-index */}
+        <View style={[tw`absolute inset-0`, { zIndex: 1 }]}>
           <LottieView
             ref={confettiRef}
             source={require("@/assets/animations/confetiAnimation.json")}
@@ -161,8 +161,9 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
         </View>
 
         {/* Modal backdrop with slight blur effect */}
-        <View style={tw`absolute inset-0 bg-black bg-opacity-85`} />
+        <View style={[tw`absolute inset-0 bg-black bg-opacity-85`, { zIndex: 2 }]} />
 
+        {/* Main content with higher z-index */}
         <Animated.View
           style={[
             tw`bg-gray-900 w-[92%] rounded-3xl shadow-2xl`,
@@ -175,6 +176,8 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
               shadowOpacity: 0.6,
               shadowRadius: 10,
               elevation: 10,
+              zIndex: 3,
+              maxHeight: '88%', // Ensure it doesn't overlap with emoji bar
             },
           ]}
         >
@@ -218,7 +221,7 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
             </View>
           )}
 
-          <View style={tw`max-h-72 px-4 py-3`}>
+          <View style={tw`max-h-60 px-4 py-3`}> {/* Reduced max height */}
             <FlatList
               data={sortedScores}
               renderItem={renderScore}
@@ -228,11 +231,11 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
             />
           </View>
 
-          <View style={tw`flex-row justify-around my-6 px-4`}>
+          <View style={tw`flex-row justify-around my-4 px-4`}> {/* Reduced margins */}
             <TouchableOpacity
               onPress={onClose}
               style={[
-                tw`py-4 px-6 rounded-2xl flex-row items-center justify-center w-[45%]`,
+                tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`, /* Reduced padding */
                 {
                   backgroundColor: "#DC2626",
                   borderWidth: 2,
@@ -246,14 +249,14 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
               ]}
               activeOpacity={0.7}
             >
-              <Ionicons name="exit-outline" size={22} color="white" style={tw`mr-2`} />
-              <Text style={tw`text-white text-lg font-bold`}>Exit</Text>
+              <Ionicons name="exit-outline" size={20} color="white" style={tw`mr-2`} />
+              <Text style={tw`text-white text-base font-bold`}>Exit</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={playAgain}
               style={[
-                tw`py-4 px-6 rounded-2xl flex-row items-center justify-center w-[45%]`,
+                tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`, /* Reduced padding */
                 {
                   backgroundColor: "#2563EB",
                   borderWidth: 2,
@@ -267,8 +270,8 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
               ]}
               activeOpacity={0.7}
             >
-              <Ionicons name="refresh" size={22} color="white" style={tw`mr-2`} />
-              <Text style={tw`text-white text-lg font-bold`}>Play Again</Text>
+              <Ionicons name="refresh" size={20} color="white" style={tw`mr-2`} />
+              <Text style={tw`text-white text-base font-bold`}>Play Again</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>

@@ -105,14 +105,14 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
   }, [visible]);
 
   return (
-    <Modal transparent={true} animationType="slide" visible={visible}>
-      <View style={[tw`flex-1 justify-center items-center bg-black bg-opacity-50`, { opacity: modalOpacity }]}>
+    <Modal transparent={true} animationType="slide" visible={visible} statusBarTranslucent={true}>
+      <View style={[tw`flex-1 justify-center items-center bg-black bg-opacity-50 pt-20 pb-16`, { opacity: modalOpacity }]}>
         <Text style={tw`text-xl text-white absolute top-10 font-bold mb-4`}>
           Round {rounds.round} of {rounds.roundsOfGame}
         </Text>
         {scoreRound.map((player, index) => (
-          <View key={index} style={tw`w-11/12 bg-white mb-2  m-1 rounded-3xl`}>
-            <View style={tw`flex-row  h-12`}>
+          <View key={index} style={tw`w-11/12 bg-white mb-2 m-1 rounded-3xl`}>
+            <View style={tw`flex-row h-12`}>
               <View style={tw`flex items-center justify-center rounded-l-full bg-red-500`}>
                 <Text style={tw`text-lg px-3 size text-white font-bold`}>{index + 1}</Text>
               </View>
@@ -137,15 +137,15 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
           </View>
         ))}
         {canHold && (
-          <TouchableOpacity
-            style={tw`bg-blue-500 absolute ${disabledButton == true ? "opacity-10" : "opacity-100"} bottom-10 p-4 flex justify-center items-center rounded-lg w-[90%]`}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            disabled={disabledButton}
-          >
-            <Text style={tw`text-white text-lg`}>Hold photo</Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={tw`bg-blue-500 absolute ${disabledButton == true ? "opacity-10" : "opacity-100"} bottom-24 p-4 flex justify-center items-center rounded-lg w-[90%]`} // Elevé el botón
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          disabled={disabledButton}
+        >
+          <Text style={tw`text-white text-lg`}>Hold photo</Text>
+        </TouchableOpacity>
+      )}
       </View>
     </Modal>
   );

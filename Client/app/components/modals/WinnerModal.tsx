@@ -52,13 +52,14 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
   if (!winner) return null;
 
   return (
-    <Modal visible={visible} transparent={true} animationType="fade" >
+    <Modal visible={visible} transparent={true} animationType="fade" statusBarTranslucent={true}>
       <TouchableOpacity 
         activeOpacity={1}
         style={tw`flex-1`} 
         onPress={animationComplete ? onAnimationEnd : undefined}
       >
-        <View style={tw`flex-1 bg-black`}>
+        {/* Padding bottom to leave space for emoji bar */}
+        <View style={tw`flex-1 bg-black bg-opacity-90`}>
           {/* Confetti covering the entire screen */}
           <LottieView
             ref={confettiAnimation}
@@ -69,13 +70,15 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
               height: height * 1.2,
               left: -width * 0.1, // Center the enlarged animation
               top: -height * 0.1,
+              zIndex: 1 // Ensure confetti is behind other content but above background
             }}
             autoPlay={false}
             loop={true}
             resizeMode="cover"
           />
           
-          <View style={tw`flex-1 justify-center items-center`}>
+          {/* Main content with z-index to be above confetti */}
+          <View style={[tw`flex-1 justify-center items-center pb-16`, { zIndex: 2 }]}>
             {/* Gold medal animation */}
             <LottieView
               ref={medalAnimation}
@@ -114,7 +117,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
             {animationComplete && (
               <Animatable.View 
                 animation="fadeIn" 
-                style={tw`absolute bottom-12 w-full items-center`}
+                style={tw`absolute bottom-20 w-full items-center`}  // Moved higher to avoid emoji bar
               >
                 <Text style={tw`text-white text-lg opacity-70`}>
                   Tap anywhere to continue
