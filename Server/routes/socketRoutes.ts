@@ -221,43 +221,6 @@ io.on("connection", (socket: Socket) => {
           
           console.log(`[END GAME CHECK] Round: ${room.round}/${room.rounds}, Players: ${room.players.length}, Planted photos left: ${playersWithPlantedPhotos.length}`);
           
-          // If there are still planted photos, use them before ending the game
-          if (playersWithPlantedPhotos.length > 0 && room.round < room.rounds) {
-            // Randomly select a player with a planted photo
-            const randomIndex = Math.floor(Math.random() * playersWithPlantedPhotos.length);
-            const selectedPlayer = playersWithPlantedPhotos[randomIndex];
-            
-            room.currentPlayer = selectedPlayer;
-            console.log(`[FINAL ROUND] Using remaining planted photo from ${selectedPlayer.username} before ending the game`);
-            
-            // Emit event to all players with the planted photo
-            io.to(room.gameCode).emit("photo-received", { 
-              photo: selectedPlayer.plantedPhoto, 
-              username: selectedPlayer.username, 
-              round: room.round + 1,
-              isPlanted: true
-            });
-            
-            room.round++;
-            console.log(`[PHOTO SHOWN] Planted photo from ${selectedPlayer.username} shown in final round ${room.round}`);
-            
-            // Remove the planted photo so it's not used again
-            selectedPlayer.plantedPhoto = undefined;
-            
-            // Emit score-round after the show score time
-            setTimeout(() => {
-              const scores: ScoreRound[] = room.players.map((player) => ({
-                username: player.username,
-                points: player.points,
-                isHost: player.isHost,
-                lastAnswerCorrect: player.lastAnswerCorrect,
-                lastGuess: player.lastGuess,
-              }));
-              io.to(room.gameCode).emit("score-round", scores);
-            }, SecondsForShowScore);
-            
-            return;
-          }
           
           // End the game if no planted photos left
           console.log(`[GAME OVER] Game ${room.gameCode} completed. No more rounds or planted photos.`);
@@ -290,7 +253,6 @@ io.on("connection", (socket: Socket) => {
         if (playersWithPlantedPhotos.length > 0) {
           console.log(`[PLANTED PHOTOS] From players: ${playersWithPlantedPhotos.map(p => p.username).join(', ')}`);
         }
-        
         // Set up a distribution pattern for planted photos
         // We'll try to space them out across the game
         const totalRounds = room.rounds;
