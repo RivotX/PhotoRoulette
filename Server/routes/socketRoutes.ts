@@ -205,17 +205,21 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
-     const startNextRound = (room: Room) => {
+  const startNextRound = (room: Room) => {
       try {
         if (!room) {
           console.error("Room not found");
           return;
         }
     
+        console.log(`\n[ROUND INFO] Game: ${room.gameCode} - Starting round ${room.round + 1}/${room.rounds}`);
+        
         // Check if we're at the end of the game
         if (room.round >= room.rounds || room.players.length < 2) {
           // Before ending, check if there are any unused planted photos
           const playersWithPlantedPhotos = room.players.filter(player => player.plantedPhoto);
+          
+          console.log(`[END GAME CHECK] Round: ${room.round}/${room.rounds}, Players: ${room.players.length}, Planted photos left: ${playersWithPlantedPhotos.length}`);
           
           // If there are still planted photos, use them before ending the game
           if (playersWithPlantedPhotos.length > 0 && room.round < room.rounds) {
@@ -224,7 +228,7 @@ io.on("connection", (socket: Socket) => {
             const selectedPlayer = playersWithPlantedPhotos[randomIndex];
             
             room.currentPlayer = selectedPlayer;
-            console.log(`Using remaining planted photo from ${selectedPlayer.username} before ending`);
+            console.log(`[FINAL ROUND] Using remaining planted photo from ${selectedPlayer.username} before ending the game`);
             
             // Emit event to all players with the planted photo
             io.to(room.gameCode).emit("photo-received", { 
@@ -235,6 +239,7 @@ io.on("connection", (socket: Socket) => {
             });
             
             room.round++;
+            console.log(`[PHOTO SHOWN] Planted photo from ${selectedPlayer.username} shown in final round ${room.round}`);
             
             // Remove the planted photo so it's not used again
             selectedPlayer.plantedPhoto = undefined;
@@ -255,6 +260,7 @@ io.on("connection", (socket: Socket) => {
           }
           
           // End the game if no planted photos left
+          console.log(`[GAME OVER] Game ${room.gameCode} completed. No more rounds or planted photos.`);
           const finalScore: ScoreRound[] = room.players.map((player) => ({
             username: player.username,
             points: player.points,
@@ -264,8 +270,9 @@ io.on("connection", (socket: Socket) => {
           }));
           const OrderByPoints = finalScore.sort((a, b) => b.points - a.points);
           if (room.intervalId) clearInterval(room.intervalId);
-          console.log("All rounds completed or less than 2 players");
-          console.log("Final score: " + OrderByPoints);
+          
+          console.log("[FINAL SCORES]", OrderByPoints.map(score => `${score.username}: ${score.points}`).join(', '));
+          
           io.to(room.gameCode).emit("game-over", { finalScore: OrderByPoints });
           return;
         }
@@ -273,10 +280,16 @@ io.on("connection", (socket: Socket) => {
         // Initialize plantedPhotosShown property if not set
         if (room.plantedPhotosShown === undefined) {
           room.plantedPhotosShown = 0;
+          console.log(`[INIT] Initialized plantedPhotosShown counter for game ${room.gameCode}`);
         }
     
         // Get all players with planted photos
         const playersWithPlantedPhotos = room.players.filter(player => player.plantedPhoto);
+        
+        console.log(`[PLANTED PHOTOS] Found ${playersWithPlantedPhotos.length} planted photos remaining`);
+        if (playersWithPlantedPhotos.length > 0) {
+          console.log(`[PLANTED PHOTOS] From players: ${playersWithPlantedPhotos.map(p => p.username).join(', ')}`);
+        }
         
         // Set up a distribution pattern for planted photos
         // We'll try to space them out across the game
@@ -284,9 +297,13 @@ io.on("connection", (socket: Socket) => {
         const remainingRounds = totalRounds - room.round;
         const plantedPhotosCount = playersWithPlantedPhotos.length;
     
+        console.log(`[ROUNDS INFO] Total: ${totalRounds}, Current: ${room.round}, Remaining: ${remainingRounds}`);
+        console.log(`[PLANTED PHOTOS] Count: ${plantedPhotosCount}, Already shown: ${room.plantedPhotosShown || 0}`);
+        
         // Calculate a probability based on how many planted photos we have 
         // and how many rounds are left
         let shouldShowPlantedPhoto = false;
+        let selectionReason = "";
         
         if (plantedPhotosCount > 0) {
           // Create "slots" for planted photos throughout the game
@@ -295,11 +312,15 @@ io.on("connection", (socket: Socket) => {
           // If we're near the end and still have planted photos, increase chances
           if (remainingRounds <= plantedPhotosCount + 1) {
             // Higher chance when we're running out of rounds
-            shouldShowPlantedPhoto = Math.random() < 0.7;
+            const randomChance = Math.random();
+            shouldShowPlantedPhoto = randomChance < 0.7;
+            selectionReason = `End game approach (${remainingRounds} rounds left, ${plantedPhotosCount} photos). Random chance: ${randomChance.toFixed(2)} vs threshold 0.7`;
           } else {
             // Generate a random position between 0.1 and 0.9 for each round
             // This creates "random slots" throughout the game
             const roundPosition = (room.round / totalRounds); 
+            console.log(`[POSITION] Current round position: ${roundPosition.toFixed(2)} (${room.round}/${totalRounds})`);
+            
             const plantedPhotoPositions = [];
             
             // Create target positions for planted photos distributed throughout the game
@@ -307,16 +328,26 @@ io.on("connection", (socket: Socket) => {
               // Space out the target positions - we add randomness (±0.1) to make it less predictable
               const targetPos = (1 + i) / (plantedPhotosCount + 1);
               const randomizedPos = targetPos + (Math.random() * 0.2 - 0.1);
-              plantedPhotoPositions.push(Math.min(0.95, Math.max(0.05, randomizedPos)));
+              const finalPos = Math.min(0.95, Math.max(0.05, randomizedPos));
+              plantedPhotoPositions.push(finalPos);
             }
             
+            console.log(`[TARGET POSITIONS] ${plantedPhotoPositions.map(pos => pos.toFixed(2)).join(', ')}`);
+            
             // Check if we're close to any of our target positions
-            const isNearPosition = plantedPhotoPositions.some(pos => 
+            const nearPositions = plantedPhotoPositions.filter(pos => 
               Math.abs(roundPosition - pos) < (0.8 / totalRounds));
+              
+            const isNearPosition = nearPositions.length > 0;
             
             shouldShowPlantedPhoto = isNearPosition;
+            selectionReason = isNearPosition 
+              ? `Near target position: ${nearPositions.map(pos => pos.toFixed(2)).join(', ')}` 
+              : `Not near any target position`;
           }
         }
+    
+        console.log(`[DECISION] Should show planted photo: ${shouldShowPlantedPhoto ? 'YES' : 'NO'} - ${selectionReason}`);
     
         if (shouldShowPlantedPhoto && playersWithPlantedPhotos.length > 0 && room.round < room.rounds) {
           // Randomly select a player with a planted photo
@@ -324,8 +355,8 @@ io.on("connection", (socket: Socket) => {
           const selectedPlayer = playersWithPlantedPhotos[randomIndex];
           
           room.currentPlayer = selectedPlayer;
-          room.plantedPhotosShown++;
-          console.log(`Using planted photo from ${selectedPlayer.username} (${room.plantedPhotosShown} planted photos shown so far)`);
+          room.plantedPhotosShown = (room.plantedPhotosShown || 0) + 1;
+          console.log(`[PLANTED PHOTO SELECTED] From ${selectedPlayer.username} (${room.plantedPhotosShown} planted photos shown so far)`);
           
           // Emit event to all players with the planted photo
           io.to(room.gameCode).emit("photo-received", { 
@@ -336,9 +367,11 @@ io.on("connection", (socket: Socket) => {
           });
           
           room.round++;
+          console.log(`[ROUND ADVANCED] Now on round ${room.round}/${room.rounds}`);
           
           // Remove the planted photo so it's not used again
           selectedPlayer.plantedPhoto = undefined;
+          console.log(`[PLANTED PHOTO CONSUMED] Removed from ${selectedPlayer.username}'s inventory`);
           
           // Emit score-round after the show score time
           setTimeout(() => {
@@ -355,13 +388,14 @@ io.on("connection", (socket: Socket) => {
           // Original logic for random photo selection
           room.currentPlayer = getRandomPlayer(room.players);
           if (!room.currentPlayer) {
-            console.error("Current player not found");
+            console.error("[ERROR] Current player not found");
             return;
           }
-          console.log("Selected player to send photo: " + room.currentPlayer.username);
+          console.log(`[RANDOM PLAYER SELECTED] ${room.currentPlayer.username} will provide a photo`);
           io.to(room.currentPlayer.socketId).emit("your-turn", { round: room.round + 1 });
-          console.log("Your turn: " + room.currentPlayer.username + " - " + room.currentPlayer.socketId);
+          
           room.round++;
+          console.log(`[ROUND ADVANCED] Now on round ${room.round}/${room.rounds}`);
     
           // Emit score-round after 7 seconds
           setTimeout(() => {
@@ -376,7 +410,7 @@ io.on("connection", (socket: Socket) => {
           }, SecondsForShowScore);
         }
       } catch (error) {
-        console.error("Error in startNextRound:", error);
+        console.error("[ERROR] in startNextRound:", error);
       }
     };
 
@@ -548,7 +582,7 @@ io.on("connection", (socket: Socket) => {
           console.log(`${username} marked that they will plant a photo in game ${gameCode}`);
           
           // Notify all players in the room that a player has marked to plant a photo
-          io.to(gameCode).emit("player-marked-planted", player);
+          // io.to(gameCode).emit("player-marked-planted", player);
         }
       }
     } catch (error) {

@@ -32,7 +32,7 @@ const WaitingRoom = ({}) => {
   const [showPhotoAddedMessage, setShowPhotoAddedMessage] = useState<boolean>(false);
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
 
-  const roundOptions = [1, 5, 10, 15];
+  const roundOptions = [ 5, 10, 15];
 
   const pickAndPlantImage = async () => {
     const hasPermission = await requestGalleryPermission({ askAgain: true });
@@ -67,12 +67,12 @@ const WaitingRoom = ({}) => {
         }, 2000);
         
         // Tell the server that this player has planted a photo (but without the URL yet)
-        if (socket && gameCode) {
-          socket.emit("mark-player-planted", {
-            gameCode,
-            username
-          });
-        }
+        // if (socket && gameCode) {
+        //   socket.emit("mark-player-planted", {
+        //     gameCode,
+        //     username
+        //   });
+        // }
       }
     } catch (error) {
       setIsSelecting(false);
@@ -136,18 +136,18 @@ const WaitingRoom = ({}) => {
         }
       });
 
-      socket.on("player-marked-planted", (player: Player) => {
-        if (player.username === username) {
-          setHasPlantedPhoto(true);
-        }
+      // socket.on("player-marked-planted", (player: Player) => {
+      //   if (player.username === username) {
+      //     setHasPlantedPhoto(true);
+      //   }
 
-        // Update the players list to show who has marked photos to plant
-        setPlayers((prevPlayers) => {
-          return prevPlayers.map((p) => 
-            p.username === player.username ? { ...p, hasPlantedPhoto: true } : p
-          );
-        });
-      });
+      //   // Update the players list to show who has marked photos to plant
+      //   setPlayers((prevPlayers) => {
+      //     return prevPlayers.map((p) => 
+      //       p.username === player.username ? { ...p, hasPlantedPhoto: true } : p
+      //     );
+      //   });
+      // });
 
       // ... rest of the existing socket listeners
       
@@ -190,7 +190,6 @@ const WaitingRoom = ({}) => {
     }
   }, [socket]);
 
-  // ...existing handlers...
   const handleLeaveGame = () => {
     endSocket();
     navigation.replace("/");
