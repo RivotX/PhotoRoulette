@@ -1,13 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  TextInput,
-  Image,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, TextInput, Image, TouchableWithoutFeedback } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -345,6 +337,7 @@ const Index = () => {
                   placeholderTextColor="#3333"
                   value={username || ""}
                   onChange={(e) => handleUsernameChange(e.nativeEvent.text)}
+                  maxLength={15}
                 />
               </Animatable.View>
 
@@ -379,7 +372,7 @@ const Index = () => {
             <TouchableWithoutFeedback onPress={handleCancelJoinGame}>
               <View style={tw`flex-1 w-full justify-center items-center`}>
                 {/* Input para ingresar el código del juego */}
-                <Animatable.View ref={gameCodeAnimRef} animation="slideInDownBounce" duration={600} style={tw`w-full `}> 
+                <Animatable.View ref={gameCodeAnimRef} animation="slideInDownBounce" duration={600} style={tw`w-full `}>
                   <TextInput
                     ref={gameCodeInputRef}
                     style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg font-bold`}
@@ -402,21 +395,13 @@ const Index = () => {
           )}
         </View>
         {/* Botón para navegar a la pantalla de fotos propias */}
-        <Animatable.View
-          ref={buttonRef}
-          animation="slideInUp"
-          duration={600}
-          style={tw`absolute bottom-22 items-center`}
-        >
-          <TouchableOpacity
-            style={tw`bg-white/50 p-3  rounded-3xl`}
-            onPress={() => NavigateOwnPhotos("/screens/OwnPhotos")}
-          >
-            <Ionicons name="dice" size={44} color="white"/>
+        <Animatable.View ref={buttonRef} animation="slideInUp" duration={600} style={tw`absolute bottom-22 items-center`}>
+          <TouchableOpacity style={tw`bg-white/50 p-3  rounded-3xl`} onPress={() => NavigateOwnPhotos("/screens/OwnPhotos")}>
+            <Ionicons name="dice" size={44} color="white" />
           </TouchableOpacity>
         </Animatable.View>
         <Animatable.View ref={textRef} animation="slideInUp" duration={600} style={tw`absolute bottom-16`}>
-          <Text style={tw`text-white font-bold`}>Expose</Text>
+          <Text style={tw`text-white font-bold`}>Photo Explorer</Text>
         </Animatable.View>
       </View>
     </>

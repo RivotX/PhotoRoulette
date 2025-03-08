@@ -19,6 +19,7 @@ export interface ScoreRound {
   points: number;
   isHost: boolean;
   lastAnswerCorrect: boolean;
+  lastGuess: string;
 }
 
 

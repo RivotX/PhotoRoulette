@@ -108,7 +108,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
     <Modal transparent={true} animationType="slide" visible={visible}>
       <View style={[tw`flex-1 justify-center items-center bg-black bg-opacity-50`, { opacity: modalOpacity }]}>
         <Text style={tw`text-xl text-white absolute top-10 font-bold mb-4`}>
-          Round {rounds.round} of {rounds.roundsOfGame}{" "}
+          Round {rounds.round} of {rounds.roundsOfGame}
         </Text>
         {scoreRound.map((player, index) => (
           <View key={index} style={tw`w-11/12 bg-white mb-2  m-1 rounded-3xl`}>
@@ -126,7 +126,9 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
                       size={12}
                       color={player.lastAnswerCorrect ? "green" : "red"}
                     />
-                    <Text style={tw`text-xs ${player.lastAnswerCorrect ? "text-green-500" : "text-red-500"}`}>{player.username} </Text>
+                    <Text style={tw`text-xs ${player.lastAnswerCorrect ? "text-green-500" : "text-red-500"}`}>
+                      {player.lastGuess || "No guess"}
+                    </Text>
                   </View>
                 </View>
                 <Text style={tw`text-lg`}>{player.points} </Text>

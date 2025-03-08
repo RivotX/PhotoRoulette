@@ -12,6 +12,7 @@ import { View as AnimatableView } from "react-native-animatable";
 import ScoreModal from "../components/modals/ScoreModal"; // Importa el componente ScoreModal
 import ProgressBar from "../components/ProgressBar";
 import FinalScoreModal from "../components/FinalScoreModal";
+import WinnerModal from "../components/modals/WinnerModal"; // Add this import
 
 const { SERVER_URL } = getEnvVars();
 
@@ -33,8 +34,11 @@ const GameScreen = () => {
   const [showScore, setShowScore] = useState<boolean>(false);
   const [score, setScore] = useState<ScoreRound[] | null>(null);
   const [finalScore, setFinalScore] = useState<ScoreRound[] | null>(null);
-  const timeForAnswer = 5000; // 5 segundos
+  const timeForAnswer = 6000; // 6 seconds
   const [progressKey, setProgressKey] = useState<number>(0); // Estado para la clave única del ProgressBar
+  const [showFinalScore, setShowFinalScore] = useState<boolean>(false);
+  const [showWinner, setShowWinner] = useState<boolean>(false);
+  const [winner, setWinner] = useState<ScoreRound | null>(null);
 
   // Función para subir una imagen al servidor
   const uploadImage = async (uri: string) => {
@@ -109,7 +113,14 @@ const GameScreen = () => {
         console.log(data.finalScore);
         setFinalScore(data.finalScore);
         setGameOver(true);
-        // router.replace("/");
+
+        // Get the winner (player with highest points)
+        const sortedScores = [...data.finalScore].sort((a, b) => b.points - a.points);
+        if (sortedScores.length > 0) {
+          setWinner(sortedScores[0]);
+          setShowWinner(true);
+          // FinalScoreModal will be shown after WinnerModal animation completes
+        }
       });
       setIsReady(true);
     }
@@ -125,7 +136,7 @@ const GameScreen = () => {
   }, [socket]);
 
   useEffect(() => {
-    console.log("GAME OVER EN GAMESCREEN ES",gameOver);
+    console.log("GAME OVER EN GAMESCREEN ES", gameOver);
   }, [gameOver]);
 
   useEffect(() => {
@@ -166,25 +177,42 @@ const GameScreen = () => {
     if (showCorrectAnswer && usernamePhoto !== "" && socket) {
       if (userSelected === usernamePhoto) {
         console.log("Correct Answer");
-        socket.emit("correct-answer", { gameCode: safeGameCode, username: safeUsername });
+        socket.emit("correct-answer", {
+          gameCode: safeGameCode,
+          username: safeUsername,
+          guess: userSelected,
+        });
       } else {
         console.log("Incorrect Answer");
-        socket.emit("incorrect-answer", { gameCode: safeGameCode, username: safeUsername });
+        socket.emit("incorrect-answer", {
+          gameCode: safeGameCode,
+          username: safeUsername,
+          guess: userSelected,
+        });
       }
     }
   }, [showCorrectAnswer]);
 
+  const handleWinnerAnimationEnd = () => {
+    setShowWinner(false);
+    setShowFinalScore(true);
+  };
+
   const renderPlayer = ({ item }: { item: Player }) => {
     const isPhotoOwner = item.username === usernamePhoto;
     const isAnswer = item.username === userSelected;
+    const isCurrentUser = item.username === safeUsername;
+
     return (
       <TouchableOpacity
-        style={tw`p-4 rounded-lg mb-2 flex-row items-center ${showCorrectAnswer ? (isPhotoOwner ? "bg-green-500" : isAnswer ? "bg-red-500" : "bg-gray-700") : isAnswer ? "bg-blue-500" : "bg-gray-700"}`}
+        style={tw`p-4 rounded-lg mb-2 ${showCorrectAnswer ? (isPhotoOwner ? "bg-green-500" : isAnswer ? "bg-red-500" : "bg-gray-700") : isAnswer ? "bg-blue-500" : "bg-gray-700"}`}
         onPress={() => setUserSelected(item.username)}
         disabled={showCorrectAnswer}
       >
-        {item.isHost && <Text style={tw`text-white text-lg mr-2`}>👑</Text>}
-        <Text style={tw`text-white text-lg`}>{item.username}</Text>
+        <View style={tw`flex-row items-center justify-between`}>
+          <Text style={tw`text-white text-lg flex-1`}>{item.username}</Text>
+          {isCurrentUser && <Text style={tw`text-white text-sm bg-gray-600 px-2 py-0.5 rounded-full ml-2`}>You</Text>}
+        </View>
       </TouchableOpacity>
     );
   };
@@ -201,7 +229,12 @@ const GameScreen = () => {
                 <ProgressBar key={progressKey} duration={timeForAnswer} />
               </View>
               <View style={tw`absolute z-200 bottom-10 left-0 right-0 p-4 flex-row justify-center mb-4`}>
-                <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
+                <FlatList
+                  data={playersProvider}
+                  renderItem={renderPlayer}
+                  keyExtractor={(item) => item.socketId}
+                  style={tw`w-full px-4`}
+                />
               </View>
               <ScoreModal
                 visible={showScore}
@@ -220,10 +253,12 @@ const GameScreen = () => {
           </View>
         )}
       </View>
-      <FinalScoreModal
-        visible={gameOver}
-        finalScore={finalScore || []}
-      />
+
+      {/* Winner celebration modal */}
+      <WinnerModal visible={showWinner} winner={winner} onAnimationEnd={handleWinnerAnimationEnd} />
+
+      {/* Final score modal */}
+      <FinalScoreModal visible={showFinalScore} finalScore={finalScore || []} />
     </View>
   );
 };

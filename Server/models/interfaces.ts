@@ -5,6 +5,7 @@ export interface Player {
   isHost: boolean;
   isReady: boolean;
   lastAnswerCorrect: boolean;
+  lastGuess: string;
 }
 
 export interface ScoreRound {

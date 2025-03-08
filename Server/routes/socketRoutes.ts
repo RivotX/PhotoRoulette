@@ -46,11 +46,27 @@ io.on("connection", (socket: Socket) => {
               console.log("Username already taken: " + username);
             } else {
               socket.join(gameCode);
-              let newPlayer: Player ;
+              let newPlayer: Player;
               if (room.players.length === 0) {
-                newPlayer= { username, socketId: socket.id, isHost: true, isReady: false, points: 0, lastAnswerCorrect: false };
-              }else{
-                newPlayer= { username, socketId: socket.id, isHost: false, isReady: false, points: 0, lastAnswerCorrect: false };
+                newPlayer = {
+                  username,
+                  socketId: socket.id,
+                  isHost: true,
+                  isReady: false,
+                  points: 0,
+                  lastAnswerCorrect: false,
+                  lastGuess: "No guess",
+                };
+              } else {
+                newPlayer = {
+                  username,
+                  socketId: socket.id,
+                  isHost: false,
+                  isReady: false,
+                  points: 0,
+                  lastAnswerCorrect: false,
+                  lastGuess: "No guess",
+                };
               }
               room.players.push(newPlayer);
               const response: RoomOfGameResponse = { success: true, room, rounds: room.rounds };
@@ -73,7 +89,17 @@ io.on("connection", (socket: Socket) => {
           gameCode: codeGame,
           rounds: 10,
           started: false,
-          players: [{ username, socketId: socket.id, isHost: true, isReady: false, points: 0, lastAnswerCorrect: false }],
+          players: [
+            {
+              username,
+              socketId: socket.id,
+              isHost: true,
+              isReady: false,
+              points: 0,
+              lastAnswerCorrect: false,
+              lastGuess: "No guess",
+            },
+          ],
           intervalId: null,
           buttonPressed: false,
           currentPlayer: null,
@@ -174,7 +200,6 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
-
   const startNextRound = (room: Room) => {
     try {
       if (!room) {
@@ -188,6 +213,7 @@ io.on("connection", (socket: Socket) => {
           points: player.points,
           isHost: player.isHost,
           lastAnswerCorrect: player.lastAnswerCorrect,
+          lastGuess: player.lastGuess,
         }));
         const OrderByPoints = finalScore.sort((a, b) => b.points - a.points);
         if (room.intervalId) clearInterval(room.intervalId);
@@ -214,6 +240,7 @@ io.on("connection", (socket: Socket) => {
           points: player.points,
           isHost: player.isHost,
           lastAnswerCorrect: player.lastAnswerCorrect,
+          lastGuess: player.lastGuess,
         }));
         io.to(room.gameCode).emit("score-round", scores);
       }, SecondsForShowScore);
@@ -328,38 +355,40 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
-  socket.on("correct-answer", (data: PlayerId) => {
+  socket.on("correct-answer", (data: { username: string; gameCode: string; guess: string }) => {
     try {
-      const { username, gameCode } = data;
-      console.log("Photo received from: " + username);
+      const { username, gameCode, guess } = data;
+      console.log("Correct answer from: " + username + " - guess: " + guess);
       const room = rooms.find((room) => room.gameCode === gameCode);
       if (room) {
         const player = room.players.find((player) => player.username === username);
         if (player) {
           player.points++;
           player.lastAnswerCorrect = true;
+          player.lastGuess = guess;
           console.log("Player points: " + player.points);
         }
       }
     } catch (error) {
-      console.error("Error in photo-sent:", error);
+      console.error("Error in correct-answer:", error);
     }
   });
 
-  socket.on("incorrect-answer", (data: PlayerId) => {
+  socket.on("incorrect-answer", (data: { username: string; gameCode: string; guess: string }) => {
     try {
-      const { username, gameCode } = data;
-      console.log("Photo received from: " + username);
+      const { username, gameCode, guess } = data;
+      console.log("Incorrect answer from: " + username + " - guess: " + guess);
       const room = rooms.find((room) => room.gameCode === gameCode);
       if (room) {
         const player = room.players.find((player) => player.username === username);
         if (player) {
           player.lastAnswerCorrect = false;
+          player.lastGuess = guess; // Guardar la última respuesta
           console.log("Player points: " + player.points);
         }
       }
     } catch (error) {
-      console.error("Error in photo-sent:", error);
+      console.error("Error in incorrect-answer:", error);
     }
   });
 

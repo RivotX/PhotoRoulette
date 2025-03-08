@@ -1,7 +1,8 @@
 import { useFonts } from "expo-font";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { StatusBar } from "react-native"; // Cambia el import
 import "react-native-reanimated";
 import { PhotoProvider } from "@/app/providers/PhotoContext";
 import GameProvider from "./providers/GameContext";
@@ -29,6 +30,7 @@ export default function RootLayout() {
     <PhotoProvider>
       <GameProvider>
         <BackgroundProvider>
+          <StatusBar hidden={true} translucent={true} />
           <Stack>
             <Stack.Screen name="index" options={{ headerShown: false, animation: "fade" }} />
             <Stack.Screen name="screens/OwnPhotos" options={{ headerShown: false, animation: "fade" }} />

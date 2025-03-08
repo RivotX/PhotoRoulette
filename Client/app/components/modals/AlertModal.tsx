@@ -32,6 +32,7 @@ const AlertModal: React.FC<AlertModalProps> = ({ modalVisible, setModalVisible, 
       onRequestClose={() => {
         setModalVisible(false);
       }}
+      statusBarTranslucent={true} 
     >
       <Pressable
         style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}
