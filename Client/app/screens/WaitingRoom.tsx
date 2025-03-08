@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, FlatList, StatusBar, TouchableOpacity, Modal } from "react-native";
+import { View, Text, FlatList, StatusBar, TouchableOpacity, Modal, Alert } from "react-native";
 import tw from "twrnc";
 import { useGameContext } from "@/app/providers/GameContext";
 import { useRouter } from "expo-router";
@@ -8,23 +8,77 @@ import { useFocusEffect } from "@react-navigation/native";
 import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
 import { ImageBlurView } from "@/app/components/ImageBlur";
 import { useBackgroundContext } from "@/app/providers/BackgroundContext";
+import { usePhotoContext } from "@/app/providers/PhotoContext";
 import CloseButton from "../components/CloseButton";
 import Icon from "react-native-vector-icons/FontAwesome";
 import * as Animatable from "react-native-animatable";
 import * as Clipboard from "expo-clipboard";
+import * as ImagePicker from "expo-image-picker";
+import getEnvVars from "@/config";
+
+const { SERVER_URL } = getEnvVars();
 
 const WaitingRoom = ({}) => {
   const navigation = useRouter();
-  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username, setRoundsOfGame, roundsOfGame } =
-    useGameContext();
+  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username, setRoundsOfGame, roundsOfGame, setPlantedPhotoUri } = useGameContext();
   const [players, setPlayers] = useState<Player[]>([]);
   const [isInGame, setIsInGame] = useState<boolean>(false);
   const { backgroundImage } = useBackgroundContext();
   const [dialogVisible, setDialogVisible] = useState<boolean>(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [showCopyMessage, setShowCopyMessage] = useState<boolean>(false);
+  const [hasPlantedPhoto, setHasPlantedPhoto] = useState<boolean>(false);
+  const { requestGalleryPermission } = usePhotoContext();
+  const [showPhotoAddedMessage, setShowPhotoAddedMessage] = useState<boolean>(false);
+  const [isSelecting, setIsSelecting] = useState<boolean>(false);
 
-  const roundOptions = [1, 10, 15];
+  const roundOptions = [1, 5, 10, 15];
+
+  const pickAndPlantImage = async () => {
+    const hasPermission = await requestGalleryPermission({ askAgain: true });
+
+    if (!hasPermission) {
+      Alert.alert("Permission Required", "We need access to your photos to plant an image in the game.");
+      return;
+    }
+
+    setIsSelecting(true);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      setIsSelecting(false);
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedImage = result.assets[0].uri;
+
+        // Store the URI in context instead of uploading immediately
+        setPlantedPhotoUri(selectedImage);
+        
+        // Mark that the user has selected a photo to plant
+        setHasPlantedPhoto(true);
+        setShowPhotoAddedMessage(true);
+        setTimeout(() => {
+          setShowPhotoAddedMessage(false);
+        }, 2000);
+        
+        // Tell the server that this player has planted a photo (but without the URL yet)
+        if (socket && gameCode) {
+          socket.emit("mark-player-planted", {
+            gameCode,
+            username
+          });
+        }
+      }
+    } catch (error) {
+      setIsSelecting(false);
+      Alert.alert("Error", "There was an error selecting your image.");
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -41,6 +95,7 @@ const WaitingRoom = ({}) => {
         socket?.off("player-left");
         socket?.off("host-left");
         socket?.off("new-host");
+        socket?.off("photo-planted");
       };
     }, [isInGame])
   );
@@ -55,6 +110,7 @@ const WaitingRoom = ({}) => {
       socket.off("player-left");
       socket.off("host-left");
       socket.off("new-host");
+      socket.off("photo-planted");
 
       socket.emit("join-create-game", { gameCode, username });
 
@@ -70,10 +126,31 @@ const WaitingRoom = ({}) => {
             setPlayers(data.room.players);
             setGameCode(data.room.gameCode);
             setRoundsOfGame(data.room.rounds);
+
+            // Check if current user has already marked a photo to plant
+            const currentPlayer = data.room.players.find((p) => p.username === username);
+            if (currentPlayer && currentPlayer.hasPlantedPhoto) {
+              setHasPlantedPhoto(true);
+            }
           }
         }
       });
 
+      socket.on("player-marked-planted", (player: Player) => {
+        if (player.username === username) {
+          setHasPlantedPhoto(true);
+        }
+
+        // Update the players list to show who has marked photos to plant
+        setPlayers((prevPlayers) => {
+          return prevPlayers.map((p) => 
+            p.username === player.username ? { ...p, hasPlantedPhoto: true } : p
+          );
+        });
+      });
+
+      // ... rest of the existing socket listeners
+      
       socket.on("rounds-updated", (rounds: number) => {
         setRoundsOfGame(rounds);
         console.log("Rounds updated:", rounds);
@@ -99,7 +176,6 @@ const WaitingRoom = ({}) => {
       socket.on("game-started", (players: Player[], roundsOfGame: number) => {
         setPlayersProvider(players);
         console.log("Game started");
-
         navigation.replace("/screens/GameScreen");
       });
 
@@ -114,6 +190,7 @@ const WaitingRoom = ({}) => {
     }
   }, [socket]);
 
+  // ...existing handlers...
   const handleLeaveGame = () => {
     endSocket();
     navigation.replace("/");
@@ -165,6 +242,11 @@ const WaitingRoom = ({}) => {
         {item.isHost ? <Icon name="star" size={20} color="yellow" /> : <Icon name="user" size={20} color="white" />}
       </Text>
       {item.username === username && <View style={tw`border-4 border-green-500 rounded-full p-1 absolute right-10`} />}
+      {item.hasPlantedPhoto && (
+        <Text style={tw`absolute right-[50px]`}>
+          <Icon name="image" size={20} color="lightgreen" />
+        </Text>
+      )}
       <Text style={tw`text-white text-lg`}>{item.username}</Text>
     </TouchableOpacity>
   );
@@ -177,21 +259,13 @@ const WaitingRoom = ({}) => {
         <StatusBar hidden />
 
         {/* Fondo desenfocado */}
-        <ImageBlur
-          src={backgroundImage}
-          blurRadius={10}
-          blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />}
-          style={{ flex: 1 }}
-        />
+        <ImageBlur src={backgroundImage} blurRadius={10} blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />} style={{ flex: 1 }} />
       </View>
       <CloseButton onPress={handleLeaveGame} />
-      
+
       {/* Copy notification overlay - centered on screen */}
       {showCopyMessage && (
-        <Animatable.View 
-          animation="fadeIn" 
-          style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}
-        >
+        <Animatable.View animation="fadeIn" style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}>
           <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
             <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
             <Text
@@ -205,7 +279,37 @@ const WaitingRoom = ({}) => {
           </View>
         </Animatable.View>
       )}
-      
+
+      {/* Photo Added notification overlay */}
+      {showPhotoAddedMessage && (
+        <Animatable.View animation="fadeIn" style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}>
+          <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
+            <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
+            <Text
+              style={[
+                tw`text-2xl text-green-400 font-bold`,
+                { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 },
+              ]}
+            >
+              Photo selected for the game!
+            </Text>
+          </View>
+        </Animatable.View>
+      )}
+
+      {/* Loading overlay */}
+      {isSelecting && (
+        <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tw`px-8 py-6 rounded-xl bg-gray-800 flex items-center`}>
+            <Animatable.View animation="rotate" iterationCount="infinite" easing="linear" duration={1500}>
+              <Icon name="spinner" size={40} color="white" />
+            </Animatable.View>
+            <Text style={tw`text-white mt-4 text-lg font-bold`}>Selecting your photo...</Text>
+          </View>
+        </View>
+      )}
+
+      {/* Content continues as before... */}
       <View style={tw`flex size-full justify-center my-20 items-center relative`}>
         <Text
           style={[
@@ -239,8 +343,34 @@ const WaitingRoom = ({}) => {
         >
           {roundsOfGame} Rounds
         </Text>
+
+        {/* Plant a photo section with improved styling */}
+        <View style={tw`mb-6 w-full px-4`}>
+          <View
+            style={tw`${hasPlantedPhoto ? "bg-gray-800" : "bg-gray-800"} p-4 rounded-lg border ${hasPlantedPhoto ? "border-green-500" : "border-[#85004e]"}`}
+          >
+            <Text style={tw`text-white text-lg font-bold mb-2 text-center`}>{hasPlantedPhoto ? "🎯 Photo Selected!" : "🎯 Plant a Secret Photo"}</Text>
+
+            <Text style={tw`text-white text-center mb-3 text-sm opacity-80`}>
+              {hasPlantedPhoto
+                ? "Your photo will be uploaded when the game starts and appear at a random moment."
+                : "Choose a photo that will appear at a random moment in the game. Make it tricky for others to guess it's yours!"}
+            </Text>
+
+            <TouchableOpacity
+              onPress={pickAndPlantImage}
+              disabled={hasPlantedPhoto || isSelecting}
+              style={tw`px-5 py-3 rounded-xl ${hasPlantedPhoto ? "bg-gray-600" : "bg-[#85004e]"} mx-auto flex-row items-center`}
+            >
+              <Icon name={hasPlantedPhoto ? "check-circle" : "camera"} size={20} color="white" style={tw`mr-2`} />
+              <Text style={tw`text-white text-base font-medium`}>{hasPlantedPhoto ? "Photo Ready" : "Select Photo"}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <FlatList data={players} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4 mb-20`} />
 
+        {/* Rest of UI unchanged... */}
         {players.length > 0 && players[0].username == username && players.length >= 2 ? (
           <>
             <View style={tw`flex-row flex-wrap absolute bottom-60`}>
@@ -254,10 +384,7 @@ const WaitingRoom = ({}) => {
                 </TouchableOpacity>
               ))}
             </View>
-            <TouchableOpacity
-              style={tw`bg-[#911284] p-4 rounded-lg w-[90%] flex justify-center items-center absolute bottom-40`}
-              onPress={handleStartGame}
-            >
+            <TouchableOpacity style={tw`bg-[#911284] p-4 rounded-lg w-[90%] flex justify-center items-center absolute bottom-40`} onPress={handleStartGame}>
               <Text style={tw`text-white`}>Start Game</Text>
             </TouchableOpacity>
           </>
@@ -328,6 +455,7 @@ const WaitingRoom = ({}) => {
         )}
       </View>
 
+      {/* Dialog modal - unchanged */}
       <Modal visible={dialogVisible} transparent={true} animationType="slide" onRequestClose={() => setDialogVisible(false)}>
         <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
           <View style={tw`rounded-lg p-6 bg-gray-800 w-4/5`}>

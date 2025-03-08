@@ -8,6 +8,7 @@ import { Player, RandomPhotoResponse, Room, ScoreRound } from "../models/interfa
 import { usePhotoContext } from "../providers/PhotoContext";
 import getEnvVars from "@/config";
 import PhotoComponent from "../components/PhotoComponent";
+import * as Animatable from "react-native-animatable"; // Import the full Animatable namespace
 import { View as AnimatableView } from "react-native-animatable";
 import ScoreModal from "../components/modals/ScoreModal";
 import ProgressBar from "../components/ProgressBar";
@@ -29,7 +30,16 @@ interface EmojiReactionData {
 
 const GameScreen = () => {
   const router = useRouter();
-  const { username, gameCode, endSocket, socket, playersProvider, roundsOfGame } = useGameContext();
+  const { 
+    username, 
+    gameCode, 
+    endSocket, 
+    socket, 
+    playersProvider, 
+    roundsOfGame,
+    plantedPhotoUri,
+    uploadPlantedPhoto  // Add this from context
+  } = useGameContext();
   const safeUsername = username ?? "";
   const safeGameCode = gameCode ?? "";
   const [PhotoToShow, setPhotoToShow] = useState<string | null>(null);
@@ -53,6 +63,12 @@ const GameScreen = () => {
 
   // New emoji reactions state
   const [emojiReactions, setEmojiReactions] = useState<EmojiReactionData[]>([]);
+
+  // Add this to your state variables
+  const [isPlantedPhoto, setIsPlantedPhoto] = useState<boolean>(false);
+
+  // Add a state variable to track if we've uploaded the planted photo
+  const [plantedPhotoUploaded, setPlantedPhotoUploaded] = useState<boolean>(false);
 
   // Function to upload an image to the server
   const uploadImage = async (uri: string) => {
@@ -111,7 +127,8 @@ const GameScreen = () => {
         setShowScore(true);
       });
 
-      socket.on("photo-received", (data: { photo: string; username: string; round: number }) => {
+      // Modify the photo-received socket handler
+      socket.on("photo-received", (data: { photo: string; username: string; round: number; isPlanted?: boolean }) => {
         setScore(null);
         setShowCorrectAnswer(false);
         setUsernamePhoto("");
@@ -120,6 +137,7 @@ const GameScreen = () => {
         setPhotoToShow(`${SERVER_URL}${data.photo}`);
         setUsernamePhoto(data.username);
         setRound(data.round);
+        setIsPlantedPhoto(data.isPlanted || false); // Set if this is a planted photo
         console.log("ronda: ", data.round, "recibida");
         setProgressKey((prevKey) => prevKey + 1);
         setTimeout(() => {
@@ -222,6 +240,31 @@ const GameScreen = () => {
     }
   }, [showCorrectAnswer]);
 
+  // Add a new effect to handle plantedPhoto upload when the game starts
+  useEffect(() => {
+    const uploadPlantedPhotoIfNeeded = async () => {
+      // Only upload if we have a plantedPhotoUri and haven't uploaded it yet
+      if (plantedPhotoUri && !plantedPhotoUploaded && socket && gameCode) {
+        try {
+          const photoUrl = await uploadPlantedPhoto();
+          if (photoUrl) {
+            // Now tell the server about the planted photo
+            socket.emit("plant-photo", {
+              gameCode,
+              username,
+              photoUrl,
+            });
+            setPlantedPhotoUploaded(true);
+          }
+        } catch (error) {
+          console.error("Failed to upload planted photo:", error);
+        }
+      }
+    };
+
+    uploadPlantedPhotoIfNeeded();
+  }, [plantedPhotoUri, plantedPhotoUploaded, socket, gameCode, username]);
+
   const handleWinnerAnimationEnd = () => {
     setShowWinner(false);
     setShowFinalScore(true);
@@ -296,6 +339,20 @@ const GameScreen = () => {
             </AnimatableView>
 
             <EmojisButton />
+
+            {/* Add this component to render when a planted photo appears */}
+            {isPlantedPhoto && (
+              <Animatable.View 
+                animation="pulse" 
+                iterationCount="infinite" 
+                duration={1200}
+                style={tw`absolute top-4 left-4 bg-purple-900 bg-opacity-90 px-4 py-2 rounded-full shadow-lg`}
+              >
+                <View style={tw`flex-row items-center`}>
+                  <Text style={tw`text-white text-sm font-bold`}>🎯 Planted Photo</Text>
+                </View>
+              </Animatable.View>
+            )}
           </>
         ) : (
           <View style={tw`flex-1 justify-center items-center`}>

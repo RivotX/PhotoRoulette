@@ -6,6 +6,8 @@ export interface Player {
   socketId: string;
   isHost: boolean;
   isReady: boolean;
+  hasPlantedPhoto?: boolean; // Changed from plantedPhoto to hasPlantedPhoto (boolean flag)
+  plantedPhoto?: string; // This will be set on the server side when actually uploading
 }
 
 export interface PhotoComponentProps {
@@ -52,13 +54,16 @@ export interface GameContextProps {
   gameCode: string | null;
   username: string | null;
   playersProvider: Player[];
+  roundsOfGame: number;
   setGameCode: (code: string | null) => void;
   setUsername: (name: string | null) => void;
   setPlayersProvider: (players: Player[]) => void;
   startSocket: () => void;
   endSocket: () => void;
-  roundsOfGame: number;
   setRoundsOfGame: (rounds: number) => void;
+  plantedPhotoUri: string | null;
+  setPlantedPhotoUri: (uri: string | null) => void;
+  uploadPlantedPhoto: () => Promise<string | null>;
 }
 
 export interface GameProviderProps {

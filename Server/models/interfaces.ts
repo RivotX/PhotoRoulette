@@ -6,6 +6,8 @@ export interface Player {
   isReady: boolean;
   lastAnswerCorrect: boolean;
   lastGuess: string;
+  hasPlantedPhoto?: boolean; // Player has marked they will plant a photo
+  plantedPhoto?: string; // The actual photo URL once uploaded
 }
 
 export interface ScoreRound {
@@ -15,14 +17,10 @@ export interface ScoreRound {
   lastAnswerCorrect: boolean;
 }
 
-
-
 export interface PlayerId {
   username: string;
   gameCode: string;
 }
-
-
 
 export interface Room {
   gameCode: string;
@@ -33,6 +31,7 @@ export interface Room {
   buttonPressed: boolean;
   currentPlayer: Player | null;
   round: number;
+  plantedPhotosShown?: number; // Track how many planted photos have been shown
 }
 
 export interface JoinCreateGameData {
