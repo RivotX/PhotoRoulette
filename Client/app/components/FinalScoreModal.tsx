@@ -148,7 +148,7 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
 
   return (
     <Modal visible={visible} animationType="fade" transparent={true} statusBarTranslucent={true}>
-      <View style={tw`flex-1 justify-center items-center pb-16`}> {/* Added padding bottom */}
+      <View style={tw`flex-1 justify-center items-center pb-16`}>
         {/* Confetti animation overlay with lower z-index */}
         <View style={[tw`absolute inset-0`, { zIndex: 1 }]}>
           <LottieView
@@ -177,7 +177,7 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
               shadowRadius: 10,
               elevation: 10,
               zIndex: 3,
-              maxHeight: '88%', // Ensure it doesn't overlap with emoji bar
+              maxHeight: "88%", // Ensure it doesn't overlap with emoji bar
             },
           ]}
         >
@@ -221,7 +221,7 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
             </View>
           )}
 
-          <View style={tw`max-h-60 px-4 py-3`}> {/* Reduced max height */}
+          <View style={tw`max-h-60 px-4 py-3`}>
             <FlatList
               data={sortedScores}
               renderItem={renderScore}
@@ -231,11 +231,11 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
             />
           </View>
 
-          <View style={tw`flex-row justify-around my-4 px-4`}> {/* Reduced margins */}
+          <View style={tw`flex-row justify-around my-4 px-4`}>
             <TouchableOpacity
               onPress={onClose}
               style={[
-                tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`, /* Reduced padding */
+                tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`,
                 {
                   backgroundColor: "#DC2626",
                   borderWidth: 2,
@@ -256,7 +256,7 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
             <TouchableOpacity
               onPress={playAgain}
               style={[
-                tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`, /* Reduced padding */
+                tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`,
                 {
                   backgroundColor: "#2563EB",
                   borderWidth: 2,
