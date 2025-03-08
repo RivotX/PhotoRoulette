@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, View, Text, Animated, Dimensions, TouchableOpacity } from "react-native";
+import { View, Text, Animated, Dimensions, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import LottieView from "lottie-react-native";
 import * as Animatable from "react-native-animatable";
@@ -53,17 +53,17 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
     }
   }, [visible]);
 
-  if (!winner) return null;
+  if (!winner || !visible) return null;
 
   return (
-    <Modal visible={visible} transparent={true} animationType="fade" statusBarTranslucent={true}>
+    <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-100`}>
       <TouchableOpacity 
         activeOpacity={1}
         style={tw`flex-1`} 
         onPress={animationComplete ? onAnimationEnd : undefined}
       >
-        {/* Padding bottom to leave space for emoji bar */}
-        <View style={tw`flex-1 bg-black bg-opacity-90`}>
+        {/* Main container with black semi-transparent background */}
+        <View style={tw`flex-1 bg-black bg-opacity-95`}>
           {/* Confetti covering the entire screen */}
           <LottieView
             ref={confettiAnimation}
@@ -131,7 +131,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
           </View>
         </View>
       </TouchableOpacity>
-    </Modal>
+    </View>
   );
 };
 

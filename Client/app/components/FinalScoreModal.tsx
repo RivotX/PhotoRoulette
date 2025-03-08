@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Modal, View, Text, TouchableOpacity, FlatList, Animated, Dimensions } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Animated, Dimensions } from "react-native";
 import tw from "twrnc";
 import { ScoreRound } from "@/app/models/interfaces";
 import { useRouter } from "expo-router";
@@ -34,7 +34,6 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
         useNativeDriver: true,
       }).start();
       
-
       // Play confetti animation if available
       if (confettiRef.current) {
         confettiRef.current.play();
@@ -146,137 +145,140 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
     );
   };
 
+  // Only render content if visible
+  if (!visible) {
+    return null;
+  }
+
   return (
-    <Modal visible={visible} animationType="fade" transparent={true} statusBarTranslucent={true}>
-      <View style={tw`flex-1 justify-center items-center pb-16`}>
-        {/* Confetti animation overlay with lower z-index */}
-        <View style={[tw`absolute inset-0`, { zIndex: 1 }]}>
-          <LottieView
-            ref={confettiRef}
-            source={require("@/assets/animations/confetiAnimation.json")}
-            autoPlay
-            loop={false}
-            style={{ width: "100%", height: "100%" }}
-          />
-        </View>
+    <View style={tw`absolute inset-0 flex-1 justify-center z-100 items-center pb-16`}>
+      {/* Confetti animation overlay with lower z-index */}
+      <View style={[tw`absolute inset-0`, { zIndex: 1 }]}>
+        <LottieView
+          ref={confettiRef}
+          source={require("@/assets/animations/confetiAnimation.json")}
+          autoPlay
+          loop={false}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </View>
 
-        {/* Modal backdrop with slight blur effect */}
-        <View style={[tw`absolute inset-0 bg-black bg-opacity-85`, { zIndex: 2 }]} />
+      {/* Modal backdrop with slight blur effect */}
+      <View style={[tw`absolute inset-0 bg-black bg-opacity-85`, { zIndex: 2 }]} />
 
-        {/* Main content with higher z-index */}
-        <Animated.View
+      {/* Main content with higher z-index */}
+      <Animated.View
+        style={[
+          tw`bg-gray-900 w-[92%] rounded-3xl shadow-2xl`,
+          {
+            transform: [{ translateY: slideAnim }],
+            borderWidth: 2,
+            borderColor: "black",
+            shadowColor: "white",
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.6,
+            shadowRadius: 10,
+            elevation: 10,
+            zIndex: 3,
+            maxHeight: "88%", // Ensure it doesn't overlap with emoji bar
+          },
+        ]}
+      >
+        {/* Header with trophy icon */}
+        <View
           style={[
-            tw`bg-gray-900 w-[92%] rounded-3xl shadow-2xl`,
+            tw`rounded-t-3xl py-6 items-center`,
             {
-              transform: [{ translateY: slideAnim }],
-              borderWidth: 2,
-              borderColor: "white",
-              shadowColor: "white",
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.6,
-              shadowRadius: 10,
-              elevation: 10,
-              zIndex: 3,
-              maxHeight: "88%", // Ensure it doesn't overlap with emoji bar
+              backgroundColor: "#1F2937",
+              borderBottomWidth: 3,
+              borderBottomColor: "white",
             },
           ]}
         >
-          {/* Header with trophy icon */}
-          <View
+          <Animatable.View animation="pulse" iterationCount="infinite" style={tw`mb-2`}>
+            <Icon name="trophy" size={50} color="#FFD700" />
+          </Animatable.View>
+          <Text style={tw`text-3xl font-extrabold text-white tracking-wider`}>FINAL SCORE</Text>
+        </View>
+
+        {sortedScores.length > 0 && (
+          <View style={tw`items-center mt-6 mb-4`}>
+            <Animatable.View
+              animation="bounceIn"
+              style={[
+                tw`px-7 py-3 rounded-full mb-1`,
+                {
+                  backgroundColor: "#FBBF24",
+                  borderWidth: 2,
+                  borderColor: "#F59E0B",
+                  shadowColor: "#F59E0B",
+                  shadowOffset: { width: 0, height: 3 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 5,
+                  elevation: 6,
+                },
+              ]}
+            >
+              <Text style={tw`text-gray-900 text-xl font-black tracking-wide`}>{sortedScores[0].username} WINS!</Text>
+            </Animatable.View>
+          </View>
+        )}
+
+        <View style={tw`max-h-60 px-4 py-3`}>
+          <FlatList
+            data={sortedScores}
+            renderItem={renderScore}
+            keyExtractor={(item) => item.username}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={tw`px-1`}
+          />
+        </View>
+
+        <View style={tw`flex-row justify-around my-4 px-4`}>
+          <TouchableOpacity
+            onPress={onClose}
             style={[
-              tw`rounded-t-3xl py-6 items-center`,
+              tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`,
               {
-                backgroundColor: "#1F2937",
-                borderBottomWidth: 3,
-                borderBottomColor: "white",
+                backgroundColor: "#DC2626",
+                borderWidth: 2,
+                borderColor: "#B91C1C",
+                shadowColor: "#B91C1C",
+                shadowOffset: { width: 0, height: 3 },
+                shadowOpacity: 0.5,
+                shadowRadius: 5,
+                elevation: 5,
               },
             ]}
+            activeOpacity={0.7}
           >
-            <Animatable.View animation="pulse" iterationCount="infinite" style={tw`mb-2`}>
-              <Icon name="trophy" size={50} color="#FFD700" />
-            </Animatable.View>
-            <Text style={tw`text-3xl font-extrabold text-white tracking-wider`}>FINAL SCORE</Text>
-          </View>
+            <Ionicons name="exit-outline" size={20} color="white" style={tw`mr-2`} />
+            <Text style={tw`text-white text-base font-bold`}>Exit</Text>
+          </TouchableOpacity>
 
-          {sortedScores.length > 0 && (
-            <View style={tw`items-center mt-6 mb-4`}>
-              <Animatable.View
-                animation="bounceIn"
-                style={[
-                  tw`px-7 py-3 rounded-full mb-1`,
-                  {
-                    backgroundColor: "#FBBF24",
-                    borderWidth: 2,
-                    borderColor: "#F59E0B",
-                    shadowColor: "#F59E0B",
-                    shadowOffset: { width: 0, height: 3 },
-                    shadowOpacity: 0.5,
-                    shadowRadius: 5,
-                    elevation: 6,
-                  },
-                ]}
-              >
-                <Text style={tw`text-gray-900 text-xl font-black tracking-wide`}>{sortedScores[0].username} WINS!</Text>
-              </Animatable.View>
-            </View>
-          )}
-
-          <View style={tw`max-h-60 px-4 py-3`}>
-            <FlatList
-              data={sortedScores}
-              renderItem={renderScore}
-              keyExtractor={(item) => item.username}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={tw`px-1`}
-            />
-          </View>
-
-          <View style={tw`flex-row justify-around my-4 px-4`}>
-            <TouchableOpacity
-              onPress={onClose}
-              style={[
-                tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`,
-                {
-                  backgroundColor: "#DC2626",
-                  borderWidth: 2,
-                  borderColor: "#B91C1C",
-                  shadowColor: "#B91C1C",
-                  shadowOffset: { width: 0, height: 3 },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 5,
-                  elevation: 5,
-                },
-              ]}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="exit-outline" size={20} color="white" style={tw`mr-2`} />
-              <Text style={tw`text-white text-base font-bold`}>Exit</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={playAgain}
-              style={[
-                tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`,
-                {
-                  backgroundColor: "#2563EB",
-                  borderWidth: 2,
-                  borderColor: "#1D4ED8",
-                  shadowColor: "#1D4ED8",
-                  shadowOffset: { width: 0, height: 3 },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 5,
-                  elevation: 5,
-                },
-              ]}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="refresh" size={20} color="white" style={tw`mr-2`} />
-              <Text style={tw`text-white text-base font-bold`}>Play Again</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-      </View>
-    </Modal>
+          <TouchableOpacity
+            onPress={playAgain}
+            style={[
+              tw`py-3 px-5 rounded-2xl flex-row items-center justify-center w-[45%]`,
+              {
+                backgroundColor: "#2563EB",
+                borderWidth: 2,
+                borderColor: "#1D4ED8",
+                shadowColor: "#1D4ED8",
+                shadowOffset: { width: 0, height: 3 },
+                shadowOpacity: 0.5,
+                shadowRadius: 5,
+                elevation: 5,
+              },
+            ]}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="refresh" size={20} color="white" style={tw`mr-2`} />
+            <Text style={tw`text-white text-base font-bold`}>Play Again</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </View>
   );
 };
 

@@ -14,6 +14,7 @@ import ProgressBar from "../components/ProgressBar";
 import FinalScoreModal from "../components/FinalScoreModal";
 import WinnerModal from "../components/modals/WinnerModal";
 import EmojiReaction from "../components/EmojiReaction";
+import EmojisButton from "../components/EmojisButtons";
 
 const { SERVER_URL } = getEnvVars();
 
@@ -25,7 +26,6 @@ interface EmojiReactionData {
 }
 
 // Available emojis
-const EMOJIS = ["😂", "😮", "❤️", "👏", "🔥", "😭", "🤔", "😡"];
 
 const GameScreen = () => {
   const router = useRouter();
@@ -50,7 +50,7 @@ const GameScreen = () => {
   const [showFinalScore, setShowFinalScore] = useState<boolean>(false);
   const [showWinner, setShowWinner] = useState<boolean>(false);
   const [winner, setWinner] = useState<ScoreRound | null>(null);
-  
+
   // New emoji reactions state
   const [emojiReactions, setEmojiReactions] = useState<EmojiReactionData[]>([]);
 
@@ -73,20 +73,9 @@ const GameScreen = () => {
     return data.url;
   };
 
-  // Function to send emoji reaction
-  const sendEmojiReaction = (emoji: string) => {
-    if (socket) {
-      socket.emit("emoji-reaction", {
-        gameCode: safeGameCode,
-        username: safeUsername,
-        emoji
-      });
-    }
-  };
-
   // Function to remove emoji reaction after animation
   const removeEmojiReaction = (id: string) => {
-    setEmojiReactions(current => current.filter(reaction => reaction.id !== id));
+    setEmojiReactions((current) => current.filter((reaction) => reaction.id !== id));
   };
 
   useFocusEffect(
@@ -143,10 +132,9 @@ const GameScreen = () => {
         console.log(data.finalScore);
         setFinalScore(data.finalScore);
         setGameOver(true);
-
-        const sortedScores = [...data.finalScore].sort((a, b) => b.points - a.points);
-        if (sortedScores.length > 0) {
-          setWinner(sortedScores[0]);
+        if (data.finalScore && data.finalScore.length > 0) {
+          setShowScore(false);
+          setWinner(data.finalScore[0]);
           setShowWinner(true);
         }
       });
@@ -156,12 +144,12 @@ const GameScreen = () => {
         const newReaction: EmojiReactionData = {
           id: `${Date.now()}-${Math.random()}`,
           username: data.username,
-          emoji: data.emoji
+          emoji: data.emoji,
         };
-        
-        setEmojiReactions(current => [...current, newReaction]);
+
+        setEmojiReactions((current) => [...current, newReaction]);
       });
-      
+
       setIsReady(true);
     }
 
@@ -239,6 +227,12 @@ const GameScreen = () => {
     setShowFinalScore(true);
   };
 
+  useEffect(() => {
+    if (showWinner) {
+      console.log("Winner is shown");
+    }
+  }, [showWinner]);
+
   const renderPlayer = ({ item }: { item: Player }) => {
     const isPhotoOwner = item.username === usernamePhoto;
     const isAnswer = item.username === userSelected;
@@ -261,7 +255,8 @@ const GameScreen = () => {
   return (
     <View style={{ flex: 1 }}>
       <StatusBar hidden />
-      
+      <WinnerModal visible={showWinner} winner={winner} onAnimationEnd={handleWinnerAnimationEnd} />
+      <FinalScoreModal visible={showFinalScore} finalScore={finalScore || []} />
       {/* Main Game Content */}
       <View style={tw`flex-1 bg-black`}>
         {PhotoToShow ? (
@@ -269,8 +264,8 @@ const GameScreen = () => {
             <PhotoComponent photoUrl={PhotoToShow} />
             <AnimatableView ref={elementRef} style={tw`z-8 absolute size-full`}>
               {/* Emoji reactions container */}
-              <View style={tw`absolute top-4 left-4 z-50`}>
-                {emojiReactions.map(reaction => (
+              <View style={tw`absolute top-4 left-4 z-90`}>
+                {emojiReactions.map((reaction) => (
                   <EmojiReaction
                     key={reaction.id}
                     username={reaction.username}
@@ -279,21 +274,16 @@ const GameScreen = () => {
                   />
                 ))}
               </View>
-              
+
               <View style={tw`absolute size-full top-15 left-0 right-0 p-4`}>
                 <ProgressBar key={progressKey} duration={timeForAnswer} />
               </View>
-              
+
               {/* Players list */}
-              <View style={tw`absolute z-200 bottom-20 left-0 right-0 p-4 flex-row justify-center mb-4`}>
-                <FlatList
-                  data={playersProvider}
-                  renderItem={renderPlayer}
-                  keyExtractor={(item) => item.socketId}
-                  style={tw`w-full px-4`}
-                />
+              <View style={tw`absolute z-40 bottom-20 left-0 right-0 p-4 flex-row justify-center mb-4`}>
+                <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
               </View>
-              
+
               <ScoreModal
                 visible={showScore}
                 onClose={() => setShowScore(false)}
@@ -304,40 +294,18 @@ const GameScreen = () => {
                 photoUrl={PhotoToShow}
               />
             </AnimatableView>
+
+            <EmojisButton />
           </>
         ) : (
           <View style={tw`flex-1 justify-center items-center`}>
             <Text style={tw`text-xl text-white font-bold mb-4`}>ARE YOU READY?</Text>
           </View>
         )}
+        {/* Winner celebration modal */}
       </View>
 
-      {/* Emoji selector  */}
-      {PhotoToShow && (
-        <View style={tw`absolute bottom-2 left-0 right-0 z-50`}>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
-            contentContainerStyle={tw`px-2 py-1 flex-row justify-center`}
-          >
-            {EMOJIS.map((emoji, index) => (
-              <TouchableOpacity
-                key={index}
-                style={tw`mx-1 bg-gray-800 bg-opacity-80 rounded-full h-10 w-10 items-center justify-center`}
-                onPress={() => sendEmojiReaction(emoji)}
-              >
-                <Text style={tw`text-2xl`}>{emoji}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-
-      {/* Winner celebration modal */}
-      <WinnerModal visible={showWinner} winner={winner} onAnimationEnd={handleWinnerAnimationEnd} />
-
       {/* Final score modal */}
-      <FinalScoreModal visible={showFinalScore} finalScore={finalScore || []} />
     </View>
   );
 };
