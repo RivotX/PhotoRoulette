@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { io } from "../app";
-import { generateRoomId, getRandomPlayer } from "../utils/features";
+import { generateRoomId, getRandomPlayer, safeRoomData } from "../utils/features";
 import { Player, Room, JoinCreateGameData, RoomOfGameResponse, PlayerId, ScoreRound } from "../models/interfaces";
 
 console.log("Socket routes initialized");
@@ -23,7 +23,10 @@ io.on("connection", (socket: Socket) => {
       const { username } = data;
       let { gameCode } = data;
       console.log("------------------------------------------------");
-      console.log("rooms: " + rooms);
+      console.log(
+        "rooms:",
+        JSON.stringify(rooms, (key, value) => (key === "intervalId" || key === "currentPlayer" ? "[Circular]" : value))
+      );
 
       if (gameCode) {
         gameCode = gameCode.toUpperCase();
@@ -109,7 +112,7 @@ io.on("connection", (socket: Socket) => {
         socket.join(codeGame);
         console.log("Player created room: " + codeGame);
         console.log("rooms creadas:", rooms);
-        const response: RoomOfGameResponse = { success: true, room: newRoom };
+                const response: RoomOfGameResponse = { success: true, room: safeRoomData(newRoom) };
         socket.emit("room-of-game", response);
         socket.data.gameCode = codeGame;
         socket.data.username = username;
