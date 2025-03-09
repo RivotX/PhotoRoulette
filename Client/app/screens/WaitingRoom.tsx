@@ -30,6 +30,7 @@ import * as ImagePicker from "expo-image-picker";
 import AlertModal from "@/app/components/modals/AlertModal";
 import { Ionicons } from "@expo/vector-icons";
 import ChatMessage from "@/app/components/IngameComunication/ChatMessage";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Define chat message interface
 interface ChatMessageType {
@@ -39,6 +40,7 @@ interface ChatMessageType {
 }
 
 const WaitingRoom = ({}) => {
+  const insets = useSafeAreaInsets();
   const navigation = useRouter();
   const {
     startSocket,
@@ -275,7 +277,7 @@ const WaitingRoom = ({}) => {
         });
       });
 
-      socket.on("game-started", (players: Player[], roundsOfGame: number) => {
+      socket.on("game-started", (players: Player[]) => {
         setPlayersProvider(players);
         console.log("Game started");
         navigation.replace("/screens/GameScreen");
@@ -354,235 +356,243 @@ const WaitingRoom = ({}) => {
 
   return (
     <View style={tw`flex-1`}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={tw`flex-1`}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-      >
-        <View style={tw`absolute w-full h-full`}>
-          <StatusBar hidden />
-          {/* Background blur - unchanged */}
-          <ImageBlur
-            src={backgroundImage}
-            blurRadius={10}
-            blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />}
-            style={{ flex: 1 }}
+      <View style={tw`absolute w-full h-full`}>
+        <StatusBar hidden />
+        {/* Background blur - unchanged */}
+        <ImageBlur
+          src={backgroundImage}
+          blurRadius={10}
+          blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />}
+          style={{ flex: 1 }}
+        />
+      </View>
+      <CloseButton onPress={handleLeaveGame} />
+
+      {/* Chat messages container - unchanged */}
+      <View style={tw`absolute top-20 left-0 right-0 z-40 items-center`}>
+        {chatMessages.map((msg) => (
+          <ChatMessage
+            key={msg.id}
+            username={msg.username}
+            message={msg.message}
+            onAnimationEnd={() => removeChatMessage(msg.id)}
           />
-        </View>
-        <CloseButton onPress={handleLeaveGame} />
+        ))}
+      </View>
 
-        {/* Chat messages container - unchanged */}
-        <View style={tw`absolute top-20 left-0 right-0 z-40 items-center`}>
-          {chatMessages.map((msg) => (
-            <ChatMessage
-              key={msg.id}
-              username={msg.username}
-              message={msg.message}
-              onAnimationEnd={() => removeChatMessage(msg.id)}
-            />
-          ))}
-        </View>
-
-        {/* Loading overlay and notifications - unchanged */}
-        {isLoading && (
-          <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-black bg-opacity-50`}>
-            <View style={tw`px-8 py-6 rounded-xl bg-gray-800 flex items-center`}>
-              <Animatable.View animation="rotate" iterationCount="infinite" easing="linear" duration={1500}>
-                <Icon name="spinner" size={40} color="white" />
-              </Animatable.View>
-              <Text style={tw`text-white mt-4 text-lg font-bold`}>Loading game room...</Text>
-              <Text style={tw`text-white mt-2 text-sm opacity-70`}>Please wait a moment</Text>
-            </View>
+      {/* Loading overlay and notifications - unchanged */}
+      {isLoading && (
+        <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tw`px-8 py-6 rounded-xl bg-gray-800 flex items-center`}>
+            <Animatable.View animation="rotate" iterationCount="infinite" easing="linear" duration={1500}>
+              <Icon name="spinner" size={40} color="white" />
+            </Animatable.View>
+            <Text style={tw`text-white mt-4 text-lg font-bold`}>Loading game room...</Text>
+            <Text style={tw`text-white mt-2 text-sm opacity-70`}>Please wait a moment</Text>
           </View>
-        )}
+        </View>
+      )}
 
-        {/* Copy notification overlay - centered on screen */}
-        {showCopyMessage && (
-          <Animatable.View
-            animation="fadeIn"
-            style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}
-          >
-            <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
-              <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
-              <Text
-                style={[
-                  tw`text-2xl text-green-400 font-bold`,
-                  { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 },
-                ]}
-              >
-                Game code copied!
-              </Text>
-            </View>
-          </Animatable.View>
-        )}
-
-        {/* Photo Added notification overlay */}
-        {showPhotoAddedMessage && (
-          <Animatable.View
-            animation="fadeIn"
-            style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}
-          >
-            <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
-              <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
-              <Text
-                style={[
-                  tw`text-2xl text-green-400 font-bold`,
-                  { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 },
-                ]}
-              >
-                Photo selected for the game!
-              </Text>
-            </View>
-          </Animatable.View>
-        )}
-
-        {/* Photo selection */}
-        {isSelecting && (
-          <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-black bg-opacity-50`}>
-            <View style={tw`px-8 py-6 rounded-xl bg-gray-800 flex items-center`}>
-              <Animatable.View animation="rotate" iterationCount="infinite" easing="linear" duration={1500}>
-                <Icon name="spinner" size={40} color="white" />
-              </Animatable.View>
-              <Text style={tw`text-white mt-4 text-lg font-bold`}>Selecting your photo...</Text>
-            </View>
-          </View>
-        )}
-
-        {/* Main content - adjusted with proper padding for chat input */}
-        <View style={tw`flex-1 pt-20 pb-20 px-4 ${isLoading ? "opacity-0" : "opacity-100"}`}>
-          <View style={tw`items-center mb-4`}>
+      {/* Copy notification overlay - centered on screen */}
+      {showCopyMessage && (
+        <Animatable.View
+          animation="fadeIn"
+          style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}
+        >
+          <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
+            <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
             <Text
               style={[
-                tw`text-2xl text-white font-bold mb-4`,
-                { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 4 },
+                tw`text-2xl text-green-400 font-bold`,
+                { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 },
               ]}
             >
-              Game Code
+              Game code copied!
             </Text>
+          </View>
+        </Animatable.View>
+      )}
 
-            {/* Game code section */}
-            <View style={tw`flex items-center mb-4 relative`}>
+      {/* Photo Added notification overlay */}
+      {showPhotoAddedMessage && (
+        <Animatable.View
+          animation="fadeIn"
+          style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}
+        >
+          <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
+            <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
+            <Text
+              style={[
+                tw`text-2xl text-green-400 font-bold`,
+                { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 },
+              ]}
+            >
+              Photo selected for the game!
+            </Text>
+          </View>
+        </Animatable.View>
+      )}
+
+      {/* Photo selection */}
+      {isSelecting && (
+        <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tw`px-8 py-6 rounded-xl bg-gray-800 flex items-center`}>
+            <Animatable.View animation="rotate" iterationCount="infinite" easing="linear" duration={1500}>
+              <Icon name="spinner" size={40} color="white" />
+            </Animatable.View>
+            <Text style={tw`text-white mt-4 text-lg font-bold`}>Selecting your photo...</Text>
+          </View>
+        </View>
+      )}
+
+      {/* Main flex container - restructured for proper layout */}
+      <View style={tw`flex-1`}>
+        {/* Background color wrapper with proper flex */}
+        <View style={tw`flex-1 flex `}>
+          {/* Main content area */}
+          <View style={tw`flex-1 pt-20 px-4 ${isLoading ? "opacity-0" : "opacity-100"}`}>
+            {/* Your existing content code */}
+            <View style={tw`items-center mb-4`}>
               <Text
                 style={[
-                  tw`text-5xl text-white font-extrabold`,
+                  tw`text-2xl text-white font-bold mb-4`,
+                  { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 4 },
+                ]}
+              >
+                Game Code
+              </Text>
+
+              {/* Game code section */}
+              <View style={tw`flex items-center mb-4 relative`}>
+                <Text
+                  style={[
+                    tw`text-5xl text-white font-extrabold`,
+                    { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 },
+                  ]}
+                >
+                  {gameCode}
+                </Text>
+                <TouchableOpacity onPress={copyGameCodeToClipboard} style={tw`absolute right-[-50px] p-2`}>
+                  <Ionicons name="copy-outline" size={30} color="white" />
+                </TouchableOpacity>
+              </View>
+
+              <Text
+                style={[
+                  tw`text-white font-extrabold mb-4`,
                   { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 },
                 ]}
               >
-                {gameCode}
+                {roundsOfGame} Rounds
               </Text>
-              <TouchableOpacity onPress={copyGameCodeToClipboard} style={tw`absolute right-[-50px] p-2`}>
-                <Ionicons name="copy-outline" size={30} color="white" />
+
+              {/* Plant Photo Button */}
+              <TouchableOpacity onPress={pickAndPlantImage} style={tw`mb-4 items-center`} disabled={isSelecting}>
+                <View
+                  style={tw`h-16 w-16 rounded-full ${hasPlantedPhoto ? "bg-green-600" : "bg-[#85004e]"} 
+                justify-center items-center shadow-md`}
+                >
+                  <Icon
+                    name={hasPlantedPhoto ? "check" : "camera"}
+                    size={26}
+                    color="white"
+                    style={hasPlantedPhoto ? tw`ml-0.5` : tw``}
+                  />
+                </View>
+                <Text style={tw`mt-1 text-white font-medium text-center text-sm`}>
+                  {hasPlantedPhoto ? "Photo Planted" : "Plant Photo"}
+                </Text>
               </TouchableOpacity>
             </View>
 
-            <Text
-              style={[
-                tw`text-white font-extrabold mb-4`,
-                { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 5 },
-              ]}
-            >
-              {roundsOfGame} Rounds
-            </Text>
+            {/* Player list with limited height */}
+            <FlatList
+              data={players}
+              renderItem={renderPlayer}
+              keyExtractor={(item) => item.socketId}
+              style={tw`w-full flex-1`}
+              contentContainerStyle={tw`pb-2`}
+            />
 
-            {/* Plant Photo Button */}
-            <TouchableOpacity onPress={pickAndPlantImage} style={tw`mb-4 items-center`} disabled={isSelecting}>
-              <View
-                style={tw`h-16 w-16 rounded-full ${hasPlantedPhoto ? "bg-green-600" : "bg-[#85004e]"} 
-                justify-center items-center shadow-md`}
-              >
-                <Icon
-                  name={hasPlantedPhoto ? "check" : "camera"}
-                  size={26}
-                  color="white"
-                  style={hasPlantedPhoto ? tw`ml-0.5` : tw``}
-                />
-              </View>
-              <Text style={tw`mt-1 text-white font-medium text-center text-sm`}>
-                {hasPlantedPhoto ? "Photo Planted" : "Plant Photo"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Player list with limited height */}
-          <FlatList
-            data={players}
-            renderItem={renderPlayer}
-            keyExtractor={(item) => item.socketId}
-            style={tw`w-full flex-1`}
-            contentContainerStyle={tw`pb-2`}
-          />
-
-          {/* Bottom controls section - moved up with fixed height */}
-          <View style={tw`w-full mt-2`}>
-            {players.length > 0 && players[0].username == username && players.length >= 2 ? (
-              <>
-                <View style={tw`flex-row flex-wrap justify-center mb-2`}>
-                  {roundOptions.map((rounds) => (
-                    <TouchableOpacity
-                      key={rounds}
-                      style={tw`${roundsOfGame === rounds ? "bg-[#85004e]" : "bg-[#5f0437]"} p-3 rounded-lg mx-2 mb-2`}
-                      onPress={() => handleSetRounds(rounds)}
-                    >
-                      <Text style={tw`text-white`}>{rounds} Rounds</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                <TouchableOpacity
-                  style={tw`bg-[#911284] p-4 rounded-lg w-full flex justify-center items-center mb-2`}
-                  onPress={handleStartGame}
-                >
-                  <Text style={tw`text-white font-bold text-lg`}>Start Game</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <View style={tw`p-2 w-full flex flex-col justify-center items-center`}>
-                <View style={tw`flex flex-row justify-center opacity-70 items-center mb-4`}>
-                  <Text style={tw`text-white`}>{players.length < 2 ? "Waiting for players" : "Waiting host"}</Text>
-                  <View style={tw`flex-row`}>
-                    <AnimatedDot delay={0} />
-                    <AnimatedDot delay={200} />
-                    <AnimatedDot delay={400} />
+            {/* Bottom controls section */}
+            <View style={tw`w-full mt-2 mb-4`}>
+              {players.length > 0 && players[0].username == username && players.length >= 2 ? (
+                <>
+                  <View style={tw`flex-row flex-wrap justify-center mb-2`}>
+                    {roundOptions.map((rounds) => (
+                      <TouchableOpacity
+                        key={rounds}
+                        style={tw`${roundsOfGame === rounds ? "bg-[#85004e]" : "bg-[#5f0437]"} p-3 rounded-lg mx-2 mb-2`}
+                        onPress={() => handleSetRounds(rounds)}
+                      >
+                        <Text style={tw`text-white`}>{rounds} Rounds</Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
+                  <TouchableOpacity
+                    style={tw`bg-[#911284] p-4 rounded-lg w-full flex justify-center items-center mb-2`}
+                    onPress={handleStartGame}
+                  >
+                    <Text style={tw`text-white font-bold text-lg`}>Start Game</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <View style={tw`p-2 w-full flex flex-col justify-center items-center`}>
+                  <View style={tw`flex flex-row justify-center opacity-70 items-center mb-4`}>
+                    <Text style={tw`text-white`}>{players.length < 2 ? "Waiting for players" : "Waiting host"}</Text>
+                    <View style={tw`flex-row`}>
+                      <AnimatedDot delay={0} />
+                      <AnimatedDot delay={200} />
+                      <AnimatedDot delay={400} />
+                    </View>
+                  </View>
+
+                  {/* Host explanation message */}
+                  {isHost && players.length <= 1 && (
+                    <Animatable.View animation="fadeIn">
+                      <Text
+                        style={[
+                          tw`text-white text-center italic opacity-80 `,
+                          {
+                            textShadowColor: "rgba(0, 0, 0, 0.7)",
+                            textShadowOffset: { width: 1, height: 1 },
+                            textShadowRadius: 3,
+                          },
+                        ]}
+                      >
+                        Send the game code to your friends so they can join!
+                      </Text>
+                    </Animatable.View>
+                  )}
                 </View>
-
-                {/* Host explanation message */}
-                {isHost && players.length <= 1 && (
-                  <Animatable.View animation="fadeIn">
-                    <Text
-                      style={[
-                        tw`text-white text-center italic opacity-80`,
-                        { textShadowColor: "rgba(0, 0, 0, 0.7)", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 },
-                      ]}
-                    >
-                      Send the game code to your friends so they can join!
-                    </Text>
-                  </Animatable.View>
-                )}
-              </View>
-            )}
+              )}
+            </View>
           </View>
+          {/* Chat footer */}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "padding"} // Changed to "padding" for Android too
+            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} // Increased offset for Android
+            style={[tw`w-full`, { paddingBottom: Platform.OS === "android" ? (insets.bottom > 0 ? insets.bottom : 10) : 0 }]}
+          >
+            <View style={tw`px-2 py-3 flex-row items-center`}>
+              <TextInput
+                value={chatMessage}
+                onChangeText={setChatMessage}
+                placeholder="Type a message..."
+                placeholderTextColor="#999"
+                style={tw`flex-1 bg-gray-800 text-white px-4 py-2 rounded-full mr-2`}
+                maxLength={100}
+              />
+              <TouchableOpacity
+                onPress={sendChatMessage}
+                disabled={!chatMessage.trim()}
+                style={tw`rounded-full w-10 h-10 ${!chatMessage.trim() ? "bg-gray-600" : "bg-[#ff8605]"} items-center justify-center`}
+              >
+                <Ionicons name="send" size={20} color="white" />
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
         </View>
-      </KeyboardAvoidingView>
-
-      {/* Chat input field - OUTSIDE KeyboardAvoidingView to ensure proper positioning */}
-      <View
-        style={tw`absolute ${Platform.OS === "android" ? "bottom-10" : "bottom-0"} left-0 right-0 bg-black bg-opacity-70 px-2 py-3 flex-row items-center`}
-      >
-        <TextInput
-          value={chatMessage}
-          onChangeText={setChatMessage}
-          placeholder="Type a message..."
-          placeholderTextColor="#999"
-          style={tw`flex-1 bg-gray-800 text-white px-4 py-2 rounded-full mr-2`}
-          maxLength={100}
-        />
-        <TouchableOpacity
-          onPress={sendChatMessage}
-          disabled={!chatMessage.trim()}
-          style={tw`rounded-full w-10 h-10 ${!chatMessage.trim() ? "bg-gray-600" : "bg-[#ff8605]"} items-center justify-center`}
-        >
-          <Ionicons name="send" size={20} color="white" />
-        </TouchableOpacity>
       </View>
 
       {/* Dialog modal - unchanged */}

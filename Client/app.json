@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ExposeMe",
-    "slug": "ExposeMe",
+    "name": "Expose Me",
+    "slug": "Expose Me",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
