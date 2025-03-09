@@ -218,6 +218,7 @@ const GameScreen = () => {
 
   useEffect(() => {
     if (showCorrectAnswer && usernamePhoto !== "" && socket) {
+      console.log("Correct answer is: ", usernamePhoto, "User selected: ", userSelected);
       if (userSelected === usernamePhoto) {
         console.log("Correct Answer");
         socket.emit("correct-answer", {
@@ -271,6 +272,12 @@ const GameScreen = () => {
       console.log("Winner is shown");
     }
   }, [showWinner]);
+
+  useEffect(() => {
+    if (userSelected !== "") {
+      console.log("userSelected: ", userSelected);
+    }
+  }, [userSelected]);
 
   const renderPlayer = ({ item }: { item: Player }) => {
     const isPhotoOwner = item.username === usernamePhoto;
