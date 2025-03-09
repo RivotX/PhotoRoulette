@@ -30,15 +30,15 @@ interface EmojiReactionData {
 
 const GameScreen = () => {
   const router = useRouter();
-  const { 
-    username, 
-    gameCode, 
-    endSocket, 
-    socket, 
-    playersProvider, 
+  const {
+    username,
+    gameCode,
+    endSocket,
+    socket,
+    playersProvider,
     roundsOfGame,
     plantedPhotoUri,
-    uploadPlantedPhoto  // Add this from context
+    uploadPlantedPhoto
   } = useGameContext();
   const safeUsername = username ?? "";
   const safeGameCode = gameCode ?? "";
@@ -283,13 +283,29 @@ const GameScreen = () => {
 
     return (
       <TouchableOpacity
-        style={tw`p-4 rounded-lg mb-2 ${showCorrectAnswer ? (isPhotoOwner ? "bg-green-500" : isAnswer ? "bg-red-500" : "bg-gray-700") : isAnswer ? "bg-blue-500" : "bg-gray-700"}`}
+        style={tw`p-3 rounded-lg mb-2 mx-1 flex-grow flex-basis-[48%] ${
+          showCorrectAnswer
+            ? isPhotoOwner
+              ? "bg-green-500"
+              : isAnswer
+                ? "bg-red-500"
+                : "bg-gray-700"
+            : isAnswer
+              ? "bg-blue-500"
+              : "bg-gray-700"
+        }`}
         onPress={() => setUserSelected(item.username)}
         disabled={showCorrectAnswer}
       >
         <View style={tw`flex-row items-center justify-between`}>
-          <Text style={tw`text-white text-lg flex-1`}>{item.username}</Text>
-          {isCurrentUser && <Text style={tw`text-white text-sm bg-gray-600 px-2 py-0.5 rounded-full ml-2`}>You</Text>}
+          <Text
+            style={tw`text-white text-base flex-1 ${isCurrentUser ? "font-bold" : ""}`}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {item.username}
+          </Text>
+          {isCurrentUser && <Text style={tw`text-white text-xs bg-gray-600 px-1 py-0.5 rounded-full ml-1`}>You</Text>}
         </View>
       </TouchableOpacity>
     );
@@ -323,8 +339,16 @@ const GameScreen = () => {
               </View>
 
               {/* Players list */}
-              <View style={tw`absolute z-40 bottom-20 left-0 right-0 p-4 flex-row justify-center mb-4`}>
-                <FlatList data={playersProvider} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4`} />
+              <View style={tw`absolute z-40 bottom-22 left-0 right-0 p-2 flex-row justify-center`}>
+                <FlatList
+                  data={playersProvider}
+                  renderItem={renderPlayer}
+                  keyExtractor={(item) => item.socketId}
+                  numColumns={2}
+                  columnWrapperStyle={tw`justify-between`}
+                  style={tw`w-full px-2`}
+                  contentContainerStyle={tw`w-full`}
+                />
               </View>
 
               <ScoreModal
@@ -337,14 +361,12 @@ const GameScreen = () => {
                 photoUrl={PhotoToShow}
               />
             </AnimatableView>
-
             <EmojisButton />
 
-            {/* Add this component to render when a planted photo appears */}
             {isPlantedPhoto && (
-              <Animatable.View 
-                animation="pulse" 
-                iterationCount="infinite" 
+              <Animatable.View
+                animation="pulse"
+                iterationCount="infinite"
                 duration={1200}
                 style={tw`absolute top-4 left-4 bg-purple-900 bg-opacity-90 px-4 py-2 rounded-full shadow-lg`}
               >
@@ -359,12 +381,10 @@ const GameScreen = () => {
             <Text style={tw`text-xl text-white font-bold mb-4`}>ARE YOU READY?</Text>
           </View>
         )}
-        {/* Winner celebration modal */}
       </View>
-
-      {/* Final score modal */}
     </View>
   );
 };
 
 export default GameScreen;
+

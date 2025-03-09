@@ -48,7 +48,7 @@ export const GameProvider: React.FC<GameProviderProps> = ({ children }) => {
         body: formData,
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+      console.log("Response:", response);
       const data = await response.json();
       return data.url; // Returns the URL path like /temp/filename.jpg
     } catch (error) {
