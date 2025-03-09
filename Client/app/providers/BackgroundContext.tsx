@@ -18,11 +18,11 @@ interface BackgroundContextProps {
 }
 
 export const BackgroundContext = createContext<BackgroundContextProps>({
-    backgroundImage: backgrounds[0],
-    setBackgroundImage: () => {},
+  backgroundImage: backgrounds[0],
+  setBackgroundImage: () => {},
 });
 
-export const useBackgroundContext = () => useContext(BackgroundContext); 
+export const useBackgroundContext = () => useContext(BackgroundContext);
 
 export const BackgroundProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [backgroundImage, setBackgroundImage] = useState(backgrounds[Math.floor(Math.random() * backgrounds.length)]);
@@ -47,9 +47,5 @@ export const BackgroundProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <BackgroundContext.Provider value={{ backgroundImage, setBackgroundImage }}>
-      {children}
-    </BackgroundContext.Provider>
-  );
+  return <BackgroundContext.Provider value={{ backgroundImage, setBackgroundImage }}>{children}</BackgroundContext.Provider>;
 };

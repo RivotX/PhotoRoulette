@@ -70,8 +70,7 @@ export const PhotoProvider: React.FC<PhotoProviderProps> = ({ children }) => {
           first: 1,
           after:
             randomIndex > 0
-              ? (await MediaLibrary.getAssetsAsync({ mediaType: "photo", first: randomIndex })).assets[randomIndex - 1]
-                  .id
+              ? (await MediaLibrary.getAssetsAsync({ mediaType: "photo", first: randomIndex })).assets[randomIndex - 1].id
               : undefined,
         });
 

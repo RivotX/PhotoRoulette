@@ -27,16 +27,8 @@ interface EmojiReactionData {
 // Available emojis
 
 const GameScreen = () => {
-  const {
-    username,
-    gameCode,
-    endSocket,
-    socket,
-    playersProvider,
-    roundsOfGame,
-    plantedPhotoUri,
-    uploadPlantedPhoto
-  } = useGameContext();
+  const { username, gameCode, endSocket, socket, playersProvider, roundsOfGame, plantedPhotoUri, uploadPlantedPhoto } =
+    useGameContext();
   const safeUsername = username ?? "";
   const safeGameCode = gameCode ?? "";
   const [PhotoToShow, setPhotoToShow] = useState<string | null>(null);
@@ -322,18 +314,17 @@ const GameScreen = () => {
           <>
             <PhotoComponent photoUrl={PhotoToShow} />
             <View style={tw`absolute top-4 left-4 z-90`}>
-                {emojiReactions.map((reaction) => (
-                  <EmojiReaction
-                    key={reaction.id}
-                    username={reaction.username}
-                    emoji={reaction.emoji}
-                    onAnimationEnd={() => removeEmojiReaction(reaction.id)}
-                  />
-                ))}
-              </View>
+              {emojiReactions.map((reaction) => (
+                <EmojiReaction
+                  key={reaction.id}
+                  username={reaction.username}
+                  emoji={reaction.emoji}
+                  onAnimationEnd={() => removeEmojiReaction(reaction.id)}
+                />
+              ))}
+            </View>
             <AnimatableView ref={elementRef} style={tw`z-8 absolute size-full`}>
               {/* Emoji reactions container */}
-              
 
               <View style={tw`absolute size-full top-15 left-0 right-0 p-4`}>
                 <ProgressBar key={progressKey} duration={timeForAnswer} />
@@ -375,4 +366,3 @@ const GameScreen = () => {
 };
 
 export default GameScreen;
-
