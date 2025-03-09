@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Expose Me",
-    "slug": "Expose Me",
+    "slug": "expose-me",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/adaptive-icon.png",
@@ -39,8 +39,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "e8bc5693-fa6d-42c2-80fb-4feedb96fcb3"
+        "projectId": "6ab88ec9-1d9d-4f34-86be-b7ab1b3492a1"
       }
-    }
+    },
+    "owner": "rivotx"
   }
 }
