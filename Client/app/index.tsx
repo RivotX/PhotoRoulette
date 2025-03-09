@@ -308,7 +308,7 @@ const Index = () => {
         <ImageBlur
           src={backgroundImage}
           blurRadius={3} // intensidad del blur
-          blurChildren={<ImageBlurView style={{ height: "100%", width: "100%", backgroundColor:"black"}} />}
+          blurChildren={<ImageBlurView style={{ height: "100%", width: "100%", backgroundColor: "black" }} />}
           style={{ flex: 1 }}
         />
       </View>

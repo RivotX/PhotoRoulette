@@ -17,11 +17,11 @@ interface WinnerModalProps {
 
 const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationEnd }) => {
   const medalAnimation = useRef<LottieView>(null);
-  const {endSocket} = useGameContext();
+  const { endSocket } = useGameContext();
   const confettiAnimation = useRef<LottieView>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [animationComplete, setAnimationComplete] = useState(false);
-  
+
   useEffect(() => {
     console.log("WinnerModal visible:", visible);
     if (visible) {
@@ -33,7 +33,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
       if (confettiAnimation.current) {
         confettiAnimation.current.play();
       }
-      
+
       // Animate the text
       Animated.sequence([
         Animated.timing(fadeAnim, {
@@ -57,11 +57,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
 
   return (
     <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-100`}>
-      <TouchableOpacity 
-        activeOpacity={1}
-        style={tw`flex-1`} 
-        onPress={animationComplete ? onAnimationEnd : undefined}
-      >
+      <TouchableOpacity activeOpacity={1} style={tw`flex-1`} onPress={animationComplete ? onAnimationEnd : undefined}>
         {/* Main container with black semi-transparent background */}
         <View style={tw`flex-1 bg-black bg-opacity-95`}>
           {/* Confetti covering the entire screen */}
@@ -69,18 +65,18 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
             ref={confettiAnimation}
             source={require("@/assets/animations/confetiAnimation.json")}
             style={{
-              position: 'absolute',
+              position: "absolute",
               width: width * 1.2, // Make it slightly larger than screen
               height: height * 1.2,
               left: -width * 0.1, // Center the enlarged animation
               top: -height * 0.1,
-              zIndex: 1 // Ensure confetti is behind other content but above background
+              zIndex: 1, // Ensure confetti is behind other content but above background
             }}
             autoPlay={false}
             loop={true}
             resizeMode="cover"
           />
-          
+
           {/* Main content with z-index to be above confetti */}
           <View style={[tw`flex-1 justify-center items-center pb-16`, { zIndex: 2 }]}>
             {/* Gold medal animation */}
@@ -91,14 +87,9 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
               autoPlay={false}
               loop={false}
             />
-            
+
             {/* Winner text with animated entrance */}
-            <Animated.View 
-              style={[
-                tw`items-center`, 
-                { opacity: fadeAnim }
-              ]}
-            >
+            <Animated.View style={[tw`items-center`, { opacity: fadeAnim }]}>
               <Text style={tw`text-yellow-400 text-xl font-bold mb-2`}>WINNER!</Text>
               <Animatable.Text
                 animation={animationComplete ? "pulse" : undefined}
@@ -107,25 +98,19 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ visible, winner, onAnimationE
               >
                 {winner.username}
               </Animatable.Text>
-              
-              <Animatable.Text
-                animation="fadeIn"
-                delay={1000}
-                style={tw`text-yellow-400 text-2xl font-bold mt-4`}
-              >
+
+              <Animatable.Text animation="fadeIn" delay={1000} style={tw`text-yellow-400 text-2xl font-bold mt-4`}>
                 {winner.points} points
               </Animatable.Text>
             </Animated.View>
-            
+
             {/* "Tap anywhere" text positioned absolutely at the bottom of the screen */}
             {animationComplete && (
-              <Animatable.View 
-                animation="fadeIn" 
-                style={tw`absolute bottom-20 w-full items-center`}  // Moved higher to avoid emoji bar
+              <Animatable.View
+                animation="fadeIn"
+                style={tw`absolute bottom-20 w-full items-center`} // Moved higher to avoid emoji bar
               >
-                <Text style={tw`text-white text-lg opacity-70`}>
-                  Tap anywhere to continue
-                </Text>
+                <Text style={tw`text-white text-lg opacity-70`}>Tap anywhere to continue</Text>
               </Animatable.View>
             )}
           </View>

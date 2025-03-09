@@ -7,8 +7,6 @@ import ImageBlur from "./ImageBlur/ImageBlur";
 import { ImageBlurView } from "./ImageBlur";
 import { PhotoComponentProps } from "../models/interfaces";
 
-
-
 const PhotoComponent: React.FC<PhotoComponentProps> = ({ photoUrl, onLongPress, onPressOut }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -33,11 +31,7 @@ const PhotoComponent: React.FC<PhotoComponentProps> = ({ photoUrl, onLongPress, 
     <>
       {Platform.OS === "ios" && (
         <View style={tw`absolute w-full h-full `}>
-          <Animated.Image
-            source={{ uri: photoUrl }}
-            style={[tw`w-full h-full`, { opacity: fadeAnim }]}
-            resizeMode="cover"
-          />
+          <Animated.Image source={{ uri: photoUrl }} style={[tw`w-full h-full`, { opacity: fadeAnim }]} resizeMode="cover" />
           <BlurView intensity={50} style={tw`absolute w-full h-full`} />
         </View>
       )}
@@ -52,21 +46,12 @@ const PhotoComponent: React.FC<PhotoComponentProps> = ({ photoUrl, onLongPress, 
         </View>
       )}
       <View style={tw`flex-1 justify-center items-center`}>
-        <TouchableOpacity
-          style={tw`w-full h-full`}
-          activeOpacity={1}
-          onLongPress={onLongPress}
-          onPressOut={onPressOut}
-        >
-          <Animated.Image
-            source={{ uri: photoUrl }}
-            style={[tw`w-full h-full`, { opacity: fadeAnim }]}
-            resizeMode="contain"
-          />
+        <TouchableOpacity style={tw`w-full h-full`} activeOpacity={1} onLongPress={onLongPress} onPressOut={onPressOut}>
+          <Animated.Image source={{ uri: photoUrl }} style={[tw`w-full h-full`, { opacity: fadeAnim }]} resizeMode="contain" />
         </TouchableOpacity>
       </View>
     </>
   );
-}
+};
 
 export default PhotoComponent;

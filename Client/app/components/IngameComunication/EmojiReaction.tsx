@@ -54,8 +54,8 @@ const EmojiReaction: React.FC<EmojiReactionProps> = ({ username, emoji, onAnimat
         { opacity, transform: [{ translateY }] },
       ]}
     >
-      <Text style={tw`text-white font-medium ${isScreenshot ? 'text-xs' : 'text-sm'} mr-1`}>{username}</Text>
-      <Text style={tw`${isScreenshot ? 'text-sm' : 'text-2xl'} text-white`}>{emoji}</Text>
+      <Text style={tw`text-white font-medium ${isScreenshot ? "text-xs" : "text-sm"} mr-1`}>{username}</Text>
+      <Text style={tw`${isScreenshot ? "text-sm" : "text-2xl"} text-white`}>{emoji}</Text>
     </Animated.View>
   );
 };

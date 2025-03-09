@@ -24,7 +24,6 @@ export interface ScoreRound {
   lastGuess: string;
 }
 
-
 export interface Room {
   gameCode: string;
   players: Player[];
