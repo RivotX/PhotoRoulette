@@ -381,6 +381,7 @@ const Index = () => {
                     value={gameCode || ""}
                     onChange={(e) => setGameCode(e.nativeEvent.text)}
                     keyboardType="number-pad"
+                    maxLength={6}
                   />
                 </Animatable.View>
 

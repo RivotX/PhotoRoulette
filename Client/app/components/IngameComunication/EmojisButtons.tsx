@@ -1,23 +1,31 @@
 import { ScrollView, Text, TouchableOpacity, View, Platform } from "react-native";
 import tw from "twrnc";
-import { useGameContext } from "../providers/GameContext";
-import { useEffect } from "react";
+import { useGameContext } from "../../providers/GameContext";
+import { useEffect, useState } from "react";
 import * as ScreenCapture from "expo-screen-capture";
 
 function EmojisButton() {
-  const EMOJIS = ["😂", "😮", "❓", "😳", "🔥", "😭", "🤡", "😡"];
+  const EMOJIS = ["😂", "😍", "❓", "😳", "🔥", "😭", "🤡", "😡"];
   const { socket, username, gameCode } = useGameContext();
   const safeUsername = username ?? "";
   const safeGameCode = gameCode ?? "";
+  const [lastSentTime, setLastSentTime] = useState(0);
+  const COOLDOWN_TIME = 1000; // 1 second cooldown
 
   // Function to send emoji reaction
   const sendEmojiReaction = (emoji: string) => {
-    if (socket) {
-      socket.emit("emoji-reaction", {
-        gameCode: safeGameCode,
-        username: safeUsername,
-        emoji,
-      });
+    const currentTime = Date.now();
+
+    // Check if cooldown period has passed
+    if (currentTime - lastSentTime >= COOLDOWN_TIME) {
+      if (socket) {
+        socket.emit("emoji-reaction", {
+          gameCode: safeGameCode,
+          username: safeUsername,
+          emoji,
+        });
+        setLastSentTime(currentTime);
+      }
     }
   };
 
@@ -26,7 +34,6 @@ function EmojisButton() {
     const subscribeToScreenCapture = async () => {
       // Only available on iOS and Android
       if (Platform.OS === "ios" || Platform.OS === "android") {
-
         // Add screenshot listener
         const subscription = ScreenCapture.addScreenshotListener(() => {
           // When screenshot is detected, send the screenshot emoji reaction

@@ -20,7 +20,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
   const [modalOpacity, setModalOpacity] = useState(1);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const slideAnim = useRef(new Animated.Value(visible ? 0 : 1000)).current;
-  const [isHolding, setIsHolding] = useState(false);
+
   // secondsForButtonPress-300 para asegurar que el boton se presione antes de que inicie la otra ronda
   const SecondsForButtonPressInClient = 3000 - 300;
   const [disabledButton, setDisabledButton] = useState(false);
@@ -96,10 +96,11 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
 
   const handlePressIn = () => {
     if (canHold && elementRef?.current) {
+      console.log("Pressed in");
       elementRef.current.setNativeProps({ style: { opacity: 0 } });
       setModalOpacity(0);
       holdButton("button-pressed");
-      setIsHolding(true);
+
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -108,6 +109,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
 
   const handlePressOut = () => {
     if (canHold && elementRef?.current) {
+      console.log("Pressed out");
       elementRef.current.setNativeProps({ style: { opacity: 1 } });
       setModalOpacity(1);
       holdButton("button-released");
@@ -160,7 +162,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
       ))}
       {canHold && (
         <TouchableOpacity
-          style={tw`bg-blue-600 absolute  opacity-100} 
+          style={tw`bg-blue-600 absolute opacity-100} 
           bottom-24 p-4 flex justify-center items-center rounded-xl w-[90%] 
           border-2 border-blue-400 shadow-lg`}
           onPressIn={handlePressIn}

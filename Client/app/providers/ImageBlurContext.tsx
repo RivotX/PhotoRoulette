@@ -8,7 +8,7 @@ import React, {
   } from 'react';
   import { type View } from 'react-native';
   
-  import { type ImageBlurEffectProps } from '../components/ImageBlur/imageBlurView';
+  import { type ImageBlurEffectProps } from '@/app/components/ImageBlur/imageBlurView';
   
   type ImageBlurContextProps = {
     children: ReactNode;

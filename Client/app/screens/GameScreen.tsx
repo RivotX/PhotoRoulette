@@ -2,19 +2,18 @@ import React, { useEffect, useState, useRef } from "react";
 import { View, Text, TouchableOpacity, StatusBar, FlatList, BackHandler } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import tw from "twrnc";
-import { useRouter } from "expo-router";
 import { useGameContext } from "../providers/GameContext";
 import { Player, RandomPhotoResponse, ScoreRound } from "../models/interfaces";
 import { usePhotoContext } from "../providers/PhotoContext";
 import getEnvVars from "@/config";
-import PhotoComponent from "../components/PhotoComponent";
+import PhotoComponent from "@/app/components/PhotoComponent";
 import { View as AnimatableView } from "react-native-animatable";
-import ScoreModal from "../components/modals/ScoreModal";
-import ProgressBar from "../components/ProgressBar";
-import FinalScoreModal from "../components/FinalScoreModal";
-import WinnerModal from "../components/modals/WinnerModal";
-import EmojiReaction from "../components/EmojiReaction";
-import EmojisButton from "../components/EmojisButtons";
+import ScoreModal from "@/app/components/modals/ScoreModal";
+import ProgressBar from "@/app/components/ProgressBar";
+import FinalScoreModal from "@/app/components/modals/FinalScoreModal";
+import WinnerModal from "@/app/components/modals/WinnerModal";
+import EmojiReaction from "@/app/components/IngameComunication/EmojiReaction";
+import EmojisButton from "@/app/components/IngameComunication/EmojisButtons";
 
 const { SERVER_URL } = getEnvVars();
 
