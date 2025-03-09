@@ -38,15 +38,12 @@ const InitialScreen: React.FC = () => {
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-900`}>
       <StatusBar barStyle="light-content" backgroundColor="#111827" />
-      <ScrollView
-        contentContainerStyle={tw`flex-grow`}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={tw`flex-grow`} showsVerticalScrollIndicator={false}>
         <View style={tw`flex-1 px-4 pt-4 pb-6`}>
           {/* Header */}
           <View style={tw`items-center mb-5`}>
             <View style={tw`bg-amber-900/50 px-4 py-2 rounded-full mb-2`}>
-              <Text style={tw`text-xl font-bold text-amber-400`}>⚠️ Important Notice ⚠️</Text>
+              <Text style={tw`text-xl font-bold text-amber-400`}>⚠️ Warning ⚠️</Text>
             </View>
             <Text style={tw`text-sm text-gray-300 text-center`}>
               For the application to work properly, please grant the following permissions:
@@ -55,12 +52,8 @@ const InitialScreen: React.FC = () => {
 
           {/* Permission highlight box */}
           <View style={tw`bg-indigo-900/30 border border-indigo-700/50 rounded-xl p-4 mb-5`}>
-            <Text style={tw`text-sm font-medium text-center text-indigo-300 mb-1`}>
-              Required Permission Setting:
-            </Text>
-            <Text style={tw`text-lg font-bold text-center text-indigo-200`}>
-              "Allow all the time"
-            </Text>
+            <Text style={tw`text-sm font-medium text-center text-indigo-300 mb-1`}>Required Permission Setting:</Text>
+            <Text style={tw`text-lg font-bold text-center text-indigo-200`}>"Allow all the time"</Text>
           </View>
 
           {/* Permission instructions */}
@@ -70,7 +63,7 @@ const InitialScreen: React.FC = () => {
                 {Platform.OS === "android" ? "How to enable on Android:" : "How to enable on iOS:"}
               </Text>
             </View>
-            
+
             {Platform.OS === "android" ? (
               <View style={tw`p-3 items-center`}>
                 <CustomCarousel
@@ -78,11 +71,7 @@ const InitialScreen: React.FC = () => {
                   renderItem={({ item }) => (
                     <View style={tw`items-center`}>
                       <View style={tw`bg-gray-700 rounded-lg overflow-hidden shadow-lg mb-3 p-1 border border-gray-600`}>
-                        <Image 
-                          source={item.source} 
-                          style={{ width: imageWidth, height: imageHeight }} 
-                          resizeMode="contain" 
-                        />
+                        <Image source={item.source} style={{ width: imageWidth, height: imageHeight }} resizeMode="contain" />
                       </View>
                       <Text style={tw`text-base font-bold text-gray-200 mb-1`}>{item.title}</Text>
                       <Text style={tw`text-sm text-gray-400`}>{item.description}</Text>
@@ -94,35 +83,24 @@ const InitialScreen: React.FC = () => {
             ) : (
               <View style={tw`p-3 items-center`}>
                 <View style={tw`bg-gray-700 rounded-lg overflow-hidden shadow-lg mb-3 p-1 border border-gray-600`}>
-                  <Image
-                    source={PermissionRequestIOS}
-                    style={{ width: imageWidth, height: imageHeight }}
-                    resizeMode="contain"
-                  />
+                  <Image source={PermissionRequestIOS} style={{ width: imageWidth, height: imageHeight }} resizeMode="contain" />
                 </View>
-                <Text style={tw`text-sm text-gray-300 text-center`}>
-                  Tap "Allow" when prompted to give access to your photos
-                </Text>
+                <Text style={tw`text-sm text-gray-300 text-center`}>Tap "Allow" when prompted to give access to your photos</Text>
               </View>
             )}
           </View>
 
           {/* Continue button and animation */}
           <View style={tw`items-center mt-6`}>
-            <TouchableOpacity 
-              style={tw`bg-blue-600 w-56 py-3 px-5 rounded-full shadow-lg flex-row justify-center items-center border border-blue-500`} 
+            <TouchableOpacity
+              style={tw`bg-blue-600 w-56 py-3 px-5 rounded-full shadow-lg flex-row justify-center items-center border border-blue-500`}
               onPress={handleContinuePress}
               activeOpacity={0.7}
             >
               <Text style={tw`text-white text-base font-medium mr-2`}>Continue</Text>
-              <LottieView 
-                source={FingerAnimation} 
-                autoPlay 
-                loop 
-                style={{ width: 32, height: 32 }} 
-              />
             </TouchableOpacity>
-            <Text style={tw`text-gray-400 text-xs mt-2`}>Tap to proceed after setting permissions</Text>
+            <Text style={tw`text-gray-400 text-xs mt-2 mb-2`}>Tap to proceed after setting permissions</Text>
+            <LottieView source={FingerAnimation} autoPlay loop style={{ width: 48, height: 48 }} />
           </View>
         </View>
       </ScrollView>
