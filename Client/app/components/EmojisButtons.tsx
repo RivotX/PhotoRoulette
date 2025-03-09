@@ -1,6 +1,8 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, Platform } from "react-native";
 import tw from "twrnc";
 import { useGameContext } from "../providers/GameContext";
+import { useEffect } from "react";
+import * as ScreenCapture from 'expo-screen-capture';
 
 function EmojisButton() {
   const EMOJIS = ["😂", "😮", "❓", "😳", "🔥", "😭", "🤡", "😡"];
@@ -18,6 +20,31 @@ function EmojisButton() {
       });
     }
   };
+
+  // Set up screenshot detection
+  useEffect(() => {
+    const subscribeToScreenCapture = async () => {
+      // Only available on iOS and Android
+      if (Platform.OS === 'ios' || Platform.OS === 'android') {
+        // Activate the listener
+        await ScreenCapture.preventScreenCaptureAsync();
+        
+        // Add screenshot listener
+        const subscription = ScreenCapture.addScreenshotListener(() => {
+          // When screenshot is detected, send the screenshot emoji reaction
+          sendEmojiReaction("📸 Screenshot taken!");
+        });
+        
+        return () => {
+          // Cleanup
+          subscription.remove();
+          ScreenCapture.allowScreenCaptureAsync();
+        };
+      }
+    };
+
+    subscribeToScreenCapture();
+  }, [socket, safeGameCode, safeUsername]);
 
   return (
     <View style={tw`absolute bottom-12 left-0 right-0 z-90`}>

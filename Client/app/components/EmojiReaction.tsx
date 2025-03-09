@@ -53,7 +53,7 @@ const EmojiReaction: React.FC<EmojiReactionProps> = ({ username, emoji, onAnimat
       ]}
     >
       <Text style={tw`text-white font-medium text-sm mr-1`}>{username}</Text>
-      <Text style={tw`text-2xl`}>{emoji}</Text>
+      <Text style={tw`text-2xl text-white`}>{emoji}</Text>
     </Animated.View>
   );
 };
