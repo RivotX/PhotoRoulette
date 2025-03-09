@@ -123,7 +123,7 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
               <Text style={[tw`text-xl font-bold`, { color: colors.text }]}>{item.username}</Text>
               <View style={tw`flex-row items-center`}>
                 <Icon name="user" size={12} color={index < 3 ? colors.text : "#B0B0B0"} style={tw`mr-1`} />
-                <Text style={[tw`text-xs`, { color: index < 3 ? colors.text : "#B0B0B0" }]}>{index+1}.º place</Text>
+                <Text style={[tw`text-xs`, { color: index < 3 ? colors.text : "#B0B0B0" }]}>{index + 1}.º place</Text>
               </View>
             </View>
           </View>

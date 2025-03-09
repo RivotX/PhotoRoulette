@@ -84,14 +84,8 @@ const OwnPhotos = () => {
           </TouchableOpacity>
         </Animatable.View>
       )}
-      <Animatable.View
-        animation="slideInUp"
-        duration={500}
-        style={tw`absolute bottom-14 left-0 right-0 flex-row justify-center`}
-      >
-        {buttonsVisible && (
-          <Text style={tw`text-white text-xl font-bold w-full text-center`}>Next</Text>
-        )}
+      <Animatable.View animation="slideInUp" duration={500} style={tw`absolute bottom-14 left-0 right-0 flex-row justify-center`}>
+        {buttonsVisible && <Text style={tw`text-white text-xl font-bold w-full text-center`}>Next</Text>}
       </Animatable.View>
     </View>
   );

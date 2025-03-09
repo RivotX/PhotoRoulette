@@ -1,5 +1,16 @@
 import React, { useRef } from "react";
-import { View, Text, TouchableOpacity, Image, Linking, Dimensions, ScrollView, StyleSheet, Platform, StatusBar } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Linking,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Platform,
+  StatusBar,
+} from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import CustomCarousel from "@/app/components/CustomCarousel/CustomCarousel";
@@ -50,10 +61,7 @@ const SettingsInstructionsScreen: React.FC = () => {
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-900`}>
       <StatusBar barStyle="light-content" backgroundColor="#111827" />
-      <ScrollView
-        contentContainerStyle={tw`flex-grow p-4`}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={tw`flex-grow p-4`} showsVerticalScrollIndicator={false}>
         <View style={tw`flex-1 items-center`}>
           {/* Header */}
           <View style={tw`items-center mb-5`}>
@@ -67,9 +75,7 @@ const SettingsInstructionsScreen: React.FC = () => {
 
           {/* Permission highlight box */}
           <View style={tw`bg-indigo-900/30 border border-indigo-700/50 rounded-xl p-4 mb-5 w-full`}>
-            <Text style={tw`text-lg font-semibold text-center text-indigo-200 mb-1`}>
-              Instructions
-            </Text>
+            <Text style={tw`text-lg font-semibold text-center text-indigo-200 mb-1`}>Instructions</Text>
           </View>
 
           {/* Carousel container */}
@@ -85,15 +91,13 @@ const SettingsInstructionsScreen: React.FC = () => {
                 data={images}
                 renderItem={({ item }) => (
                   <View style={[styles.carouselItemContainer, { width: screenWidth * 0.8 }]}>
-                    <View style={[
-                      tw`bg-white rounded-lg overflow-hidden shadow-lg mb-3 border border-gray-600`,
-                      { width: imageContainerWidth, height: imageContainerHeight }
-                    ]}>
-                      <Image 
-                        source={item.source} 
-                        style={{ width: "100%", height: "100%" }} 
-                        resizeMode="contain" 
-                      />
+                    <View
+                      style={[
+                        tw`bg-white rounded-lg overflow-hidden shadow-lg mb-3 border border-gray-600`,
+                        { width: imageContainerWidth, height: imageContainerHeight },
+                      ]}
+                    >
+                      <Image source={item.source} style={{ width: "100%", height: "100%" }} resizeMode="contain" />
                     </View>
                     <Text style={tw`text-base font-bold text-gray-200 mb-1`}>{item.title}</Text>
                     <Text style={tw`text-sm text-gray-400 text-center`}>{item.description}</Text>
@@ -109,15 +113,15 @@ const SettingsInstructionsScreen: React.FC = () => {
 
           {/* Bottom buttons */}
           <View style={tw`flex-row justify-between w-full mt-4 mb-2`}>
-            <TouchableOpacity 
-              style={tw`bg-gray-700 p-4 rounded-xl flex-1 mr-3 border border-gray-600`} 
+            <TouchableOpacity
+              style={tw`bg-gray-700 p-4 rounded-xl flex-1 mr-3 border border-gray-600`}
               onPress={() => router.replace("/")}
               activeOpacity={0.7}
             >
               <Text style={tw`text-gray-200 text-base font-medium text-center`}>Back</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={tw`bg-blue-600 p-4 flex-1 ml-3 rounded-xl border border-blue-500 shadow-lg`} 
+            <TouchableOpacity
+              style={tw`bg-blue-600 p-4 flex-1 ml-3 rounded-xl border border-blue-500 shadow-lg`}
               onPress={openSettings}
               activeOpacity={0.7}
             >
