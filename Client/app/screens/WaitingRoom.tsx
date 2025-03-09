@@ -15,6 +15,7 @@ import AnimatedDot from "@/app/components/AnimatedDot";
 import * as Animatable from "react-native-animatable";
 import * as Clipboard from "expo-clipboard";
 import * as ImagePicker from "expo-image-picker";
+import AlertModal from "../components/modals/AlertModal";
 
 const WaitingRoom = ({}) => {
   const navigation = useRouter();
@@ -449,32 +450,23 @@ const WaitingRoom = ({}) => {
       </View>
 
       {/* Dialog modal - unchanged */}
-      <Modal visible={dialogVisible} transparent={true} animationType="slide" onRequestClose={() => setDialogVisible(false)}>
-        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}>
-          <View style={tw`rounded-lg p-6 bg-gray-800 w-4/5`}>
-            <Text style={tw`text-2xl text-white font-bold text-center mb-4`}>Confirm Remove Player</Text>
-            <Text style={tw`text-lg text-white text-center mb-6`}>
-              Are you sure you want to remove <Text style={tw`text-red-500`}>@{selectedPlayer?.username}</Text> from the game?
-            </Text>
-            <View style={tw`flex-row justify-evenly`}>
-              <TouchableOpacity onPress={() => setDialogVisible(false)} style={tw`bg-blue-500 px-4 py-2 rounded-lg`}>
-                <Text style={tw`text-white text-lg`}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  if (selectedPlayer) {
-                    handleRemovePlayer(selectedPlayer.socketId);
-                  }
-                  setDialogVisible(false);
-                }}
-                style={tw`bg-red-600 px-4 py-2 rounded-lg`}
-              >
-                <Text style={tw`text-white text-lg`}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <AlertModal
+  visible={dialogVisible}
+  title="Confirm Remove Player"
+  message="Are you sure you want to remove"
+  highlightedText={`@${selectedPlayer?.username}`}
+  confirmText="Remove"
+  cancelText="Cancel"
+  onConfirm={() => {
+    if (selectedPlayer) {
+      handleRemovePlayer(selectedPlayer.socketId);
+    }
+    setDialogVisible(false);
+  }}
+  onCancel={() => setDialogVisible(false)}
+  confirmButtonColor="bg-red-600"
+  cancelButtonColor="bg-blue-500"
+/>
     </>
   );
 };

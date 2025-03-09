@@ -1,74 +1,67 @@
-import React, { useEffect, useRef } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, Pressable, Animated } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import tw from 'twrnc';
+import * as Animatable from "react-native-animatable";
 
-interface AlertModalProps {
-  modalVisible: boolean;
-  setModalVisible: (visible: boolean) => void;
-  text: string;
+interface AlertOverlayProps {
+  visible: boolean;
+  title: string;
+  message: string;
+  highlightedText?: string;
+  confirmText?: string;
+  cancelText?: string;
   onConfirm: () => void;
+  onCancel: () => void;
+  confirmButtonColor?: string;
+  cancelButtonColor?: string;
 }
 
-const AlertModal: React.FC<AlertModalProps> = ({ modalVisible, setModalVisible, text, onConfirm }) => {
-  const slideAnim = useRef(new Animated.Value(300)).current;
-
-  useEffect(() => {
-    if (modalVisible) {
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      slideAnim.setValue(300);
-    }
-  }, [modalVisible]);
-
+const AlertOverlay: React.FC<AlertOverlayProps> = ({
+  visible,
+  title,
+  message,
+  highlightedText,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  onConfirm,
+  onCancel,
+  confirmButtonColor = "bg-red-600",
+  cancelButtonColor = "bg-blue-500",
+}) => {
+  if (!visible) {
+    return null;
+  }
+  
   return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => {
-        setModalVisible(false);
-      }}
-      statusBarTranslucent={true} 
+    <Animatable.View 
+      animation="fadeIn" 
+      duration={300} 
+      style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-black bg-opacity-50`}
     >
-      <Pressable
-        style={tw`flex-1 justify-center items-center bg-black bg-opacity-50`}
-        onPress={() => setModalVisible(false)}
+      <Animatable.View 
+        animation="zoomIn" 
+        duration={300} 
+        style={tw`rounded-lg p-6 bg-gray-800 w-4/5`}
       >
-        <Animated.View
-          style={[tw`w-4/5 bg-gray-800 rounded-lg p-5 items-center shadow-lg`, { transform: [{ translateY: slideAnim }] }]}
-          onStartShouldSetResponder={() => true}
-        >
-          <TouchableOpacity style={tw`absolute top-[-2] right-[-2] p-4`} onPress={() => setModalVisible(false)}>
-            <Ionicons name="close" size={24} color={'#ECEDEE'} />
+        <Text style={tw`text-2xl text-white font-bold text-center mb-4`}>{title}</Text>
+        <Text style={tw`text-lg text-white text-center mb-6`}>
+          {message}
+          {highlightedText && <Text style={tw`text-red-500`}> {highlightedText}</Text>}
+        </Text>
+        <View style={tw`flex-row justify-evenly`}>
+          <TouchableOpacity onPress={onCancel} style={tw`${cancelButtonColor} px-4 py-2 rounded-lg`}>
+            <Text style={tw`text-white text-lg`}>{cancelText}</Text>
           </TouchableOpacity>
-          <Text style={[tw`text-lg font-semibold mb-2 text-grey-300`, styles.text]}>
-            {text}
-          </Text>
-          <View style={tw`w-full mt-5`}>
-            <TouchableOpacity
-              style={[tw`bg-red-500 p-2 rounded-full mx-1`, styles.button]}
-              onPress={onConfirm}
-            >
-              <Text style={[tw`text-white font-bold text-center`, styles.text]}>Confirm</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-      </Pressable>
-    </Modal>
+          <TouchableOpacity
+            onPress={onConfirm}
+            style={tw`${confirmButtonColor} px-4 py-2 rounded-lg`}
+          >
+            <Text style={tw`text-white text-lg`}>{confirmText}</Text>
+          </TouchableOpacity>
+        </View>
+      </Animatable.View>
+    </Animatable.View>
   );
 };
 
-const styles = StyleSheet.create({
-  text: {
-    fontFamily: 'System',
-  },
-  button: {
-    minWidth: 100,
-  },
-});
-
-export default AlertModal;
+export default AlertOverlay;

@@ -135,7 +135,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
       {scoreRound.map((player, index) => (
         <View key={index} style={tw`w-11/12 bg-white mb-2 m-1 rounded-3xl`}>
           <View style={tw`flex-row h-12`}>
-            <View style={tw`flex items-center justify-center rounded-l-full bg-[#e63a35]`}>
+            <View style={tw`flex items-center w-[5%] justify-center rounded-l-full bg-[#e63a35]`}>
               <Text style={tw`text-lg px-3 size text-white font-bold`}>{index + 1}</Text>
             </View>
             <View style={tw`flex-row px-2 items-center w-[80%] justify-between`}>
