@@ -1,4 +1,4 @@
-import { Player } from "../models/interfaces";
+import { Player, Room } from "../models/interfaces";
 
 function generateRoomId(rooms: { gameCode: string; players: { username: string; socketId: string }[] }[]): string {
   let roomId: string;
@@ -12,4 +12,25 @@ function getRandomPlayer(players: Player[]): Player {
   return players[Math.floor(Math.random() * players.length)];
 }
 
-export { generateRoomId, getRandomPlayer };
+function safeRoomData(room: Room): any {
+  const { intervalId, ...safeRoom } = room;
+  
+  // Asegúrate que currentPlayer no tiene referencias circulares
+  if (safeRoom.currentPlayer) {
+    safeRoom.currentPlayer = {
+      username: safeRoom.currentPlayer.username,
+      socketId: safeRoom.currentPlayer.socketId,
+      isHost: safeRoom.currentPlayer.isHost,
+      isReady: safeRoom.currentPlayer.isReady,
+      points: safeRoom.currentPlayer.points,
+      lastAnswerCorrect: safeRoom.currentPlayer.lastAnswerCorrect,
+      lastGuess: safeRoom.currentPlayer.lastGuess,
+      hasPlantedPhoto: safeRoom.currentPlayer.hasPlantedPhoto,
+      plantedPhoto: undefined // Evitamos enviar la foto plantada directamente
+    };
+  }
+  
+  return safeRoom;
+}
+
+export { generateRoomId, getRandomPlayer, safeRoomData };
