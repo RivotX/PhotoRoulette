@@ -13,26 +13,31 @@ const PressablePagination = (props: PressablePaginationProps) => {
         )}
       >
         {props.data.map((_, idx) => {
+          // Updated input range calculation for better alignment
           const inputRange = [
-            (idx - 1) * props.itemWidth,
+            (idx - 0.5) * props.itemWidth,
             idx * props.itemWidth,
-            (idx + 1) * props.itemWidth,
+            (idx + 0.5) * props.itemWidth,
           ];
+          
           const indicatorWidth = props.scrollX.interpolate({
             inputRange,
             outputRange: props.indicatorWidth,
             extrapolate: "clamp",
           });
+          
           const indicatorHeight = props.scrollX.interpolate({
             inputRange,
             outputRange: props.indicatorHeight,
             extrapolate: "clamp",
           });
+          
           const backgroundColor = props.scrollX.interpolate({
             inputRange,
             outputRange: props.indicatorColor,
             extrapolate: "clamp",
           });
+          
           return (
             <TouchableOpacity
               key={idx}

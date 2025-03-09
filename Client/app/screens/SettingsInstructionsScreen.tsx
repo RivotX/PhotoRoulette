@@ -1,15 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Linking,
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Platform,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image, Linking, Dimensions, ScrollView, StyleSheet, Platform } from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import CustomCarousel from "@/app/components/CustomCarousel/CustomCarousel";
@@ -66,11 +56,14 @@ const SettingsInstructionsScreen: React.FC = () => {
             ref={carouselRef}
             data={images}
             renderItem={({ item }) => (
-              <View style={Platform.OS === "ios" ? styles.iosContainer : styles.Androidcontainer}>
+              <View style={styles.carouselItemContainer}>
                 <Image source={item.source} style={styles.image} resizeMode="contain" />
               </View>
             )}
             disablePagination={false}
+            widthBoundaryForPagination={screenWidth * 0.85}
+            decelerationRate="fast"
+            snapToInterval={screenWidth * 0.85}
           />
         </View>
         <View style={tw`flex-row justify-between w-full px-5`}>
@@ -87,15 +80,9 @@ const SettingsInstructionsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  Androidcontainer: {
-    width: screenWidth * 0.8,
+  carouselItemContainer: {
+    width: screenWidth * 0.85,
     height: screenHeight * 0.5,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  iosContainer: {
-    width: screenWidth * 0.9,
-    height: screenHeight * 0.6,
     alignItems: "center",
     marginBottom: 20,
   },

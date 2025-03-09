@@ -65,6 +65,16 @@ export interface CustomCarouselProps
    *
    */
   isEndReached?: (endReached: boolean) => void;
+  /**
+   * Controls how quickly the scroll view decelerates after the user lifts their finger
+   * Use "fast" to restrict to single item scrolling
+   */
+  decelerationRate?: "fast" | "normal" | number;
+  
+  /**
+   * The width of each item to snap to. Should match the width of your items
+   */
+  snapToInterval?: number;
 }
 
 export interface PressablePaginationProps {
