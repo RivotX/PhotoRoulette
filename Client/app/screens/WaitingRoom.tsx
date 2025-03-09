@@ -16,21 +16,12 @@ import * as Animatable from "react-native-animatable";
 import * as Clipboard from "expo-clipboard";
 import * as ImagePicker from "expo-image-picker";
 import AlertModal from "../components/modals/AlertModal";
+import { Ionicons } from "@expo/vector-icons";
 
 const WaitingRoom = ({}) => {
   const navigation = useRouter();
-  const {
-    startSocket,
-    endSocket,
-    gameCode,
-    setGameCode,
-    setPlayersProvider,
-    socket,
-    username,
-    setRoundsOfGame,
-    roundsOfGame,
-    setPlantedPhotoUri,
-  } = useGameContext();
+  const { startSocket, endSocket, gameCode, setGameCode, setPlayersProvider, socket, username, setRoundsOfGame, roundsOfGame, setPlantedPhotoUri } =
+    useGameContext();
   const [players, setPlayers] = useState<Player[]>([]);
   const [isInGame, setIsInGame] = useState<boolean>(false);
   const { backgroundImage } = useBackgroundContext();
@@ -261,12 +252,7 @@ const WaitingRoom = ({}) => {
         <StatusBar hidden />
 
         {/* Fondo desenfocado */}
-        <ImageBlur
-          src={backgroundImage}
-          blurRadius={10}
-          blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />}
-          style={{ flex: 1 }}
-        />
+        <ImageBlur src={backgroundImage} blurRadius={10} blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />} style={{ flex: 1 }} />
       </View>
       <CloseButton onPress={handleLeaveGame} />
 
@@ -285,10 +271,7 @@ const WaitingRoom = ({}) => {
 
       {/* Copy notification overlay - centered on screen */}
       {showCopyMessage && (
-        <Animatable.View
-          animation="fadeIn"
-          style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}
-        >
+        <Animatable.View animation="fadeIn" style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}>
           <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
             <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
             <Text
@@ -305,10 +288,7 @@ const WaitingRoom = ({}) => {
 
       {/* Photo Added notification overlay */}
       {showPhotoAddedMessage && (
-        <Animatable.View
-          animation="fadeIn"
-          style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}
-        >
+        <Animatable.View animation="fadeIn" style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}>
           <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
             <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
             <Text
@@ -336,9 +316,7 @@ const WaitingRoom = ({}) => {
       )}
 
       {/* Main content - only visible when not loading */}
-      <View
-        style={tw`flex size-full justify-center items-center relative pt-20 pb-10 ${isLoading ? "opacity-0" : "opacity-100"}`}
-      >
+      <View style={tw`flex size-full justify-center items-center relative pt-20 pb-10 ${isLoading ? "opacity-0" : "opacity-100"}`}>
         <Text
           style={[
             tw`text-2xl text-white font-bold mb-4`,
@@ -359,7 +337,7 @@ const WaitingRoom = ({}) => {
             {gameCode}
           </Text>
           <TouchableOpacity onPress={copyGameCodeToClipboard} style={tw`absolute right-[-50px] p-2`}>
-            <Icon name="clipboard" size={24} color="white" />
+            <Ionicons name="copy-outline" size={30} color="white" />
           </TouchableOpacity>
         </View>
 
@@ -378,25 +356,13 @@ const WaitingRoom = ({}) => {
             style={tw`h-16 w-16 rounded-full ${hasPlantedPhoto ? "bg-green-600" : "bg-[#85004e]"} 
             justify-center items-center shadow-md`}
           >
-            <Icon
-              name={hasPlantedPhoto ? "check" : "camera"}
-              size={26}
-              color="white"
-              style={hasPlantedPhoto ? tw`ml-0.5` : tw``}
-            />
+            <Icon name={hasPlantedPhoto ? "check" : "camera"} size={26} color="white" style={hasPlantedPhoto ? tw`ml-0.5` : tw``} />
           </View>
-          <Text style={tw`mt-1 text-white font-medium text-center text-sm`}>
-            {hasPlantedPhoto ? "Photo Planted" : "Plant Photo"}
-          </Text>
+          <Text style={tw`mt-1 text-white font-medium text-center text-sm`}>{hasPlantedPhoto ? "Photo Planted" : "Plant Photo"}</Text>
         </TouchableOpacity>
 
         {/* Player list - give it flex-1 to take available space */}
-        <FlatList
-          data={players}
-          renderItem={renderPlayer}
-          keyExtractor={(item) => item.socketId}
-          style={tw`w-full px-4 flex-1`}
-        />
+        <FlatList data={players} renderItem={renderPlayer} keyExtractor={(item) => item.socketId} style={tw`w-full px-4 flex-1`} />
 
         {/* Bottom controls section - use flex instead of absolute */}
         <View style={tw`w-full px-4 mt-4`}>
@@ -413,10 +379,7 @@ const WaitingRoom = ({}) => {
                   </TouchableOpacity>
                 ))}
               </View>
-              <TouchableOpacity
-                style={tw`bg-[#911284] p-4 rounded-lg w-full flex justify-center items-center mb-2`}
-                onPress={handleStartGame}
-              >
+              <TouchableOpacity style={tw`bg-[#911284] p-4 rounded-lg w-full flex justify-center items-center mb-2`} onPress={handleStartGame}>
                 <Text style={tw`text-white font-bold text-lg`}>Start Game</Text>
               </TouchableOpacity>
             </>
@@ -451,22 +414,22 @@ const WaitingRoom = ({}) => {
 
       {/* Dialog modal - unchanged */}
       <AlertModal
-  visible={dialogVisible}
-  title="Confirm Remove Player"
-  message="Are you sure you want to remove"
-  highlightedText={`@${selectedPlayer?.username}`}
-  confirmText="Remove"
-  cancelText="Cancel"
-  onConfirm={() => {
-    if (selectedPlayer) {
-      handleRemovePlayer(selectedPlayer.socketId);
-    }
-    setDialogVisible(false);
-  }}
-  onCancel={() => setDialogVisible(false)}
-  confirmButtonColor="bg-red-600"
-  cancelButtonColor="bg-blue-500"
-/>
+        visible={dialogVisible}
+        title="Confirm Remove Player"
+        message="Are you sure you want to remove"
+        highlightedText={`@${selectedPlayer?.username}`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        onConfirm={() => {
+          if (selectedPlayer) {
+            handleRemovePlayer(selectedPlayer.socketId);
+          }
+          setDialogVisible(false);
+        }}
+        onCancel={() => setDialogVisible(false)}
+        confirmButtonColor="bg-red-600"
+        cancelButtonColor="bg-blue-500"
+      />
     </>
   );
 };
