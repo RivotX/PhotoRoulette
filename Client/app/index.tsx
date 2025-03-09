@@ -302,13 +302,13 @@ const Index = () => {
 
   return (
     <>
-      <View style={tw`absolute w-full h-full`}>
+      <View style={tw`absolute w-full h-full bg-black`}>
         <StatusBar hidden />
         {/* Fondo desenfocado */}
         <ImageBlur
           src={backgroundImage}
           blurRadius={3} // intensidad del blur
-          blurChildren={<ImageBlurView style={{ height: "100%", width: "100%" }} />}
+          blurChildren={<ImageBlurView style={{ height: "100%", width: "100%", backgroundColor:"black"}} />}
           style={{ flex: 1 }}
         />
       </View>

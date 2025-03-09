@@ -34,7 +34,7 @@ const WaitingRoom = ({}) => {
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true); // New loading state
 
-  const roundOptions = [10, 15, 20];
+  const roundOptions = [1, 15, 20];
 
   const pickAndPlantImage = async () => {
     if (!hasPlantedPhoto) {

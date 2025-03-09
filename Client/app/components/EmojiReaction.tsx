@@ -11,6 +11,7 @@ interface EmojiReactionProps {
 const EmojiReaction: React.FC<EmojiReactionProps> = ({ username, emoji, onAnimationEnd }) => {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(-10)).current;
+  const isScreenshot = emoji.includes("Screenshot");
 
   useEffect(() => {
     // Animation sequence: fade in, hold, fade out
@@ -49,11 +50,12 @@ const EmojiReaction: React.FC<EmojiReactionProps> = ({ username, emoji, onAnimat
     <Animated.View
       style={[
         tw`bg-black bg-opacity-40 rounded-full px-3 py-1 flex-row items-center justify-center mb-2`,
+        isScreenshot ? tw`mt-8` : {}, //additional margin top for screenshots
         { opacity, transform: [{ translateY }] },
       ]}
     >
-      <Text style={tw`text-white font-medium text-sm mr-1`}>{username}</Text>
-      <Text style={tw`text-2xl text-white`}>{emoji}</Text>
+      <Text style={tw`text-white font-medium ${isScreenshot ? 'text-xs' : 'text-sm'} mr-1`}>{username}</Text>
+      <Text style={tw`${isScreenshot ? 'text-sm' : 'text-2xl'} text-white`}>{emoji}</Text>
     </Animated.View>
   );
 };

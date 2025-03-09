@@ -20,7 +20,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
   const [modalOpacity, setModalOpacity] = useState(1);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const slideAnim = useRef(new Animated.Value(visible ? 0 : 1000)).current;
-
+  const [isHolding, setIsHolding] = useState(false);
   // secondsForButtonPress-300 para asegurar que el boton se presione antes de que inicie la otra ronda
   const SecondsForButtonPressInClient = 3000 - 300;
   const [disabledButton, setDisabledButton] = useState(false);
@@ -73,7 +73,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
         toValue: 0,
         useNativeDriver: true,
       }).start();
-      
+
       setDisabledButton(false);
       timeoutRef.current = setTimeout(() => {
         setDisabledButton(true);
@@ -99,7 +99,7 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
       elementRef.current.setNativeProps({ style: { opacity: 0 } });
       setModalOpacity(0);
       holdButton("button-pressed");
-
+      setIsHolding(true);
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -123,10 +123,10 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
   }
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         tw`absolute inset-0 justify-center items-center bg-black bg-opacity-50 pt-20 pb-16 z-50`,
-        { opacity: modalOpacity, transform: [{ translateY: slideAnim }] }
+        { opacity: modalOpacity, transform: [{ translateY: slideAnim }] },
       ]}
     >
       <Text style={tw`text-xl text-white absolute top-10 font-bold mb-4`}>
@@ -160,7 +160,9 @@ const ScoreModal: React.FC<ScoreModalProps> = ({ visible, onClose, scoreRound, r
       ))}
       {canHold && (
         <TouchableOpacity
-          style={tw`bg-blue-500 absolute ${disabledButton ? "opacity-10" : "opacity-100"} bottom-24 p-4 flex justify-center items-center rounded-lg w-[90%]`}
+          style={tw`bg-blue-600 absolute  opacity-100} 
+          bottom-24 p-4 flex justify-center items-center rounded-xl w-[90%] 
+          border-2 border-blue-400 shadow-lg`}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
           disabled={disabledButton}

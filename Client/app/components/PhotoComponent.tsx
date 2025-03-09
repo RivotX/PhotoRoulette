@@ -32,7 +32,7 @@ const PhotoComponent: React.FC<PhotoComponentProps> = ({ photoUrl, onLongPress, 
   return (
     <>
       {Platform.OS === "ios" && (
-        <View style={tw`absolute w-full h-full`}>
+        <View style={tw`absolute w-full h-full `}>
           <Animated.Image
             source={{ uri: photoUrl }}
             style={[tw`w-full h-full`, { opacity: fadeAnim }]}
@@ -42,7 +42,7 @@ const PhotoComponent: React.FC<PhotoComponentProps> = ({ photoUrl, onLongPress, 
         </View>
       )}
       {Platform.OS === "android" && (
-        <View style={tw`absolute w-full h-full`}>
+        <View style={tw`absolute w-full h-full bg-black`}>
           <ImageBlur
             src={photoUrl}
             blurRadius={50}

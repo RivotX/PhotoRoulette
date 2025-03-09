@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, TouchableOpacity, FlatList, Animated, Dimensions } from "react-native";
 import tw from "twrnc";
 import { ScoreRound } from "@/app/models/interfaces";
@@ -33,7 +33,7 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
         friction: 8,
         useNativeDriver: true,
       }).start();
-      
+
       // Play confetti animation if available
       if (confettiRef.current) {
         confettiRef.current.play();
@@ -123,7 +123,7 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
               <Text style={[tw`text-xl font-bold`, { color: colors.text }]}>{item.username}</Text>
               <View style={tw`flex-row items-center`}>
                 <Icon name="user" size={12} color={index < 3 ? colors.text : "#B0B0B0"} style={tw`mr-1`} />
-                <Text style={[tw`text-xs`, { color: index < 3 ? colors.text : "#B0B0B0" }]}>Player</Text>
+                <Text style={[tw`text-xs`, { color: index < 3 ? colors.text : "#B0B0B0" }]}>{index+1}.º place</Text>
               </View>
             </View>
           </View>
@@ -201,12 +201,14 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
           <Text style={tw`text-3xl font-extrabold text-white tracking-wider`}>FINAL SCORE</Text>
         </View>
 
+        {/* Winner banner */}
         {sortedScores.length > 0 && (
-          <View style={tw`items-center mt-6 mb-4`}>
+          <View style={tw`items-center mt-6 mb-4 w-full`}>
             <Animatable.View
-              animation="bounceIn"
+              animation="fadeInUp"
+              useNativeDriver={true}
               style={[
-                tw`px-7 py-3 rounded-full mb-1`,
+                tw`px-7 py-3 rounded-full mb-1 items-center justify-center w-[80%]`,
                 {
                   backgroundColor: "#FBBF24",
                   borderWidth: 2,
@@ -216,10 +218,11 @@ const FinalScoreModal: React.FC<FinalScoreModalProps> = ({ visible, finalScore }
                   shadowOpacity: 0.5,
                   shadowRadius: 5,
                   elevation: 6,
+                  overflow: "hidden",
                 },
               ]}
             >
-              <Text style={tw`text-gray-900 text-xl font-black tracking-wide`}>{sortedScores[0].username} WINS!</Text>
+              <Text style={tw`text-gray-900 text-xl font-black tracking-wide text-center`}>{sortedScores[0].username} WINS!</Text>
             </Animatable.View>
           </View>
         )}
