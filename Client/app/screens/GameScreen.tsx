@@ -305,9 +305,7 @@ const GameScreen = () => {
         {PhotoToShow ? (
           <>
             <PhotoComponent photoUrl={PhotoToShow} />
-            <AnimatableView ref={elementRef} style={tw`z-8 absolute size-full`}>
-              {/* Emoji reactions container */}
-              <View style={tw`absolute top-4 left-4 z-90`}>
+            <View style={tw`absolute top-4 left-4 z-90`}>
                 {emojiReactions.map((reaction) => (
                   <EmojiReaction
                     key={reaction.id}
@@ -317,6 +315,9 @@ const GameScreen = () => {
                   />
                 ))}
               </View>
+            <AnimatableView ref={elementRef} style={tw`z-8 absolute size-full`}>
+              {/* Emoji reactions container */}
+              
 
               <View style={tw`absolute size-full top-15 left-0 right-0 p-4`}>
                 <ProgressBar key={progressKey} duration={timeForAnswer} />
