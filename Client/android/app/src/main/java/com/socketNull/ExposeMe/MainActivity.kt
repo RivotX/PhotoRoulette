@@ -1,4 +1,4 @@
-package com.anonymous.PhotoRoulette
+package com.socketNull.ExposeMe
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

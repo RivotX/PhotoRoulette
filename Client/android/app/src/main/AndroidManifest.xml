@@ -26,8 +26,8 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
-        <data android:scheme="com.anonymous.PhotoRoulette"/>
-        <data android:scheme="exp+photoroulette"/>
+        <data android:scheme="com.socketNull.ExposeMe"/>
+        <data android:scheme="exp+exposeme"/>
       </intent-filter>
     </activity>
   </application>

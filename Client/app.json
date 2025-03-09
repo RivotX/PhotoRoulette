@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "PhotoRoulette",
-    "slug": "PhotoRoulette",
+    "name": "ExposeMe",
+    "slug": "ExposeMe",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,14 +10,14 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.PhotoRoulette"
+      "bundleIdentifier": "com.socketNull.ExposeMe"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.PhotoRoulette"
+      "package": "com.socketNull.ExposeMe"
     },
     "web": {
       "bundler": "metro",

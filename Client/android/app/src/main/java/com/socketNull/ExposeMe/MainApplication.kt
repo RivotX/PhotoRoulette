@@ -1,4 +1,4 @@
-package com.anonymous.PhotoRoulette
+package com.socketNull.ExposeMe
 
 import android.app.Application
 import android.content.res.Configuration
