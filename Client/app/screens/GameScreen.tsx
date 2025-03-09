@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TouchableOpacity, StatusBar, FlatList, BackHandler, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar, FlatList, BackHandler } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useGameContext } from "../providers/GameContext";
-import { Player, RandomPhotoResponse, Room, ScoreRound } from "../models/interfaces";
+import { Player, RandomPhotoResponse, ScoreRound } from "../models/interfaces";
 import { usePhotoContext } from "../providers/PhotoContext";
 import getEnvVars from "@/config";
 import PhotoComponent from "../components/PhotoComponent";
-import * as Animatable from "react-native-animatable"; // Import the full Animatable namespace
 import { View as AnimatableView } from "react-native-animatable";
 import ScoreModal from "../components/modals/ScoreModal";
 import ProgressBar from "../components/ProgressBar";
@@ -29,7 +28,6 @@ interface EmojiReactionData {
 // Available emojis
 
 const GameScreen = () => {
-  const router = useRouter();
   const {
     username,
     gameCode,

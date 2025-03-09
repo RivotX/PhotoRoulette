@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, Animated } from "react-native";
+import { Text, Animated } from "react-native";
 import tw from "twrnc";
 
 interface EmojiReactionProps {

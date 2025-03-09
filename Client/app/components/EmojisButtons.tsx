@@ -2,7 +2,7 @@ import { ScrollView, Text, TouchableOpacity, View, Platform } from "react-native
 import tw from "twrnc";
 import { useGameContext } from "../providers/GameContext";
 import { useEffect } from "react";
-import * as ScreenCapture from 'expo-screen-capture';
+import * as ScreenCapture from "expo-screen-capture";
 
 function EmojisButton() {
   const EMOJIS = ["😂", "😮", "❓", "😳", "🔥", "😭", "🤡", "😡"];
@@ -25,20 +25,17 @@ function EmojisButton() {
   useEffect(() => {
     const subscribeToScreenCapture = async () => {
       // Only available on iOS and Android
-      if (Platform.OS === 'ios' || Platform.OS === 'android') {
-        // Activate the listener
-        await ScreenCapture.preventScreenCaptureAsync();
-        
+      if (Platform.OS === "ios" || Platform.OS === "android") {
+
         // Add screenshot listener
         const subscription = ScreenCapture.addScreenshotListener(() => {
           // When screenshot is detected, send the screenshot emoji reaction
-          sendEmojiReaction("📸 Screenshot taken!");
+          sendEmojiReaction("📸 Took a Screenshot");
         });
-        
+
         return () => {
           // Cleanup
           subscription.remove();
-          ScreenCapture.allowScreenCaptureAsync();
         };
       }
     };
