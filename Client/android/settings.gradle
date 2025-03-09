@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'ExposeMe'
+rootProject.name = 'Expose Me'
 
 dependencyResolutionManagement {
   versionCatalogs {
