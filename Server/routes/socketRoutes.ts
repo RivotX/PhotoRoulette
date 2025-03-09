@@ -344,7 +344,9 @@ io.on("connection", (socket: Socket) => {
               lastAnswerCorrect: player.lastAnswerCorrect,
               lastGuess: player.lastGuess,
             }));
-            io.to(room.gameCode).emit("score-round", scores);
+
+            const OrderByPoints = scores.sort((a, b) => b.points - a.points);
+            io.to(room.gameCode).emit("score-round", OrderByPoints);
           }, SecondsForShowScore);
         } else {
           // Original logic for random photo selection
