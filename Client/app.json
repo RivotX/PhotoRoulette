@@ -10,29 +10,24 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.socketNull.ExposeMe"
+      "bundleIdentifier": "com.socketNull.ExposeMe",
+      "icon": "./assets/images/adaptive-icon.png"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ff73b7"
       },
       "package": "com.socketNull.ExposeMe"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favadaptive-icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-adaptive-icon.png",
+          "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
-          "resizeMode": "cover",
-          "backgroundColor": "#f4c6db"
+          "resizeMode": "cover"
         }
       ]
     ],
