@@ -263,7 +263,7 @@ const WaitingRoom = ({}) => {
             <Animatable.View animation="rotate" iterationCount="infinite" easing="linear" duration={1500}>
               <Icon name="spinner" size={40} color="white" />
             </Animatable.View>
-            <Text style={tw`text-white mt-4 text-lg font-bold`}>Creating game room...</Text>
+            <Text style={tw`text-white mt-4 text-lg font-bold`}>Loading game room...</Text>
             <Text style={tw`text-white mt-2 text-sm opacity-70`}>Please wait a moment</Text>
           </View>
         </View>
