@@ -8,8 +8,8 @@ console.log("Socket routes initialized");
 const rooms: Room[] = [];
 const roomTimeouts: { [key: string]: NodeJS.Timeout } = {};
 const TimeToDelete = 30 * 60 * 1000; // 30 minutes
-const SecondsForRound = 11000;
-const SecondsForShowScore = 8000;
+const SecondsForRound = 12000;
+const SecondsForShowScore = 9000;
 const SecondsForButtonPress = SecondsForRound - SecondsForShowScore;
 const SecondsToStart = 1000;
 
