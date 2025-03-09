@@ -9,7 +9,7 @@ interface CloseButtonProps {
 
 const CloseButton: React.FC<CloseButtonProps> = ({ onPress }) => {
   return (
-    <TouchableOpacity style={tw`absolute top-1 right-3 p-2`} onPress={onPress}>
+    <TouchableOpacity style={tw`absolute top-1 right-3 p-2 z-99`} onPress={onPress}>
       <Icon name="close" size={30} color="white" />
     </TouchableOpacity>
   );

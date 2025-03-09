@@ -11,6 +11,7 @@ import { useBackgroundContext } from "@/app/providers/BackgroundContext";
 import { usePhotoContext } from "@/app/providers/PhotoContext";
 import CloseButton from "../components/CloseButton";
 import Icon from "react-native-vector-icons/FontAwesome";
+import AnimatedDot from "@/app/components/AnimatedDot";
 import * as Animatable from "react-native-animatable";
 import * as Clipboard from "expo-clipboard";
 import * as ImagePicker from "expo-image-picker";
@@ -39,6 +40,7 @@ const WaitingRoom = ({}) => {
   const { requestGalleryPermission } = usePhotoContext();
   const [showPhotoAddedMessage, setShowPhotoAddedMessage] = useState<boolean>(false);
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // New loading state
 
   const roundOptions = [10, 15, 20];
 
@@ -119,6 +121,7 @@ const WaitingRoom = ({}) => {
     if (socket && username && !isInGame) {
       console.log("Joining game with code:", gameCode);
       setIsInGame(true);
+      setIsLoading(true); // Start loading when joining
       // Limpiar listeners antes de agregar nuevos
       socket.off("room-of-game");
       socket.off("player-joined");
@@ -131,6 +134,7 @@ const WaitingRoom = ({}) => {
 
       socket.on("room-of-game", (data: RoomOfGameResponse) => {
         console.log("Room data:", data);
+        setIsLoading(false); // Room data received, stop loading
         if (!data.success) {
           console.log("Room not found:", data.message);
           endSocket();
@@ -265,6 +269,19 @@ const WaitingRoom = ({}) => {
       </View>
       <CloseButton onPress={handleLeaveGame} />
 
+      {/* Loading overlay */}
+      {isLoading && (
+        <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-black bg-opacity-50`}>
+          <View style={tw`px-8 py-6 rounded-xl bg-gray-800 flex items-center`}>
+            <Animatable.View animation="rotate" iterationCount="infinite" easing="linear" duration={1500}>
+              <Icon name="spinner" size={40} color="white" />
+            </Animatable.View>
+            <Text style={tw`text-white mt-4 text-lg font-bold`}>Creating game room...</Text>
+            <Text style={tw`text-white mt-2 text-sm opacity-70`}>Please wait a moment</Text>
+          </View>
+        </View>
+      )}
+
       {/* Copy notification overlay - centered on screen */}
       {showCopyMessage && (
         <Animatable.View
@@ -305,7 +322,7 @@ const WaitingRoom = ({}) => {
         </Animatable.View>
       )}
 
-      {/* Loading overlay */}
+      {/* Photo selection */}
       {isSelecting && (
         <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-black bg-opacity-50`}>
           <View style={tw`px-8 py-6 rounded-xl bg-gray-800 flex items-center`}>
@@ -317,7 +334,10 @@ const WaitingRoom = ({}) => {
         </View>
       )}
 
-      <View style={tw`flex size-full justify-center items-center relative pt-20 pb-10`}>
+      {/* Main content - only visible when not loading */}
+      <View
+        style={tw`flex size-full justify-center items-center relative pt-20 pb-10 ${isLoading ? "opacity-0" : "opacity-100"}`}
+      >
         <Text
           style={[
             tw`text-2xl text-white font-bold mb-4`,
@@ -370,11 +390,11 @@ const WaitingRoom = ({}) => {
         </TouchableOpacity>
 
         {/* Player list - give it flex-1 to take available space */}
-        <FlatList 
-          data={players} 
-          renderItem={renderPlayer} 
-          keyExtractor={(item) => item.socketId} 
-          style={tw`w-full px-4 flex-1`} 
+        <FlatList
+          data={players}
+          renderItem={renderPlayer}
+          keyExtractor={(item) => item.socketId}
+          style={tw`w-full px-4 flex-1`}
         />
 
         {/* Bottom controls section - use flex instead of absolute */}
@@ -403,49 +423,10 @@ const WaitingRoom = ({}) => {
             <View style={tw`p-4 w-full flex flex-col justify-center items-center`}>
               <View style={tw`flex flex-row justify-center opacity-70 items-center mb-2`}>
                 <Text style={tw`text-white`}>{players.length < 2 ? "Waiting for players" : "Waiting host"}</Text>
-                <View style={tw`flex-row loadinganimation`}>
-                  <Animatable.Text
-                    animation={{
-                      0: { translateY: 0 },
-                      0.4: { translateY: -5 },
-                      0.8: { translateY: 0 },
-                      1: { translateY: 0 },
-                    }}
-                    iterationCount="infinite"
-                    direction="alternate"
-                    delay={0}
-                    style={tw`text-white`}
-                  >
-                    .
-                  </Animatable.Text>
-                  <Animatable.Text
-                    animation={{
-                      0: { translateY: 0 },
-                      0.4: { translateY: -5 },
-                      0.8: { translateY: 0 },
-                      1: { translateY: 0 },
-                    }}
-                    iterationCount="infinite"
-                    direction="alternate"
-                    delay={200}
-                    style={tw`text-white`}
-                  >
-                    .
-                  </Animatable.Text>
-                  <Animatable.Text
-                    animation={{
-                      0: { translateY: 0 },
-                      0.4: { translateY: -5 },
-                      0.8: { translateY: 0 },
-                      1: { translateY: 0 },
-                    }}
-                    iterationCount="infinite"
-                    direction="alternate"
-                    delay={400}
-                    style={tw`text-white`}
-                  >
-                    .
-                  </Animatable.Text>
+                <View style={tw`flex-row`}>
+                  <AnimatedDot delay={0} />
+                  <AnimatedDot delay={200} />
+                  <AnimatedDot delay={400} />
                 </View>
               </View>
 
@@ -499,4 +480,3 @@ const WaitingRoom = ({}) => {
 };
 
 export default WaitingRoom;
-
