@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, TouchableOpacity, StatusBar, Text } from "react-native";
+import { View, TouchableOpacity, StatusBar, Text, BackHandler } from "react-native";
 import * as Animatable from "react-native-animatable";
 import tw from "twrnc";
 import { usePhotoContext } from "@/app/providers/PhotoContext";
@@ -30,9 +30,16 @@ const OwnPhotos = () => {
 
     checkPermissions();
 
+    // Add hardware back button handler
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+      router.replace("/");
+      return true; // Prevents default back button behavior
+    });
+
     return () => {
       console.log("OwnPhotos unmounted photoUri:", photoUri);
       setPhotoUri(null);
+      backHandler.remove(); // Clean up the event listener
     };
   }, []);
 
