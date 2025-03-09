@@ -64,9 +64,6 @@ const GameScreen = () => {
   // New emoji reactions state
   const [emojiReactions, setEmojiReactions] = useState<EmojiReactionData[]>([]);
 
-  // Add this to your state variables
-  const [isPlantedPhoto, setIsPlantedPhoto] = useState<boolean>(false);
-
   // Add a state variable to track if we've uploaded the planted photo
   const [plantedPhotoUploaded, setPlantedPhotoUploaded] = useState<boolean>(false);
 
@@ -137,7 +134,6 @@ const GameScreen = () => {
         setPhotoToShow(`${SERVER_URL}${data.photo}`);
         setUsernamePhoto(data.username);
         setRound(data.round);
-        setIsPlantedPhoto(data.isPlanted || false); // Set if this is a planted photo
         console.log("ronda: ", data.round, "recibida");
         setProgressKey((prevKey) => prevKey + 1);
         setTimeout(() => {
@@ -362,19 +358,6 @@ const GameScreen = () => {
               />
             </AnimatableView>
             <EmojisButton />
-
-            {isPlantedPhoto && (
-              <Animatable.View
-                animation="pulse"
-                iterationCount="infinite"
-                duration={1200}
-                style={tw`absolute top-4 left-4 bg-purple-900 bg-opacity-90 px-4 py-2 rounded-full shadow-lg`}
-              >
-                <View style={tw`flex-row items-center`}>
-                  <Text style={tw`text-white text-sm font-bold`}>🎯 Planted Photo</Text>
-                </View>
-              </Animatable.View>
-            )}
           </>
         ) : (
           <View style={tw`flex-1 justify-center items-center`}>
