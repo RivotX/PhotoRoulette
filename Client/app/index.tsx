@@ -12,8 +12,8 @@ import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
 import { ImageBlurView } from "@/app/components/ImageBlur";
 import { useBackHandler } from "@react-native-community/hooks";
 import { useFocusEffect } from "@react-navigation/native";
-import logo from "@/assets/images/icon.png";
-import diceIcon from "@/assets/images/icon.png";
+import logoIndex from "@/assets/images/icon_index.png";
+import diceIcon from "@/assets/images/icon_eye.png";
 import { useBackgroundContext } from "./providers/BackgroundContext";
 import { usePhotoContext } from "@/app/providers/PhotoContext"; // Importa el contexto de fotos
 import { Ionicons } from "@expo/vector-icons";
@@ -314,9 +314,9 @@ const Index = () => {
       </View>
       <View style={tw`flex-1 justify-center items-center `}>
         {/* Logo en la parte superior */}
-        <Animatable.View ref={topLogoRef} animation="slideInDown" duration={600} style={tw`absolute top-[18%]`}>
+        <Animatable.View ref={topLogoRef} animation="slideInDown" duration={600} style={tw`absolute top-[10%]`}>
           <View style={tw` flex-1 items-center`}>
-            <Image source={logo} style={tw`w-20 h-20`} />
+            <Image source={logoIndex} style={tw`w-90 h-50`} />
           </View>
         </Animatable.View>
 
