@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -21,11 +22,14 @@ import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
 import { ImageBlurView } from "@/app/components/ImageBlur";
 import { useBackHandler } from "@react-native-community/hooks";
 import { useFocusEffect } from "@react-navigation/native";
-import logoIndex from "@/assets/images/icon_index.png";
+// import logoIndex from "@/assets/images/icon_index.png";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
 import { useBackgroundContext } from "./providers/BackgroundContext";
 import { usePhotoContext } from "@/app/providers/PhotoContext"; // Importa el contexto de fotos
 import { Ionicons } from "@expo/vector-icons";
 
+SplashScreen.preventAutoHideAsync();
 // Animaciones personalizadas para React Native Animatable
 Animatable.initializeRegistryWithDefinitions({
   slideInDownBounce: {
@@ -149,6 +153,10 @@ Animatable.initializeRegistryWithDefinitions({
 });
 
 const Index = () => {
+  // Move useFonts to the top, before any conditional rendering
+  const [loaded, error] = useFonts({
+    IconFont: require("@/assets/fonts/b.otf"),
+  });
   const router = useRouter();
   const params = useLocalSearchParams();
   const message = params?.message;
@@ -168,6 +176,13 @@ const Index = () => {
   const textRef = useRef<Animatable.View & View>(null);
   const topLogoRef = useRef<Animatable.View & View>(null);
   const { requestGalleryPermission } = usePhotoContext(); // Usa el contexto de fotos
+
+  // Handle font loading first
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
 
   // useEffect para cargar datos iniciales
   useEffect(() => {
@@ -285,6 +300,20 @@ const Index = () => {
     }, 500);
   };
 
+  // Manejar la acción de cancelar unirse a un juego
+  const handleCancelJoinGame = () => {
+    console.log("CANCEL JOIN GAME");
+    setIsJoiningGame(false);
+    setShouldAnimateCreateGameButton(true);
+    (usernameInputRef.current as any)?.slideInDownBounce?.(600);
+    (JoingameButtonRef.current as any)?.slideInUpBounce?.(600);
+  };
+
+  // Show loading indicator while fonts are loading
+  if (!loaded && !error) {
+    return null;
+  }
+
   // Mostrar un indicador de carga si los datos iniciales aún se están cargando
   if (isLoading) {
     return (
@@ -298,15 +327,6 @@ const Index = () => {
   if (!hasSeenInitialScreen) {
     return <InitialScreen />;
   }
-
-  // Manejar la acción de cancelar unirse a un juego
-  const handleCancelJoinGame = () => {
-    console.log("CANCEL JOIN GAME");
-    setIsJoiningGame(false);
-    setShouldAnimateCreateGameButton(true);
-    (usernameInputRef.current as any)?.slideInDownBounce?.(600);
-    (JoingameButtonRef.current as any)?.slideInUpBounce?.(600);
-  };
 
   return (
     <>
@@ -322,13 +342,26 @@ const Index = () => {
       </View>
       <View style={tw`flex-1 justify-center items-center `}>
         {/* Logo en la parte superior */}
-        <Animatable.View ref={topLogoRef} animation="slideInDown" duration={600} style={tw`absolute top-[8%]`}>
-          <View style={tw` flex-1 items-center`}>
-            <Image source={logoIndex} style={tw`w-90 h-70`} />
+        <Animatable.View ref={topLogoRef} animation="slideInDown" duration={600} style={tw`absolute top-[10%]`}>
+          <View style={tw` flex-1 items-center justify-center w-70 h-70`}>
+            <Text
+              style={[
+                tw`text-white text-8xl z-10 font-bold text-center pt-5`,
+                {
+                  fontFamily: "IconFont",
+                  textShadowColor: "rgba(0, 0, 0, 0.5)",
+                  textShadowOffset: { width: 10, height: 5 },
+                  textShadowRadius: 3,
+                },
+              ]}
+            >
+              Expose Me
+            </Text>
+            <Image source={require("@/assets/images/carasonrojada.png")} style={tw` z-4 top-[-10] right-[-20] size-[70%] absolute`} resizeMode="contain" />
           </View>
         </Animatable.View>
 
-        <View style={tw`px-2 flex-1 w-full justify-center items-center`}>
+        <View style={tw`px-2 flex-1 w-full justify-center pt-[18%] items-center`}>
           {/* Mostrar el formulario de ingreso de usuario y botones si no se está uniendo a un juego */}
           {!isJoiningGame && (
             <>
@@ -337,10 +370,10 @@ const Index = () => {
                 ref={usernameInputRef}
                 animation={shouldAnimateCreateGameButton ? "fadeIn" : undefined}
                 duration={600}
-                style={tw`w-full`}
+                style={tw`w-full flex items-center justify-center mb-4 relative`}
               >
                 <TextInput
-                  style={tw`h-15 rounded-xl mb-4 w-full bg-white font-bold text-center text-lg`}
+                  style={tw`h-15 rounded-2xl  w-full bg-white font-bold text-center text-lg`}
                   placeholder="Enter username"
                   placeholderTextColor="#3333"
                   value={username || ""}
@@ -348,15 +381,17 @@ const Index = () => {
                   maxLength={15}
                 />
                 {username && username.length > 0 && (
-                  <TouchableOpacity
-                    style={tw`absolute right-4 top-4.5 bg-gray-200 h-8 w-8 rounded-full flex items-center justify-center`}
-                    onPress={() => {
-                      handleUsernameChange("");
-                      Keyboard.dismiss();
-                    }}
-                  >
-                    <Ionicons name="close-outline" size={24} color="black" />
-                  </TouchableOpacity>
+                  <View style={tw`absolute flex items-center justify-center h-full absolute right-4`}>
+                    <TouchableOpacity
+                      style={tw` justify-center  bg-gray-200 h-8 w-8 rounded-full flex items-center justify-center`}
+                      onPress={() => {
+                        handleUsernameChange("");
+                        Keyboard.dismiss();
+                      }}
+                    >
+                      <Ionicons name="close-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  </View>
                 )}
               </Animatable.View>
 
@@ -367,9 +402,16 @@ const Index = () => {
                 duration={600}
                 style={tw`w-full`}
               >
-                <TouchableOpacity style={tw`bg-[#e73a35] p-4 rounded-xl mb-4 w-full `} onPress={handleCreateGame}>
-                  <Text style={tw`text-white text-center text-lg font-bold`}>Create Game</Text>
-                </TouchableOpacity>
+                <LinearGradient
+                  colors={["#9d0420", "#e9042e", "#9d0420"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={tw`p-4 rounded-2xl mb-4 w-full`}
+                >
+                  <TouchableOpacity style={tw`w-full`} onPress={handleCreateGame}>
+                    <Text style={tw`text-white text-center text-lg font-bold`}>Create Game</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
               </Animatable.View>
 
               {/* Botón para unirse a un juego */}
@@ -379,9 +421,16 @@ const Index = () => {
                 duration={600}
                 style={tw`w-full`}
               >
-                <TouchableOpacity style={tw`bg-[#e73a35] p-4 rounded-xl mb-4 w-full `} onPress={handleJoinGame}>
-                  <Text style={tw`text-white text-center text-lg font-bold`}>Join Game</Text>
-                </TouchableOpacity>
+                <LinearGradient
+                  colors={["#9d0420", "#e9042e", "#9d0420"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={tw`p-4 rounded-2xl mb-4 w-full`}
+                >
+                  <TouchableOpacity onPress={handleJoinGame}>
+                    <Text style={tw`text-white text-center text-lg font-bold`}>Join Game</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
               </Animatable.View>
             </>
           )}
@@ -391,10 +440,15 @@ const Index = () => {
             <TouchableWithoutFeedback onPress={handleCancelJoinGame}>
               <View style={tw`flex-1 w-full justify-center items-center`}>
                 {/* Input para ingresar el código del juego */}
-                <Animatable.View ref={gameCodeAnimRef} animation="slideInDownBounce" duration={600} style={tw`w-full `}>
+                <Animatable.View
+                  ref={gameCodeAnimRef}
+                  animation="slideInDownBounce"
+                  duration={600}
+                  style={tw`w-full mb-4 relative`}
+                >
                   <TextInput
                     ref={gameCodeInputRef}
-                    style={tw`p-4 rounded-xl mb-4 w-full bg-white text-center text-lg font-bold`}
+                    style={tw`p-4 rounded-xl  w-full bg-white text-center text-lg font-bold`}
                     placeholder="Enter game code"
                     placeholderTextColor="#3333"
                     value={gameCode || ""}
@@ -403,23 +457,32 @@ const Index = () => {
                     maxLength={6}
                   />
                   {gameCode && gameCode.length > 0 && (
-                    <TouchableOpacity
-                      style={tw`absolute right-4 top-4.5 bg-gray-200 h-8 w-8 rounded-full flex items-center justify-center`}
-                      onPress={() => {
-                        setGameCode("");
-                        Keyboard.dismiss();
-                      }}
-                    >
-                      <Ionicons name="close-outline" size={24} color="black" />
-                    </TouchableOpacity>
+                    <View style={tw`absolute right-4 h-full flex justify-center items-center`}>
+                      <TouchableOpacity
+                        style={tw`  bg-gray-200 h-8 w-8 rounded-full flex items-center justify-center`}
+                        onPress={() => {
+                          setGameCode("");
+                          Keyboard.dismiss();
+                        }}
+                      >
+                        <Ionicons name="close-outline" size={24} color="black" />
+                      </TouchableOpacity>
+                    </View>
                   )}
                 </Animatable.View>
 
                 {/* Botón para buscar una sala */}
                 <Animatable.View animation="slideInUpBounce" duration={600} style={tw`w-full`}>
-                  <TouchableOpacity style={tw`bg-[#e73a35] p-4 rounded-xl mb-4 w-full `} onPress={handleSearchRoom}>
-                    <Text style={tw`text-white text-center text-lg font-bold`}>Search Room</Text>
-                  </TouchableOpacity>
+                  <LinearGradient
+                    colors={["#9d0420", "#e9042e", "#9d0420"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={tw`p-4 rounded-2xl mb-4 w-full`}
+                  >
+                    <TouchableOpacity style={tw` w-full `} onPress={handleSearchRoom}>
+                      <Text style={tw`text-white text-center text-lg font-bold`}>Search Room</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
                 </Animatable.View>
               </View>
             </TouchableWithoutFeedback>

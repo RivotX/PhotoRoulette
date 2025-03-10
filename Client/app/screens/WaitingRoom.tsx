@@ -31,6 +31,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ChatMessage from "@/app/components/IngameComunication/ChatMessage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SuccessAlert from "@/app/components/SuccessAlert";
+import { LinearGradient } from "expo-linear-gradient";
 
 // Define chat message interface
 interface ChatMessageType {
@@ -335,23 +336,30 @@ const WaitingRoom = ({}) => {
   };
 
   const renderPlayer = ({ item }: { item: Player }) => (
-    <TouchableOpacity
-      onPress={() => {
-        if (players[0].username === username && item.username !== username) {
-          confirmRemovePlayer(item);
-        }
-      }}
-      style={tw`relative bg-[#ff8605] p-4 rounded-full mb-2 flex-row items-center`}
+    <LinearGradient
+      colors={["#fe5436", "#fe3a18", "#eb2200"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={tw`rounded-2xl mb-4 w-full p-4 rounded-full mb-2`}
     >
-      {/* Left side - host/user icon */}
-      <View style={tw`absolute left-6 flex-row items-center`}>
-        {item.isHost && <Icon name="star" size={20} color="yellow" style={tw`mr-2`} />}
-        {item.username === username && <Icon name="user" size={20} color="white" />}
-      </View>
+      <TouchableOpacity
+        onPress={() => {
+          if (players[0].username === username && item.username !== username) {
+            confirmRemovePlayer(item);
+          }
+        }}
+        style={tw`relative   flex-row items-center`}
+      >
+        {/* Left side - host/user icon */}
+        <View style={tw`absolute left-6 flex-row items-center`}>
+          {item.isHost && <Icon name="star" size={20} color="yellow" style={tw`mr-2`} />}
+          {item.username === username && <Icon name="user" size={20} color="white" />}
+        </View>
 
-      {/* Center - username */}
-      <Text style={tw`text-white text-lg mx-auto font-bold`}>{item.username}</Text>
-    </TouchableOpacity>
+        {/* Center - username */}
+        <Text style={tw`text-white text-lg mx-auto font-bold`}>{item.username}</Text>
+      </TouchableOpacity>
+    </LinearGradient>
   );
 
   const isHost = players.length > 0 && players[0].username === username;
@@ -488,19 +496,23 @@ const WaitingRoom = ({}) => {
                     {roundOptions.map((rounds) => (
                       <TouchableOpacity
                         key={rounds}
-                        style={tw`${roundsOfGame === rounds ? "bg-red-600 border border-white" : "bg-red-700"} p-3 rounded-lg mx-2 mb-2`}
+                        style={tw`${roundsOfGame === rounds ? "bg-red-600 border border-[#fe8b77]" : "bg-red-700"} p-3 rounded-lg mx-2 mb-2`}
                         onPress={() => handleSetRounds(rounds)}
                       >
                         <Text style={tw`text-white`}>{rounds} Rounds</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
-                  <TouchableOpacity
-                    style={tw`bg-red-600 p-4 rounded-lg w-full flex justify-center items-center mb-2`}
-                    onPress={handleStartGame}
+                  <LinearGradient
+                    colors={["#9d0420", "#e9042e", "#9d0420"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={tw`rounded-2xl mb-4 p-4 rounded-lg w-full p-4  mb-2 rounded-full mb-2`}
                   >
-                    <Text style={tw`text-white font-bold text-lg`}>Start Game</Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity style={tw` w-full flex justify-center items-center`} onPress={handleStartGame}>
+                      <Text style={tw`text-white font-bold text-lg`}>Start Game</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
                 </>
               ) : (
                 <View style={tw`p-2 w-full flex flex-col justify-center items-center`}>
