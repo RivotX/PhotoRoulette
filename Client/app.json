@@ -23,7 +23,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ff73b7"
+        "backgroundColor": "#d00000"
       },
       "package": "com.socketNull.ExposeMe"
     },
