@@ -307,6 +307,7 @@ const WaitingRoom = ({}) => {
   };
 
   const handleSetRounds = (rounds: number) => {
+    setRoundsOfGame(rounds);
     if (socket) {
       socket.emit("set-rounds", { gameCode, rounds });
     }
@@ -349,7 +350,7 @@ const WaitingRoom = ({}) => {
       </View>
 
       {/* Center - username */}
-      <Text style={tw`text-white text-lg mx-auto`}>{item.username}</Text>
+      <Text style={tw`text-white text-lg mx-auto font-bold`}>{item.username}</Text>
     </TouchableOpacity>
   );
 
@@ -454,8 +455,8 @@ const WaitingRoom = ({}) => {
               {/* Plant Photo Button */}
               <TouchableOpacity onPress={pickAndPlantImage} style={tw`mb-4 items-center`} disabled={isSelecting}>
                 <View
-                  style={tw`h-16 w-16 rounded-full ${hasPlantedPhoto ? "bg-green-600" : "bg-[#85004e]"} 
-                justify-center items-center shadow-md`}
+                  style={tw`h-16 w-16 rounded-full ${hasPlantedPhoto ? "bg-green-600" : "bg-black/40"} flex
+                justify-center items-center`}
                 >
                   <Icon
                     name={hasPlantedPhoto ? "check" : "camera"}
@@ -487,7 +488,7 @@ const WaitingRoom = ({}) => {
                     {roundOptions.map((rounds) => (
                       <TouchableOpacity
                         key={rounds}
-                        style={tw`${roundsOfGame === rounds ? "bg-[#85004e]" : "bg-[#5f0437]"} p-3 rounded-lg mx-2 mb-2`}
+                        style={tw`${roundsOfGame === rounds ? "bg-red-600 border border-white" : "bg-red-700"} p-3 rounded-lg mx-2 mb-2`}
                         onPress={() => handleSetRounds(rounds)}
                       >
                         <Text style={tw`text-white`}>{rounds} Rounds</Text>
@@ -495,7 +496,7 @@ const WaitingRoom = ({}) => {
                     ))}
                   </View>
                   <TouchableOpacity
-                    style={tw`bg-[#85004e] p-4 rounded-lg w-full flex justify-center items-center mb-2`}
+                    style={tw`bg-red-600 p-4 rounded-lg w-full flex justify-center items-center mb-2`}
                     onPress={handleStartGame}
                   >
                     <Text style={tw`text-white font-bold text-lg`}>Start Game</Text>
@@ -550,7 +551,7 @@ const WaitingRoom = ({}) => {
                 onChangeText={setChatMessage}
                 placeholder="Type a message..."
                 placeholderTextColor="#999"
-                style={tw`flex-1 bg-gray-800 text-white px-4 py-3 rounded-full mr-2`}
+                style={tw`flex-1 bg-gray-800/90 text-white px-4 py-3 rounded-full mr-2`}
                 maxLength={100}
               />
               <TouchableOpacity

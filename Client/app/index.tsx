@@ -21,7 +21,7 @@ import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
 import { ImageBlurView } from "@/app/components/ImageBlur";
 import { useBackHandler } from "@react-native-community/hooks";
 import { useFocusEffect } from "@react-navigation/native";
-import logoIndex from "@/assets/images/icon_index.png";
+import logoIndex from "@/assets/images/splash-icon.png";
 import diceIcon from "@/assets/images/icon_eye.png";
 import { useBackgroundContext } from "./providers/BackgroundContext";
 import { usePhotoContext } from "@/app/providers/PhotoContext"; // Importa el contexto de fotos
@@ -323,9 +323,9 @@ const Index = () => {
       </View>
       <View style={tw`flex-1 justify-center items-center `}>
         {/* Logo en la parte superior */}
-        <Animatable.View ref={topLogoRef} animation="slideInDown" duration={600} style={tw`absolute top-[10%]`}>
+        <Animatable.View ref={topLogoRef} animation="slideInDown" duration={600} style={tw`absolute top-[8%]`}>
           <View style={tw` flex-1 items-center`}>
-            <Image source={logoIndex} style={tw`w-90 h-50`} />
+            <Image source={logoIndex} style={tw`w-90 h-70`} />
           </View>
         </Animatable.View>
 
@@ -341,7 +341,7 @@ const Index = () => {
                 style={tw`w-full`}
               >
                 <TextInput
-                  style={tw`h-15 rounded-xl mb-4 w-full bg-white text-center text-lg`}
+                  style={tw`h-15 rounded-xl mb-4 w-full bg-white font-bold text-center text-lg`}
                   placeholder="Enter username"
                   placeholderTextColor="#3333"
                   value={username || ""}
