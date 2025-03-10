@@ -27,8 +27,8 @@ const InitialScreen: React.FC = () => {
   };
 
   const androidImages = [
-    { id: 1, source: AudioPermissionIMG, title: "Step 1", description: "Enable permissions in settings." },
-    { id: 2, source: GalleryPermissionIMG, title: "Step 2", description: "Tap on access to Photos and videos." },
+    { id: 1, source: AudioPermissionIMG, title: "Step 1", description: "Tap on Allow." },
+    { id: 2, source: GalleryPermissionIMG, title: "Step 2", description: "Tap on Allow all." },
   ];
 
   // Calculate responsive dimensions for images
@@ -69,7 +69,9 @@ const InitialScreen: React.FC = () => {
                 <CustomCarousel
                   data={androidImages}
                   renderItem={({ item }) => (
-                    <View style={tw`items-center`}>
+                    <View
+                      style={[{ width: screenWidth * 0.8, alignItems: "center", justifyContent: "center", paddingVertical: 10 }]}
+                    >
                       <View style={tw`bg-gray-700 rounded-lg overflow-hidden shadow-lg mb-3 p-1 border border-gray-600`}>
                         <Image source={item.source} style={{ width: imageWidth, height: imageHeight }} resizeMode="contain" />
                       </View>
@@ -78,6 +80,11 @@ const InitialScreen: React.FC = () => {
                     </View>
                   )}
                   disablePagination={false}
+                  widthBoundaryForPagination={screenWidth * 0.8}
+                  decelerationRate="fast"
+                  snapToInterval={screenWidth * 0.8}
+                  indicatorColor={["gray", "white", "gray"]}
+                  paginationContainerStyle={tw`mt-3`}
                 />
               </View>
             ) : (
@@ -85,7 +92,10 @@ const InitialScreen: React.FC = () => {
                 <View style={tw`bg-gray-700 rounded-lg overflow-hidden shadow-lg mb-3 p-1 border border-gray-600`}>
                   <Image source={PermissionRequestIOS} style={{ width: imageWidth, height: imageHeight }} resizeMode="contain" />
                 </View>
-                <Text style={tw`text-sm text-gray-300 text-center`}>Tap "Allow" when prompted to give access to your photos</Text>
+                <Text style={tw`text-sm text-gray-300 text-center`}>
+                  Tap <Text style={tw`text-red-600`}>"Allow all" </Text>
+                  to give access to your photos
+                </Text>
               </View>
             )}
           </View>
