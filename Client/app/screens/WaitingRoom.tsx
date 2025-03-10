@@ -542,7 +542,7 @@ const WaitingRoom = ({}) => {
             <View
               style={[
                 tw`px-2 py-3 flex-row items-center`,
-                Platform.OS === "android" && { paddingBottom: insets.bottom > 0 ? 50 : 40 },
+                { paddingBottom: Platform.OS === "android" ? (insets.bottom > 0 ? 50 : 40) : 20 },
               ]}
             >
               <TextInput
