@@ -21,8 +21,7 @@ import ImageBlur from "@/app/components/ImageBlur/ImageBlur";
 import { ImageBlurView } from "@/app/components/ImageBlur";
 import { useBackHandler } from "@react-native-community/hooks";
 import { useFocusEffect } from "@react-navigation/native";
-import logoIndex from "@/assets/images/splash-icon.png";
-import diceIcon from "@/assets/images/icon_eye.png";
+import logoIndex from "@/assets/images/icon_index.png";
 import { useBackgroundContext } from "./providers/BackgroundContext";
 import { usePhotoContext } from "@/app/providers/PhotoContext"; // Importa el contexto de fotos
 import { Ionicons } from "@expo/vector-icons";
