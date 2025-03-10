@@ -153,10 +153,6 @@ Animatable.initializeRegistryWithDefinitions({
 });
 
 const Index = () => {
-  // Move useFonts to the top, before any conditional rendering
-  const [loaded, error] = useFonts({
-    IconFont: require("@/assets/fonts/b.otf"),
-  });
   const router = useRouter();
   const params = useLocalSearchParams();
   const message = params?.message;
@@ -176,13 +172,6 @@ const Index = () => {
   const textRef = useRef<Animatable.View & View>(null);
   const topLogoRef = useRef<Animatable.View & View>(null);
   const { requestGalleryPermission } = usePhotoContext(); // Usa el contexto de fotos
-
-  // Handle font loading first
-  useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded, error]);
 
   // useEffect para cargar datos iniciales
   useEffect(() => {
@@ -309,11 +298,6 @@ const Index = () => {
     (JoingameButtonRef.current as any)?.slideInUpBounce?.(600);
   };
 
-  // Show loading indicator while fonts are loading
-  if (!loaded && !error) {
-    return null;
-  }
-
   // Mostrar un indicador de carga si los datos iniciales aún se están cargando
   if (isLoading) {
     return (
@@ -346,7 +330,7 @@ const Index = () => {
           <View style={tw` flex-1 items-center justify-center w-70 h-70`}>
             <Text
               style={[
-                tw`text-white text-8xl z-10 font-bold text-center pt-5`,
+                tw`text-white text-8xl z-10 text-center pt-5`,
                 {
                   fontFamily: "IconFont",
                   textShadowColor: "rgba(0, 0, 0, 0.5)",
@@ -357,7 +341,11 @@ const Index = () => {
             >
               Expose Me
             </Text>
-            <Image source={require("@/assets/images/carasonrojada.png")} style={tw` z-4 top-[-10] right-[-20] size-[70%] absolute`} resizeMode="contain" />
+            <Image
+              source={require("@/assets/images/carasonrojada.png")}
+              style={tw` z-4 top-[-10] right-[-20] size-[70%] absolute`}
+              resizeMode="contain"
+            />
           </View>
         </Animatable.View>
 

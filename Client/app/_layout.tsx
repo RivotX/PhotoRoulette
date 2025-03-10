@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { StatusBar } from "react-native"; // Cambia el import
 import "react-native-reanimated";
 import { PhotoProvider } from "@/app/providers/PhotoContext";
-import {GameProvider} from "./providers/GameContext";
+import { GameProvider } from "./providers/GameContext";
 import { BackgroundProvider } from "./providers/BackgroundContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -13,7 +13,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    IconFont: require("@/assets/fonts/b.otf"),
   });
 
   useEffect(() => {

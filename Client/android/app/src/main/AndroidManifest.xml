@@ -27,7 +27,6 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
         <data android:scheme="com.socketNull.ExposeMe"/>
-        <data android:scheme="exp+exposeme"/>
         <data android:scheme="exp+expose-me"/>
       </intent-filter>
     </activity>

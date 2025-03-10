@@ -8,6 +8,13 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "fonts": [
+      {
+        "asset": "./assets/fonts/b.otf",
+        "family": "IconFont"
+      }
+    ],
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.socketNull.ExposeMe",
@@ -20,6 +27,7 @@
       },
       "package": "com.socketNull.ExposeMe"
     },
+    "assetBundlePatterns": ["**/*"],
     "plugins": [
       "expo-router",
       [
