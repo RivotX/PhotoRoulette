@@ -1,5 +1,14 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, TextInput, Image, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+  Image,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -339,6 +348,17 @@ const Index = () => {
                   onChange={(e) => handleUsernameChange(e.nativeEvent.text)}
                   maxLength={15}
                 />
+                {username && username.length > 0 && (
+                  <TouchableOpacity
+                    style={tw`absolute right-4 top-4.5 bg-gray-200 h-8 w-8 rounded-full flex items-center justify-center`}
+                    onPress={() => {
+                      handleUsernameChange("");
+                      Keyboard.dismiss();
+                    }}
+                  >
+                    <Ionicons name="close-outline" size={24} color="black" />
+                  </TouchableOpacity>
+                )}
               </Animatable.View>
 
               {/* Botón para crear un juego */}
@@ -383,6 +403,17 @@ const Index = () => {
                     keyboardType="number-pad"
                     maxLength={6}
                   />
+                  {gameCode && gameCode.length > 0 && (
+                    <TouchableOpacity
+                      style={tw`absolute right-4 top-4.5 bg-gray-200 h-8 w-8 rounded-full flex items-center justify-center`}
+                      onPress={() => {
+                        setGameCode("");
+                        Keyboard.dismiss();
+                      }}
+                    >
+                      <Ionicons name="close-outline" size={24} color="black" />
+                    </TouchableOpacity>
+                  )}
                 </Animatable.View>
 
                 {/* Botón para buscar una sala */}
