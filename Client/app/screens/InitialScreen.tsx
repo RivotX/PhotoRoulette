@@ -53,7 +53,7 @@ const InitialScreen: React.FC = () => {
           {/* Permission highlight box */}
           <View style={tw`bg-indigo-900/30 border border-indigo-700/50 rounded-xl p-4 mb-5`}>
             <Text style={tw`text-sm font-medium text-center text-indigo-300 mb-1`}>Required Permission Setting:</Text>
-            <Text style={tw`text-lg font-bold text-center text-indigo-200`}>"Allow all the time"</Text>
+            <Text style={tw`text-lg font-bold text-center text-indigo-200`}>"Allow all"</Text>
           </View>
 
           {/* Permission instructions */}

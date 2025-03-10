@@ -69,13 +69,14 @@ const SettingsInstructionsScreen: React.FC = () => {
               <Text style={tw`text-2xl font-bold text-amber-400`}>⚠️ Careful ⚠️</Text>
             </View>
             <Text style={tw`text-base text-gray-300 text-center`}>
-              It is necessary to enable permissions in "Allow All the Time" for the application to work properly.
+              For the app to function properly, you need to grant full access to your photos and media. Please follow these
+              instructions.
             </Text>
           </View>
 
           {/* Permission highlight box */}
           <View style={tw`bg-indigo-900/30 border border-indigo-700/50 rounded-xl p-4 mb-5 w-full`}>
-            <Text style={tw`text-lg font-semibold text-center text-indigo-200 mb-1`}>Instructions</Text>
+            <Text style={tw`text-lg font-semibold text-center text-indigo-200 mb-1`}>Always allow all</Text>
           </View>
 
           {/* Carousel container */}
