@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
   FlatList,
   StatusBar,
   TouchableOpacity,
-  Modal,
   Alert,
   TextInput,
   Keyboard,
@@ -31,6 +30,7 @@ import AlertModal from "@/app/components/modals/AlertModal";
 import { Ionicons } from "@expo/vector-icons";
 import ChatMessage from "@/app/components/IngameComunication/ChatMessage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import SuccessAlert from "@/app/components/SuccessAlert";
 
 // Define chat message interface
 interface ChatMessageType {
@@ -41,6 +41,7 @@ interface ChatMessageType {
 
 const WaitingRoom = ({}) => {
   const insets = useSafeAreaInsets();
+  console.log("insets", insets);
   const navigation = useRouter();
   const {
     startSocket,
@@ -380,7 +381,7 @@ const WaitingRoom = ({}) => {
         ))}
       </View>
 
-      {/* Loading overlay and notifications - unchanged */}
+      {/* Loading overlay and notifications */}
       {isLoading && (
         <View style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center bg-black bg-opacity-50`}>
           <View style={tw`px-8 py-6 rounded-xl bg-gray-800 flex items-center`}>
@@ -394,44 +395,10 @@ const WaitingRoom = ({}) => {
       )}
 
       {/* Copy notification overlay - centered on screen */}
-      {showCopyMessage && (
-        <Animatable.View
-          animation="fadeIn"
-          style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}
-        >
-          <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
-            <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
-            <Text
-              style={[
-                tw`text-2xl text-green-400 font-bold`,
-                { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 },
-              ]}
-            >
-              Game code copied!
-            </Text>
-          </View>
-        </Animatable.View>
-      )}
+      {showCopyMessage && <SuccessAlert text="Game code copied" />}
 
       {/* Photo Added notification overlay */}
-      {showPhotoAddedMessage && (
-        <Animatable.View
-          animation="fadeIn"
-          style={tw`absolute top-0 left-0 right-0 bottom-0 z-50 flex justify-center items-center`}
-        >
-          <View style={tw`px-6 py-4 rounded-xl bg-black bg-opacity-60 flex items-center`}>
-            <Icon name="check-circle" size={40} color="#4ade80" style={tw`mb-1`} />
-            <Text
-              style={[
-                tw`text-2xl text-green-400 font-bold`,
-                { textShadowColor: "rgba(0, 0, 0, 0.5)", textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 },
-              ]}
-            >
-              Photo selected for the game!
-            </Text>
-          </View>
-        </Animatable.View>
-      )}
+      {showPhotoAddedMessage && <SuccessAlert text="Photo selected for the game!" />}
 
       {/* Photo selection */}
       {isSelecting && (
@@ -445,13 +412,11 @@ const WaitingRoom = ({}) => {
         </View>
       )}
 
-      {/* Main flex container - restructured for proper layout */}
+      {/* Main container */}
       <View style={tw`flex-1`}>
-        {/* Background color wrapper with proper flex */}
         <View style={tw`flex-1 flex `}>
           {/* Main content area */}
           <View style={tw`flex-1 pt-20 px-4 ${isLoading ? "opacity-0" : "opacity-100"}`}>
-            {/* Your existing content code */}
             <View style={tw`items-center mb-4`}>
               <Text
                 style={[
@@ -530,7 +495,7 @@ const WaitingRoom = ({}) => {
                     ))}
                   </View>
                   <TouchableOpacity
-                    style={tw`bg-[#911284] p-4 rounded-lg w-full flex justify-center items-center mb-2`}
+                    style={tw`bg-[#85004e] p-4 rounded-lg w-full flex justify-center items-center mb-2`}
                     onPress={handleStartGame}
                   >
                     <Text style={tw`text-white font-bold text-lg`}>Start Game</Text>
@@ -570,17 +535,22 @@ const WaitingRoom = ({}) => {
           </View>
           {/* Chat footer */}
           <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "padding"} // Changed to "padding" for Android too
-            keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} // Increased offset for Android
-            style={[tw`w-full`, { paddingBottom: Platform.OS === "android" ? (insets.bottom > 0 ? insets.bottom : 10) : 0 }]}
+            behavior={"padding"}
+            keyboardVerticalOffset={Platform.OS === "android" ? (insets.bottom > 0 ? -40 : 0) : 0}
+            style={tw`w-full`}
           >
-            <View style={tw`px-2 py-3 flex-row items-center`}>
+            <View
+              style={[
+                tw`px-2 py-3 flex-row items-center`,
+                Platform.OS === "android" && { paddingBottom: insets.bottom > 0 ? 50 : 40 },
+              ]}
+            >
               <TextInput
                 value={chatMessage}
                 onChangeText={setChatMessage}
                 placeholder="Type a message..."
                 placeholderTextColor="#999"
-                style={tw`flex-1 bg-gray-800 text-white px-4 py-2 rounded-full mr-2`}
+                style={tw`flex-1 bg-gray-800 text-white px-4 py-3 rounded-full mr-2`}
                 maxLength={100}
               />
               <TouchableOpacity
